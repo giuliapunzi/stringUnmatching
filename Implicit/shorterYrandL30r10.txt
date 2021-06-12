@@ -1,0 +1,11 @@
+
+
+
+================== m=10		h=1000 ==================
+Original input text has length N=6724354 and the number of input L-mers is 6216838
+
+Number of trials: 1000
+
+Number of random successes over 1000 extractions is 381
+Elapsed clock time: 3653948; in seconds 3653
+

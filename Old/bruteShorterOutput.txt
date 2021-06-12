@@ -1,0 +1,70 @@
+================== 	L=30	r=12	m=10	k=1 ==================
+Original input text has length N=6724354 and the number of input strings is 6216838
+
+Number of trials: 100
+
+No string found because at least one projected string set was full
+No string found because at least one projected string set was full
+No string found because at least one projected string set was full
+No string found because at least one projected string set was full
+No string found because at least one projected string set was full
+No string found because at least one projected string set was full
+No string found because at least one projected string set was full
+No string found because at least one projected string set was full
+No string found because at least one projected string set was full
+No string found because at least one projected string set was full
+No string found because at least one projected string set was full
+No string found because at least one projected string set was full
+No string found because at least one projected string set was full
+No string found because at least one projected string set was full
+No string found because at least one projected string set was full
+No string found because at least one projected string set was full
+No string found because at least one projected string set was full
+No string found because at least one projected string set was full
+No string found because at least one projected string set was full
+No string found because at least one projected string set was full
+No string found because at least one projected string set was full
+No string found because at least one projected string set was full
+No string found because at least one projected string set was full
+No string found because at least one projected string set was full
+No string found because at least one projected string set was full
+No string found because at least one projected string set was full
+No string found because at least one projected string set was full
+No string found because at least one projected string set was full
+Number of successes with LSH: 0
+
+Number of random successes: 0
+
+
+
+================== 	L=30	r=10	m=8	k=2 ==================
+Original input text has length N=6724354 and the number of input strings is 6216838
+
+Number of trials: 20
+
+No string found because at least one projected string set was full
+No string found because at least one projected string set was full
+No string found because at least one projected string set was full
+No string found because at least one projected string set was full
+No string found because at least one projected string set was full
+No string found because at least one projected string set was full
+No string found because at least one projected string set was full
+No string found because at least one projected string set was full
+No string found because at least one projected string set was full
+No string found because at least one projected string set was full
+No string found because at least one projected string set was full
+No string found because at least one projected string set was full
+No string found because at least one projected string set was full
+No string found because at least one projected string set was full
+No string found because at least one projected string set was full
+No string found because at least one projected string set was full
+No string found because at least one projected string set was full
+No string found because at least one projected string set was full
+No string found because at least one projected string set was full
+No string found because at least one projected string set was full
+Number of successes with LSH: 0
+
+Number of random successes: 11
+
+
+

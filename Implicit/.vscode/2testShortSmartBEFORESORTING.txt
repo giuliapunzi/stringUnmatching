@@ -1,0 +1,236 @@
+
+
+
+================== 	L=30	r=10	m=8	k=2	h=-1 ==================
+Original input text has length N=2103 and the number of input L-mers is 2032
+
+Hash functions are:
+g_0: 	2	4	5	15	23	24	28	29
+g_1: 	6	9	10	14	16	29
+
+Testing smart enumeration
+
+
+
+================== 	L=30	r=5	m=5	k=2	h=-1 ==================
+Original input text has length N=2103 and the number of input L-mers is 2032
+
+Hash functions are:
+g_0: 	0	3	8	17	18
+g_1: 	5	6	7	10	29
+
+Testing smart enumeration
+Enumeration without completion in 128936
+Found 260096 strings.
+Total elapsed time is 1016510
+Successes are 260096, and failures are 0
+
+
+
+
+================== 	L=30	r=10	m=5	k=2	h=-1 ==================
+Original input text has length N=2103 and the number of input L-mers is 2032
+
+Hash functions are:
+g_0: 	0	5	9	15	24
+g_1: 	5	9	12	18	24
+
+Testing smart enumeration
+Enumeration without completion in 1352
+Found 4235 strings.
+Total elapsed time is 10184
+Successes are 4233, and failures are 2
+
+
+
+
+================== 	L=30	r=10	m=5	k=2	h=-1 ==================
+Original input text has length N=2103 and the number of input L-mers is 2032
+
+Hash functions are:
+g_0: 	7	13	16	23
+g_1: 	6	8	17	20	28
+
+Testing smart enumeration
+Enumeration without completion in 21892
+Found 27552 strings.
+Total elapsed time is 81509
+Successes are 27546, and failures are 6
+
+
+
+
+================== 	L=30	r=10	m=5	k=2	h=0 ==================
+Original input text has length N=2103 and the number of input L-mers is 2032
+
+Hash functions are:
+g_0: 	2	3	8	9	12
+g_1: 	1	7	22	26
+
+Testing smart enumeration
+Enumeration without completion in 12
+Found 0 strings.
+Total elapsed time is 12
+Successes are 0, and failures are 0
+
+
+
+
+================== 	L=30	r=10	m=5	k=2	h=-1 ==================
+Original input text has length N=2103 and the number of input L-mers is 2032
+
+Hash functions are:
+g_0: 	1	15	16	21	24
+g_1: 	3	6	7	24	29
+
+Testing smart enumeration
+Enumeration without completion in 21242
+Found 64535 strings.
+Total elapsed time is 160091
+Successes are 64499, and failures are 36
+
+
+
+
+================== 	L=30	r=10	m=5	k=2	h=1000 ==================
+Original input text has length N=2103 and the number of input L-mers is 2032
+
+Hash functions are:
+g_0: 	0	2	11	17	26
+g_1: 	0	20	24	25	28
+
+Testing smart enumeration
+Enumeration without completion in 522
+Found 1000 strings.
+
+
+
+================== 	L=30	r=10	m=5	k=2	h=1000 ==================
+Original input text has length N=2103 and the number of input L-mers is 2032
+
+Hash functions are:
+g_0: 	0	2	11	17	26
+g_1: 	0	20	24	25	28
+
+Testing smart enumeration
+Enumeration without completion in 476
+Found 1000 strings.
+
+
+
+================== 	L=30	r=10	m=5	k=2	h=1000 ==================
+Original input text has length N=2103 and the number of input L-mers is 2032
+
+Hash functions are:
+g_0: 	0	2	11	17	26
+g_1: 	0	20	24	25	28
+
+Testing smart enumeration
+Enumeration without completion in 472
+Found 1000 strings.
+
+
+
+================== 	L=30	r=10	m=5	k=2	h=-1 ==================
+Original input text has length N=2103 and the number of input L-mers is 2032
+
+Hash functions are:
+g_0: 	0	2	11	17	26
+g_1: 	0	20	24	25	28
+
+Testing smart enumeration
+Enumeration without completion in 24947
+Found 62424 strings.
+Total elapsed time is 239452
+Successes are 62400, and failures are 24
+
+
+
+
+================== 	L=30	r=10	m=5	k=2	h=1000 ==================
+Original input text has length N=2103 and the number of input L-mers is 2032
+
+Hash functions are:
+g_0: 	0	2	11	17	26
+g_1: 	0	20	24	25	28
+
+Testing smart enumeration
+Enumeration without completion in 471
+Found 1000 strings.
+
+
+
+================== 	L=30	r=10	m=5	k=2	h=1000 ==================
+Original input text has length N=2103 and the number of input L-mers is 2032
+
+Hash functions are:
+g_0: 	0	2	11	17	26
+g_1: 	0	20	24	25	28
+
+Testing smart enumeration
+Enumeration without completion in 549
+Found 1000 strings.
+
+
+
+================== 	L=30	r=10	m=5	k=2	h=1000 ==================
+Original input text has length N=2103 and the number of input L-mers is 2032
+
+Hash functions are:
+g_0: 	0	2	11	17	26
+g_1: 	0	20	24	25	28
+
+Testing smart enumeration
+Enumeration without completion in 505
+Found 1000 strings.
+Total elapsed time is 3304
+Successes are 1000, and failures are 0
+
+
+
+
+================== 	L=30	r=10	m=5	k=2	h=1000 ==================
+Original input text has length N=2103 and the number of input L-mers is 2032
+
+Hash functions are:
+g_0: 	2	13	22	26	28
+g_1: 	1	4	7	9	25
+
+Testing smart enumeration
+Enumeration without completion in 714
+Found 1000 strings.
+Total elapsed time is 3772
+Successes are 1000, and failures are 0
+
+
+
+
+================== 	L=30	r=10	m=5	k=2	h=1000 ==================
+Original input text has length N=2103 and the number of input L-mers is 2032
+
+Hash functions are:
+g_0: 	2	3	9	17	25
+g_1: 	10	12	14	15	17
+
+Testing smart enumeration
+Enumeration without completion in 25
+Found 1000 strings.
+Total elapsed time is 2138
+Successes are 999, and failures are 1
+
+
+
+
+================== 	L=30	r=10	m=5	k=2	h=1000 ==================
+Original input text has length N=2103 and the number of input L-mers is 2032
+
+Hash functions are:
+g_0: 	0	1	4	11	26
+g_1: 	3	4	8	14	23
+
+Testing smart enumeration
+Enumeration without completion in 22
+Found 1000 strings.
+Total elapsed time is 2068
+Successes are 999, and failures are 1
+

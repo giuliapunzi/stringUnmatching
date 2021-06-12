@@ -1,0 +1,81 @@
+
+
+
+================== m=11		h=100 ==================
+Original input is composed of 100 genomes, has total length N=10422201 and the number of input L-mers is 10211563
+
+Number of enumeration trials: 5
+Number of random trials: 100
+
+Hash functions are:
+g_0: 	1	2	4	9	11	16	17	20	25	27	28
+g_1: 	1	4	5	6	10	17	19	22	23	24	25
+
+Starting enumeration
+
+
+
+================== m=11		h=100 ==================
+Original input is composed of 100 genomes, has total length N=1492779 and the number of input L-mers is 1487307
+
+Number of enumeration trials: 5
+Number of random trials: 100
+
+Hash functions are:
+g_0: 	4	7	9	10	11	12	16	20	21
+g_1: 	1	2	5	8	16	17	20	26	29
+
+Starting enumeration
+Enumeration without completion in clock time 265975888; in seconds: 265.976
+Found 100 strings.
+Total elapsed clock time for trial 1 is 300717871; in seconds: 300.718
+Successes (of extension) are 71, and failures are 29
+
+Hash functions are:
+g_0: 	0	2	3	10	13	19	20	21	22
+g_1: 	1	4	6	7	15	16	17	20	22	28
+
+Starting enumeration
+Enumeration without completion in clock time 790071403; in seconds: 790.071
+Found 100 strings.
+Total elapsed clock time for trial 2 is 825568753; in seconds: 825.569
+Successes (of extension) are 75, and failures are 25
+
+Hash functions are:
+g_0: 	0	1	6	14	17	24	28	29
+g_1: 	2	7	8	10	13	15	19	25	27
+
+Starting enumeration
+Enumeration without completion in clock time 25; in seconds: 0
+Found 0 strings.
+Total elapsed clock time for trial 3 is 214; in seconds: 0.000128
+Successes (of extension) are 0, and failures are 0
+
+Hash functions are:
+g_0: 	2	5	6	13	15	21	22	23
+g_1: 	3	4	10	16	17	22	23	28
+
+Starting enumeration
+Enumeration without completion in clock time 28; in seconds: 0
+Found 0 strings.
+Total elapsed clock time for trial 4 is 228; in seconds: 0.000256
+Successes (of extension) are 0, and failures are 0
+
+Hash functions are:
+g_0: 	4	9	13	15	16	18	19	22	27	28
+g_1: 	0	4	6	8	10	11	19	23	24	26	28
+
+Starting enumeration
+Enumeration without completion in clock time 2502673188; in seconds: 2502.67
+Found 100 strings.
+Total elapsed clock time for trial 5 is 2535455373; in seconds: 2535.46
+Successes (of extension) are 57, and failures are 43
+
+
+
+Now starting random trials
+Number of random successes over 100 extractions is 61
+Elapsed clock time: 31677730; in seconds 31
+
+
+

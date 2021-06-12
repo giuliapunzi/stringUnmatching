@@ -1,0 +1,85 @@
+
+
+
+================== 	L=5	r=3	m=2	k=2	h=-1 ==================
+Original input text has length N=25 and the number of input L-mers is 21
+
+Number of trials: 1
+
+Hash functions are:
+g_0: 	1	3
+g_1: 	0	2
+
+Enumeration without completion in clock time 1; in seconds: 0.001
+Found 25 strings.
+Total elapsed clock time for trial 1 is 2; in seconds: 0.002
+Successes (of extension) are 14, and failures are 11
+
+
+
+
+================== 	L=5	r=4	m=2	k=2	h=-1 ==================
+Original input text has length N=25 and the number of input L-mers is 21
+
+Number of trials: 1
+
+Hash functions are:
+g_0: 	0
+g_1: 	0
+
+Enumeration without completion in clock time 0; in seconds: 0
+Found 0 strings.
+Total elapsed clock time for trial 1 is 1; in seconds: 0.001
+Successes (of extension) are 0, and failures are 0
+
+
+
+
+================== 	L=5	r=4	m=2	k=2	h=-1 ==================
+Original input text has length N=25 and the number of input L-mers is 21
+
+Number of trials: 1
+
+Hash functions are:
+g_0: 	0	3
+g_1: 	0	3
+
+Enumeration without completion in clock time 1; in seconds: 0.001
+Found 5 strings.
+Total elapsed clock time for trial 1 is 2; in seconds: 0.002
+Successes (of extension) are 0, and failures are 5
+
+
+
+
+================== 	L=5	r=4	m=2	k=2	h=-1 ==================
+Original input text has length N=25 and the number of input L-mers is 21
+
+Number of trials: 1
+
+Hash functions are:
+g_0: 	1	4
+g_1: 	1
+
+Enumeration without completion in clock time 0; in seconds: 0
+Found 0 strings.
+Total elapsed clock time for trial 1 is 1; in seconds: 0.001
+Successes (of extension) are 0, and failures are 0
+
+
+
+
+================== 	L=5	r=4	m=3	k=2	h=-1 ==================
+Original input text has length N=25 and the number of input L-mers is 21
+
+Number of trials: 1
+
+Hash functions are:
+g_0: 	3
+g_1: 	1	3	4
+
+Enumeration without completion in clock time 1; in seconds: 0.001
+Found 0 strings.
+Total elapsed clock time for trial 1 is 2; in seconds: 0.002
+Successes (of extension) are 0, and failures are 0
+

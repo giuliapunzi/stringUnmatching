@@ -1,0 +1,136 @@
+
+
+
+================== m=10		h=100 ==================
+Origina input is made of 100 genomes, specifically no. 77519, 	104218, 	141172, 	27571, 	88066, 	70923, 	8214, 	14800, 	157645, 	26189, 	1187, 	88900, 	7326, 	171028, 	168976, 	98446, 	168987, 	57082, 	105602, 	5479, 	2865, 	75272, 	22118, 	81219, 	77132, 	94696, 	178261, 	139581, 	95303, 	129549, 	57478, 	94553, 	45727, 	10610, 	43856, 	55524, 	81533, 	161840, 	180094, 	51138, 	188029, 	103012, 	61769, 	117086, 	7733, 	152476, 	137263, 	176719, 	21519, 	54826, 	103930, 	134154, 	51829, 	126047, 	137104, 	128960, 	32704, 	2233, 	49738, 	68834, 	59710, 	66023, 	36292, 	70320, 	109878, 	91815, 	73584, 	83678, 	83870, 	46453, 	5399, 	186881, 	108221, 	122485, 	116345, 	182428, 	181479, 	105025, 	125678, 	158036, 	130686, 	71792, 	21825, 	68693, 	130628, 	150784, 	23128, 	69913, 	74748, 	182637, 	60479, 	134458, 	60620, 	96770, 	126509, 	92229, 	546, 	12053, 	97638, 	6147, 	
+Original input as a text is of total length N=7261917 and the number of input L-mers is 7200535
+
+Number of enumeration trials: 5
+Number of random trials: 1000
+
+Hash functions are:
+g_0: 	0	2	3	4	5	15	17	18	19
+g_1: 	0	2	11	15	16	17	18	19
+
+Starting enumeration
+Enumeration without completion in clock time 64; in seconds: 6.4e-05
+Found 0 strings.
+Total elapsed clock time for trial 1 is 263; in seconds: 0.000262
+Successes (of extension) are 0, and failures are 0
+
+Hash functions are:
+g_0: 	1	2	3	8	12	13	14	15	16
+g_1: 	0	2	3	5	8	10	14	15	19
+
+Starting enumeration
+Enumeration without completion in clock time 475273260; in seconds: 475.273
+Found 0 strings.
+Total elapsed clock time for trial 2 is 475273436; in seconds: 475.273
+Successes (of extension) are 0, and failures are 0
+
+Hash functions are:
+g_0: 	2	5	7	10	12	13	14	15	16
+g_1: 	0	5	7	8	9	14	17
+
+Starting enumeration
+Enumeration without completion in clock time 25; in seconds: 3.2e-05
+Found 0 strings.
+Total elapsed clock time for trial 3 is 240; in seconds: 0.000224
+Successes (of extension) are 0, and failures are 0
+
+Hash functions are:
+g_0: 	0	1	2	3	6	11	17	19
+g_1: 	1	3	5	7	8	11	16	18
+
+Starting enumeration
+Enumeration without completion in clock time 32; in seconds: 6.4e-05
+Found 0 strings.
+Total elapsed clock time for trial 4 is 216; in seconds: 0.000256
+Successes (of extension) are 0, and failures are 0
+
+Hash functions are:
+g_0: 	1	3	4	6	7	9	13
+g_1: 	0	2	3	6	10	14	16	17
+
+Starting enumeration
+Enumeration without completion in clock time 22; in seconds: 0
+Found 0 strings.
+Total elapsed clock time for trial 5 is 213; in seconds: 0.000192
+Successes (of extension) are 0, and failures are 0
+
+
+
+Now starting random trials
+Number of random successes over 1000 extractions is 0
+Elapsed clock time: 82950069; in seconds 82
+
+
+
+
+
+
+================== m=12		h=100 ==================
+Origina input is made of 100 genomes, specifically no. 128308, 	56059, 	174713, 	131563, 	61841, 	71490, 	66106, 	18376, 	73619, 	183835, 	132683, 	49261, 	37366, 	65177, 	171012, 	2837, 	5713, 	71450, 	22431, 	23905, 	70560, 	14489, 	45836, 	19068, 	157070, 	55375, 	179205, 	7590, 	74446, 	123173, 	135897, 	130504, 	109846, 	79421, 	114076, 	103067, 	67258, 	54184, 	30008, 	140876, 	159750, 	162690, 	111868, 	9076, 	149599, 	94840, 	121683, 	155311, 	166289, 	144114, 	100947, 	158581, 	80334, 	68514, 	99380, 	159136, 	123889, 	90545, 	166725, 	10295, 	25679, 	114583, 	62530, 	57256, 	115735, 	98337, 	160323, 	182992, 	152520, 	2291, 	57560, 	45962, 	86712, 	169427, 	164809, 	48271, 	185998, 	88617, 	177093, 	93374, 	127410, 	164501, 	181765, 	126110, 	48311, 	100205, 	153353, 	60838, 	14819, 	31196, 	76605, 	139593, 	36337, 	135033, 	142854, 	144460, 	31080, 	71117, 	14966, 	73031, 	
+Original input as a text is of total length N=2689968 and the number of input L-mers is 2674679
+
+Number of enumeration trials: 5
+Number of random trials: 1000
+
+Hash functions are:
+g_0: 	0	1	5	9	11	13	14	15	18
+g_1: 	3	4	5	6	8	12	13	15	16	17	19
+
+Starting enumeration
+Enumeration without completion in clock time 4694382582; in seconds: 4694.38
+Found 100 strings.
+Total elapsed clock time for trial 1 is 4699726482; in seconds: 4699.73
+Successes (of extension) are 0, and failures are 100
+
+Hash functions are:
+g_0: 	0	1	4	6	8	10	11	12	19
+g_1: 	4	8	9	10	11	12	13	14	18
+
+Starting enumeration
+Enumeration without completion in clock time 183203274; in seconds: 183.203
+Found 100 strings.
+Total elapsed clock time for trial 2 is 192950370; in seconds: 192.95
+Successes (of extension) are 1, and failures are 99
+
+Hash functions are:
+g_0: 	3	5	9	10	13	14	15	16	17	18
+g_1: 	4	5	8	11	12	13	14	15	16	18
+
+Starting enumeration
+Enumeration without completion in clock time 1996622355; in seconds: 1996.62
+Found 100 strings.
+Total elapsed clock time for trial 3 is 2004733886; in seconds: 2004.73
+Successes (of extension) are 3, and failures are 97
+
+Hash functions are:
+g_0: 	1	3	6	8	11	12	13	14	15
+g_1: 	0	1	4	5	9	14	15	17	18
+
+Starting enumeration
+Enumeration without completion in clock time 173343464; in seconds: 173.343
+Found 100 strings.
+Total elapsed clock time for trial 4 is 186011216; in seconds: 186.011
+Successes (of extension) are 3, and failures are 97
+
+Hash functions are:
+g_0: 	0	1	4	5	7	15	16	18
+g_1: 	2	6	7	8	15	17	18	19
+
+Starting enumeration
+Enumeration without completion in clock time 26; in seconds: 0
+Found 0 strings.
+Total elapsed clock time for trial 5 is 163; in seconds: 0
+Successes (of extension) are 0, and failures are 0
+
+
+
+Now starting random trials
+Number of random successes over 1000 extractions is 0
+Elapsed clock time: 72219896; in seconds 72
+
+
+

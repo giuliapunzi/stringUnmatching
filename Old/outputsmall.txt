@@ -1,0 +1,146 @@
+================== 	L=5	r=3	m=2	k=3 ==================
+Original input text has length N=16 and the number of input strings is 11
+
+Number of trials: 10
+
+Number of successes with LSH: 0
+
+Number of random successes: 5
+
+
+
+================== 	L=5	r=3	m=2	k=10 ==================
+Original input text has length N=16 and the number of input strings is 11
+
+Number of trials: 0
+
+Number of successes with LSH: 0
+
+Number of random successes: 0
+
+
+
+================== 	L=5	r=3	m=2	k=3 ==================
+Original input text has length N=16 and the number of input strings is 11
+
+Number of trials: 10
+
+Number of successes with LSH: 0
+
+Number of random successes: 1
+
+
+
+================== 	L=5	r=3	m=2	k=3 ==================
+Original input text has length N=16 and the number of input strings is 11
+
+Number of trials: 2
+
+Number of successes with LSH: 0
+
+Number of random successes: 1
+
+
+
+================== 	L=5	r=3	m=2	k=3 ==================
+Original input text has length N=16 and the number of input strings is 11
+
+Number of trials: 2
+
+Number of successes with LSH: 0
+
+Number of random successes: 2
+
+
+
+================== 	L=10	r=7	m=4	k=2 ==================
+Original input text has length N=16 and the number of input strings is 7
+
+Number of trials: 5
+
+Number of successes with LSH: 0
+
+Number of random successes: 1
+
+
+
+================== 	L=10	r=7	m=4	k=2 ==================
+Original input text has length N=16 and the number of input strings is 7
+
+Number of trials: 5
+
+Number of successes with LSH: 0
+
+Number of random successes: 0
+
+
+
+================== 	L=10	r=7	m=4	k=2 ==================
+Original input text has length N=16 and the number of input strings is 7
+
+Number of trials: 1
+
+Found string CCCACTTTAT in time 0
+Number of successes with LSH: 1
+
+Number of random successes: 0
+
+
+
+================== 	L=10	r=7	m=4	k=2 ==================
+Original input text has length N=16 and the number of input strings is 7
+
+Number of trials: 1
+
+Number of successes with LSH: 0
+
+Number of random successes: 0
+
+
+
+================== 	L=10	r=7	m=4	k=2 ==================
+Original input text has length N=16 and the number of input strings is 7
+
+Number of trials: 1
+
+Number of successes with LSH: 0
+
+Number of random successes: 0
+
+
+
+================== 	L=10	r=7	m=4	k=2 ==================
+Original input text has length N=16 and the number of input strings is 7
+
+Number of trials: 1
+
+Found string GTCCGTCGCT in time 0
+Number of successes with LSH: 1
+
+Number of random successes: 0
+
+
+
+================== 	L=10	r=7	m=4	k=2 ==================
+Original input text has length N=16 and the number of input strings is 7
+
+Number of trials: 5
+
+Found string CATGGGGCGA in time 0
+Number of successes with LSH: 1
+
+Number of random successes: 1
+
+
+
+================== 	L=10	r=7	m=4	k=2 ==================
+Original input text has length N=16 and the number of input strings is 7
+
+Number of trials: 1
+
+Number of successes with LSH: 0
+
+Number of random successes: 0
+
+
+

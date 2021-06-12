@@ -1,0 +1,53 @@
+
+
+
+================== m=10		h=100 ==================
+Original input is composed of 1000 genomes, has total length N=29025419 and the number of input L-mers is 28474330
+
+Number of trials: 5
+
+Hash functions are:
+g_0: 	7	8	11	14	19	26
+g_1: 	9	12	13	15	16	17	18	19	25
+
+Enumeration without completion in clock time 11436; in seconds: 0.011424
+Found 0 strings.
+Total elapsed clock time for trial 1 is 27031; in seconds: 0.027024
+Successes (of extension) are 0, and failures are 0
+
+Hash functions are:
+g_0: 	1	4	8	14	16	17	20	28
+g_1: 	7	16	17	19	21	22	23	26	28
+
+Enumeration without completion in clock time 6; in seconds: 1.6e-05
+Found 0 strings.
+Total elapsed clock time for trial 2 is 195; in seconds: 0.000208
+Successes (of extension) are 0, and failures are 0
+
+Hash functions are:
+g_0: 	1	2	5	6	7	11	13	18	27
+g_1: 	1	4	9	10	15	17	25	26	27
+
+Enumeration without completion in clock time 6; in seconds: 0
+Found 0 strings.
+Total elapsed clock time for trial 3 is 191; in seconds: 0.000192
+Successes (of extension) are 0, and failures are 0
+
+Hash functions are:
+g_0: 	2	9	11	13	16	17	22	23	24	27
+g_1: 	0	6	11	12	13	16	18	20
+
+Enumeration without completion in clock time 7; in seconds: 0
+Found 0 strings.
+Total elapsed clock time for trial 4 is 185; in seconds: 0.000192
+Successes (of extension) are 0, and failures are 0
+
+Hash functions are:
+g_0: 	1	4	7	8	9	11	22	27	29
+g_1: 	1	7	10	12	14	16	18	19	28
+
+Enumeration without completion in clock time 7; in seconds: 0
+Found 0 strings.
+Total elapsed clock time for trial 5 is 168; in seconds: 0.00016
+Successes (of extension) are 0, and failures are 0
+

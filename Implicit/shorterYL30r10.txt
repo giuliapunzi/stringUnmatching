@@ -1,0 +1,84 @@
+############################### L=30, r=10 #############################
+
+Original input text has length N=6724354 and the number of input L-mers is 6216838
+
+================== m=10     h=1000 ==================
+Number of trials: 1
+
+Hash functions are:
+g_0: 	0	2	3	5	7	17	21	22	23	28
+g_1: 	1	6	10	11	21	23	28	29
+
+Enumeration without completion in clock time 671516; in seconds: 671.516
+Found 1000 strings.
+Total elapsed clock time for trial 1 is 5670459; in seconds: 5670.46
+Successes (of extension) are 679, and failures are 321
+
+
+
+
+================== m=8		h=1000 ==================
+Original input text has length N=6724354 and the number of input L-mers is 6216838
+
+Number of trials: 1
+
+Hash functions are:
+g_0: 	0	3	7	11	13	16	18	21
+g_1: 	1	5	7	9	18	22	28
+
+Enumeration without completion in clock time 156110; in seconds: 156.11
+Found 0 strings.
+Total elapsed clock time for trial 1 is 156114; in seconds: 156.114
+Successes (of extension) are 0, and failures are 0
+
+
+
+
+================== m=8		h=1000 ==================
+Original input text has length N=6724354 and the number of input L-mers is 6216838
+
+Number of trials: 1
+
+Hash functions are:
+g_0: 	0	1	4	6	7	14	18	20
+g_1: 	0	1	11	19	20	23	26	27
+
+Enumeration without completion in clock time 505206; in seconds: 505.206
+Found 5 strings.
+Total elapsed clock time for trial 1 is 528979; in seconds: 528.979
+Successes (of extension) are 2, and failures are 3
+
+
+
+
+================== m=10		h=1000 ==================
+Original input text has length N=6724354 and the number of input L-mers is 6216838
+
+Number of trials: 1
+
+Hash functions are:
+g_0: 	3	5	8	10	18	21	23	24
+g_1: 	1	6	9	10	11	12	15	18	19	21
+
+Enumeration without completion in clock time 1; in seconds: 0.001
+Found 0 strings.
+Total elapsed clock time for trial 1 is 3; in seconds: 0.003
+Successes (of extension) are 0, and failures are 0
+
+
+
+
+================== m=10		h=1000 ==================
+Original input text has length N=6724354 and the number of input L-mers is 6216838
+
+Number of trials: 1
+
+Hash functions are:
+g_0: 	0	2	3	5	9	16	18	19
+g_1: 	0	8	10	11	18	21	23	26	28
+
+Enumeration without completion in clock time 5188658; in seconds: 5188.66
+Found 351 strings.
+Total elapsed clock time for trial 1 is 7002264; in seconds: 7002.26
+Successes (of extension) are 255, and failures are 96
+

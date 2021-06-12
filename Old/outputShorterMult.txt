@@ -1,0 +1,210 @@
+================== 	L=30	r=15	m=5	k=4 ==================
+Original input text has length N=6724354 and the number of input strings is 6216838
+
+Number of trials: 20
+
+================== 	L=30	r=15	m=4	k=5 ==================
+Original input text has length N=6724354 and the number of input strings is 6216838
+
+Number of trials: 20
+
+Number of successes with LSH: 0
+
+Number of random successes: 0
+
+
+
+================== 	L=30	r=12	m=4	k=2 ==================
+Original input text has length N=6724354 and the number of input strings is 6216838
+
+Number of trials: 20
+
+Number of successes with LSH: 0
+
+Number of random successes: 0
+
+
+
+================== 	L=30	r=12	m=6	k=2 ==================
+Original input text has length N=6724354 and the number of input strings is 6216838
+
+Number of trials: 1
+
+================== 	L=30	r=12	m=6	k=2 ==================
+Original input text has length N=6724354 and the number of input strings is 6216838
+
+Number of trials: 1
+
+Number of successes with LSH: 0
+
+Number of random successes: 0
+
+
+
+================== 	L=30	r=12	m=6	k=2 ==================
+Original input text has length N=6724354 and the number of input strings is 6216838
+
+Number of trials: 1
+
+Number of successes with LSH: 0
+
+Number of random successes: 0
+
+
+===================== PROBLEM: HASH SPACE UNDER 6 IS FULL? =================
+
+
+================== 	L=30	r=12	m=6	k=2 ==================
+Original input text has length N=6724354 and the number of input strings is 6216838
+
+Number of trials: 20
+
+Number of successes with LSH: 0
+
+Number of random successes: 0
+
+
+
+================== 	L=30	r=10	m=8	k=2 ==================
+Original input text has length N=6724354 and the number of input strings is 6216838
+
+Number of trials: 20
+
+Number of successes with LSH: 0
+
+Number of random successes: 9
+
+
+
+================== 	L=30	r=10	m=10	k=2 ==================
+Original input text has length N=6724354 and the number of input strings is 6216838
+
+Number of trials: 1
+
+Number of successes with LSH: 0
+
+Number of random successes: 1
+
+
+
+================== 	L=30	r=10	m=15	k=2 ==================
+Original input text has length N=6724354 and the number of input strings is 6216838
+
+Number of trials: 1
+
+Number of successes with LSH: 0
+
+Number of random successes: 0
+
+
+
+================== 	L=20	r=12	m=10	k=2 ==================
+Original input text has length N=6724354 and the number of input strings is 5810438
+
+Number of trials: 1
+
+Number of successes with LSH: 0
+
+Number of random successes: 0
+
+
+
+================== 	L=30	r=15	m=20	k=2 ==================
+Original input text has length N=6724354 and the number of input strings is 6216838
+
+Number of trials: 1
+
+Number of successes with LSH: 0
+
+Number of random successes: 0
+
+
+
+================== 	L=30	r=10	m=15	k=1 ==================
+Original input text has length N=6724354 and the number of input strings is 6216838
+
+Number of trials: 1
+
+Number of successes with LSH: 0
+
+Number of random successes: 0
+
+
+
+================== 	L=30	r=10	m=20	k=1 ==================
+Original input text has length N=6724354 and the number of input strings is 6216838
+
+Number of trials: 1
+
+Number of successes with LSH: 0
+
+Number of random successes: 0
+
+
+
+*********************************************
+******************************************* HASH SPACE 15 IS FULL!!!!!
+**************************************
+
+
+
+================== 	L=30	r=15	m=25	k=1 ==================
+Original input text has length N=6724354 and the number of input strings is 6216838
+
+Number of trials: 1
+
+Number of successes with LSH: 0
+
+Number of random successes: 0
+
+
+
+================== 	L=1	r=1	m=1	k=1 ==================
+Original input text has length N=6724354 and the number of input strings is 4
+
+Number of trials: 1
+
+Number of successes with LSH: 0
+
+Number of random successes: 0
+
+
+
+================== 	L=30	r=15	m=30	k=1 ==================
+Original input text has length N=6724354 and the number of input strings is 6216838
+
+Number of trials: 1
+
+Number of successes with LSH: 0
+
+Number of random successes: 0
+
+
+
+
+
+
+*********************************************
+******************************************* HASH SPACE 20 IS FULL!!!!!
+**************************************================== 	L=30	r=10	m=20	k=1 ==================
+Original input text has length N=6724354 and the number of input strings is 6216838
+
+Number of trials: 1
+
+Number of successes with LSH: 0
+
+Number of random successes: 1
+
+
+
+================== 	L=30	r=10	m=10	k=2 ==================
+Original input text has length N=6724354 and the number of input strings is 6216838
+
+Number of trials: 1
+
+Number of successes with LSH: 0
+
+Number of random successes: 0
+
+
+

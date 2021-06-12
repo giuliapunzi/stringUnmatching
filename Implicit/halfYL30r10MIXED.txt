@@ -1,0 +1,155 @@
+
+
+
+================== m=10		h=1000 ==================
+Original input text has length N=13002990 and the number of input L-mers is 11051846
+
+Number of trials: 1
+
+Hash functions are:
+g_0: 	3	5	6	7	10	13	16	18
+g_1: 	0	6	7	8	9	11	15	16	17
+
+Enumeration without completion in clock time 0; in seconds: 0
+Found 0 strings.
+Total elapsed clock time for trial 1 is 3; in seconds: 0.003
+Successes (of extension) are 0, and failures are 0
+
+
+
+
+================== m=12		h=1000 ==================
+Original input text has length N=13002990 and the number of input L-mers is 11051846
+
+Number of trials: 1
+
+Hash functions are:
+g_0: 	1	5	7	8	11	13	15	16	17
+g_1: 	1	4	6	7	9	10	12	14	16	17	18
+
+Enumeration without completion in clock time 7975355; in seconds: 7975.35
+Found 1000 strings.
+Total elapsed clock time for trial 1 is 8334669; in seconds: 8334.67
+Successes (of extension) are 0, and failures are 1000
+
+
+
+
+================== m=11		h=100 ==================
+Original input text has length N=13002990 and the number of input L-mers is 11051846
+
+Number of trials: 1
+
+Hash functions are:
+g_0: 	0	5	6	10	12	13	14	17	19
+g_1: 	0	1	6	10	12	13	14	19
+
+Enumeration without completion in clock time 1; in seconds: 0.001
+Found 0 strings.
+Total elapsed clock time for trial 1 is 5; in seconds: 0.005
+Successes (of extension) are 0, and failures are 0
+
+
+
+
+================== m=11		h=1000 ==================
+Original input text has length N=13002990 and the number of input L-mers is 11051846
+
+Number of trials: 1
+
+Hash functions are:
+g_0: 	1	4	5	7	8	10	16	17	18
+g_1: 	1	2	5	6	7	12	14	15	16	17
+
+Enumeration without completion in clock time 578754; in seconds: 578.754
+Found 1000 strings.
+Total elapsed clock time for trial 1 is 1420912; in seconds: 1420.91
+Successes (of extension) are 7, and failures are 993
+
+
+
+
+================== m=10		h=100 ==================
+Original input text has length N=13002990 and the number of input L-mers is 11051846
+
+Number of trials: 1
+
+Hash functions are:
+g_0: 	3	4	5	8	11	15	18
+g_1: 	4	5	8	13	18	19
+
+Enumeration without completion in clock time 0; in seconds: 0
+Found 0 strings.
+Total elapsed clock time for trial 1 is 3; in seconds: 0.003
+Successes (of extension) are 0, and failures are 0
+
+
+
+
+================== m=10		h=100 ==================
+Original input text has length N=13002990 and the number of input L-mers is 11051846
+
+Number of trials: 1
+
+Hash functions are:
+g_0: 	0	1	5	9	16	17	18	19
+g_1: 	0	2	3	5	11	14	15	18
+
+Enumeration without completion in clock time 0; in seconds: 0
+Found 0 strings.
+Total elapsed clock time for trial 1 is 2; in seconds: 0.002
+Successes (of extension) are 0, and failures are 0
+
+
+
+
+================== m=10		h=100 ==================
+Original input text has length N=13002990 and the number of input L-mers is 11051846
+
+Number of trials: 5
+
+Hash functions are:
+g_0: 	0	3	5	6	8	12	15	18
+g_1: 	4	6	7	9	11	12	15
+
+Enumeration without completion in clock time 0; in seconds: 0
+Found 0 strings.
+Total elapsed clock time for trial 1 is 3; in seconds: 0.003
+Successes (of extension) are 0, and failures are 0
+
+Hash functions are:
+g_0: 	0	1	2	5	8	11	17
+g_1: 	4	7	9	10	11	12	13	19
+
+Enumeration without completion in clock time 1; in seconds: 0.001
+Found 0 strings.
+Total elapsed clock time for trial 2 is 3; in seconds: 0.003
+Successes (of extension) are 0, and failures are 0
+
+Hash functions are:
+g_0: 	3	4	6	7	9	10	11	14	15	18
+g_1: 	4	5	6	8	10	12	14	16	18
+
+Enumeration without completion in clock time 642355; in seconds: 642.355
+Found 100 strings.
+Total elapsed clock time for trial 3 is 740475; in seconds: 740.475
+Successes (of extension) are 3, and failures are 97
+
+Hash functions are:
+g_0: 	2	3	5	8	10	11	12	15
+g_1: 	2	5	8	9	13	16	17
+
+Enumeration without completion in clock time 0; in seconds: 0
+Found 0 strings.
+Total elapsed clock time for trial 4 is 2; in seconds: 0.002
+Successes (of extension) are 0, and failures are 0
+
+Hash functions are:
+g_0: 	2	3	4	7	9	16	18	19
+g_1: 	0	5	6	9	10	11	13	18	19
+
+Enumeration without completion in clock time 145675; in seconds: 145.675
+Found 100 strings.
+Total elapsed clock time for trial 5 is 315798; in seconds: 315.798
+Successes (of extension) are 3, and failures are 97
+

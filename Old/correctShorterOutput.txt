@@ -1,0 +1,23 @@
+================== 	L=30	r=10	m=8	k=1 ==================
+Original input text has length N=6724354 and the number of input strings is 6216838
+
+Number of trials: 20
+
+Found string TCGTCTATCGACCAAAACCGACACAGTAAT in time 11
+Number of successes with LSH: 1
+
+Number of random successes: 9
+
+
+
+================== 	L=30	r=10	m=10	k=20 ==================
+Original input text has length N=6724354 and the number of input strings is 6216838
+
+Number of trials: 0
+
+Number of successes with LSH: 0
+
+Number of random successes: 0
+
+
+

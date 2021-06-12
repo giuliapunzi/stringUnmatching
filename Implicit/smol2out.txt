@@ -1,0 +1,196 @@
+
+
+
+================== 	L=30	r=10	m=2	k=2	h=-1 ==================
+Original input text has length N=19 and the number of input L-mers is 0
+
+Number of trials: 1
+
+Hash functions are:
+g_0: 	0	1
+g_1: 	0	4
+
+Enumeration without completion in clock time 24; in seconds: 0.024
+Found 64 strings.
+Total elapsed clock time for trial 1 is 43; in seconds: 0.043
+Successes (of extension) are 64, and failures are 0
+
+
+
+
+================== 	L=30	r=10	m=2	k=2	h=-1 ==================
+Original input text has length N=19 and the number of input L-mers is 0
+
+Number of trials: 1
+
+Hash functions are:
+g_0: 	0	1
+g_1: 	0	4
+
+Enumeration without completion in clock time 25; in seconds: 0.025
+Found 64 strings.
+Total elapsed clock time for trial 1 is 44; in seconds: 0.044
+Successes (of extension) are 64, and failures are 0
+
+
+
+
+================== 	L=30	r=10	m=2	k=2	h=-1 ==================
+Original input text has length N=19 and the number of input L-mers is 0
+
+Number of trials: 1
+
+Hash functions are:
+g_0: 	0	1
+g_1: 	0	4
+
+Enumeration without completion in clock time 24; in seconds: 0.024
+Found 64 strings.
+Total elapsed clock time for trial 1 is 42; in seconds: 0.042
+Successes (of extension) are 64, and failures are 0
+
+
+
+
+================== 	L=5	r=4	m=2	k=2	h=-1 ==================
+Original input text has length N=19 and the number of input L-mers is 11
+
+Number of trials: 1
+
+Hash functions are:
+g_0: 	0	1
+g_1: 	0	4
+
+Enumeration without completion in clock time 61; in seconds: 0.061
+Found 25 strings.
+Total elapsed clock time for trial 1 is 68; in seconds: 0.068
+Successes (of extension) are 0, and failures are 25
+
+
+
+
+================== 	L=5	r=4	m=2	k=2	h=-1 ==================
+Original input text has length N=19 and the number of input L-mers is 11
+
+Number of trials: 1
+
+Hash functions are:
+g_0: 	0	1
+g_1: 	0	4
+
+Enumeration without completion in clock time 5; in seconds: 0.005
+Found 25 strings.
+Total elapsed clock time for trial 1 is 12; in seconds: 0.012
+Successes (of extension) are 0, and failures are 25
+
+
+
+
+================== 	L=5	r=3	m=2	k=2	h=-1 ==================
+Original input text has length N=19 and the number of input L-mers is 11
+
+Number of trials: 1
+
+Hash functions are:
+g_0: 	0	1
+g_1: 	0	4
+
+Enumeration without completion in clock time 6; in seconds: 0.006
+Found 25 strings.
+Total elapsed clock time for trial 1 is 13; in seconds: 0.013
+Successes (of extension) are 12, and failures are 13
+
+
+
+
+================== 	L=5	r=3	m=2	k=2	h=-1 ==================
+Original input text has length N=19 and the number of input L-mers is 11
+
+Number of trials: 1
+
+Hash functions are:
+g_0: 	0	1
+g_1: 	0	4
+
+Enumeration without completion in clock time 4; in seconds: 0.004
+Found 25 strings.
+Total elapsed clock time for trial 1 is 12; in seconds: 0.012
+Successes (of extension) are 13, and failures are 12
+
+
+
+
+================== 	L=5	r=4	m=2	k=2	h=-1 ==================
+Original input text has length N=19 and the number of input L-mers is 11
+
+Number of trials: 1
+
+Hash functions are:
+g_0: 	0	1
+g_1: 	0	4
+
+Enumeration without completion in clock time 5; in seconds: 0.005
+Found 25 strings.
+Total elapsed clock time for trial 1 is 12; in seconds: 0.012
+Successes (of extension) are 0, and failures are 25
+
+
+
+
+================== 	L=5	r=4	m=2	k=2	h=-1 ==================
+Original input text has length N=19 and the number of input L-mers is 11
+
+Number of trials: 1
+
+Hash functions are:
+g_0: 	0	1
+g_1: 	0	4
+
+Enumeration without completion in clock time 5; in seconds: 0.005
+Found 18 strings.
+Total elapsed clock time for trial 1 is 11; in seconds: 0.011
+Successes (of extension) are 1, and failures are 17
+
+
+
+
+================== 	L=5	r=4	m=2	k=2	h=15 ==================
+Original input text has length N=19 and the number of input L-mers is 11
+
+Number of trials: 2
+
+Hash functions are:
+g_0: 	0	1
+g_1: 	0	4
+
+Enumeration without completion in clock time 0; in seconds: 0
+Found 15 strings.
+Total elapsed clock time for trial 1 is 1; in seconds: 0.001
+Successes (of extension) are 1, and failures are 14
+
+Hash functions are:
+g_0: 	0	1
+g_1: 	0	4
+
+Enumeration without completion in clock time 0; in seconds: 0
+Found 15 strings.
+Total elapsed clock time for trial 2 is 1; in seconds: 0.001
+Successes (of extension) are 0, and failures are 15
+
+
+
+
+================== 	L=5	r=4	m=2	k=2	h=10 ==================
+Original input text has length N=19 and the number of input L-mers is 11
+
+Number of trials: 1
+
+Hash functions are:
+g_0: 	0	1
+g_1: 	0	4
+
+Enumeration without completion in clock time 1; in seconds: 0.001
+Found 10 strings.
+Total elapsed clock time for trial 1 is 2; in seconds: 0.002
+Successes (of extension) are 0, and failures are 10
+

@@ -1,0 +1,5 @@
+================== 	L=30	r=10	m=12	k=2 ==================
+Original input text has length N=6724354 and the number of input strings is 6216838
+
+Number of trials: 1
+

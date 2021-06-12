@@ -1,0 +1,169 @@
+================== 	L=5	r=2	m=2	k=2 ==================
+Original input text has length N=25 and the number of input L-mers is 21
+
+Brute elapsed time is 4
+Successes are 0, and failures are 0
+
+================== 	L=5	r=2	m=2	k=2 ==================
+Original input text has length N=25 and the number of input L-mers is 21
+
+Brute elapsed time is 18
+Successes are 9, and failures are 1
+
+================== 	L=5	r=2	m=2	k=2 ==================
+Original input text has length N=25 and the number of input L-mers is 21
+
+Brute elapsed time is 12
+Successes are 10, and failures are 0
+
+================== 	L=5	r=2	m=2	k=2 ==================
+Original input text has length N=25 and the number of input L-mers is 21
+
+Brute elapsed time is 10
+Successes are 9, and failures are 1
+
+================== 	L=5	r=2	m=2	k=2 ==================
+Original input text has length N=25 and the number of input L-mers is 21
+
+Brute elapsed time is 8
+Successes are 10, and failures are 0
+
+================== 	L=5	r=2	m=2	k=2 ==================
+Original input text has length N=25 and the number of input L-mers is 21
+
+Brute elapsed time is 14
+Successes are 10, and failures are 0
+
+Smart elapsed time is 27
+Successes are 0, and failures are 0
+
+================== 	L=5	r=2	m=2	k=2 ==================
+Original input text has length N=25 and the number of input L-mers is 21
+
+Brute elapsed time is 7
+Successes are 10, and failures are 0
+
+Smart elapsed time is 21
+Successes are 0, and failures are 0
+
+================== 	L=5	r=2	m=2	k=2 ==================
+Original input text has length N=25 and the number of input L-mers is 21
+
+Brute elapsed time is 9
+Successes are 9, and failures are 1
+
+Smart elapsed time is 72
+Successes are 0, and failures are 0
+
+================== 	L=5	r=2	m=2	k=2 ==================
+Original input text has length N=25 and the number of input L-mers is 21
+
+Brute elapsed time is 8
+Successes are 10, and failures are 0
+
+Smart elapsed time is 128
+Successes are 0, and failures are 0
+
+================== 	L=5	r=2	m=2	k=2 ==================
+Original input text has length N=25 and the number of input L-mers is 21
+
+Brute elapsed time is 10
+Successes are 10, and failures are 0
+
+Smart elapsed time is 157
+Successes are 0, and failures are 0
+
+================== 	L=5	r=2	m=2	k=2 ==================
+Original input text has length N=25 and the number of input L-mers is 21
+
+Brute elapsed time is 7
+Successes are 10, and failures are 0
+
+Smart elapsed time is 195
+Successes are 0, and failures are 0
+
+================== 	L=5	r=2	m=2	k=2 ==================
+Original input text has length N=25 and the number of input L-mers is 21
+
+Brute elapsed time is 7
+Successes are 8, and failures are 2
+
+Smart elapsed time is 142
+Successes are 0, and failures are 0
+
+================== 	L=5	r=2	m=2	k=2 ==================
+Original input text has length N=25 and the number of input L-mers is 21
+
+Brute elapsed time is 15
+Successes are 9, and failures are 1
+
+Smart elapsed time is 270
+Successes are 7, and failures are 3
+
+================== 	L=5	r=2	m=2	k=2 ==================
+Original input text has length N=25 and the number of input L-mers is 21
+
+Brute elapsed time is 8
+Successes are 9, and failures are 1
+
+Smart elapsed time is 249
+Successes are 9, and failures are 1
+
+================== 	L=5	r=2	m=2	k=2 ==================
+Original input text has length N=25 and the number of input L-mers is 21
+
+Brute elapsed time is 2
+
+Now testing smart enumeration
+Smart elapsed time is 40
+================== 	L=5	r=2	m=2	k=2 ==================
+Original input text has length N=25 and the number of input L-mers is 21
+
+Brute elapsed time is 2
+
+Now testing smart enumeration
+Smart elapsed time is 72
+================== 	L=5	r=2	m=2	k=2 ==================
+Original input text has length N=25 and the number of input L-mers is 21
+
+Brute elapsed time is 5
+
+Now testing smart enumeration
+Smart elapsed time is 6
+================== 	L=5	r=2	m=2	k=2 ==================
+Original input text has length N=25 and the number of input L-mers is 21
+
+Brute elapsed time is 2
+
+Now testing smart enumeration
+Smart elapsed time is 0
+================== 	L=5	r=2	m=2	k=2 ==================
+Original input text has length N=25 and the number of input L-mers is 21
+
+Brute elapsed time is 8
+
+Now testing smart enumeration
+Smart elapsed time is 7
+================== 	L=5	r=2	m=2	k=2 ==================
+Original input text has length N=25 and the number of input L-mers is 21
+
+Brute elapsed time is 3
+
+Now testing smart enumeration
+Smart elapsed time is 5
+================== 	L=5	r=2	m=2	k=2 ==================
+Original input text has length N=25 and the number of input L-mers is 21
+
+Brute elapsed time is 10
+
+Now testing smart enumeration
+Smart elapsed time is 8
+================== 	L=5	r=2	m=2	k=2 ==================
+Original input text has length N=25 and the number of input L-mers is 21
+
+Hash functions are:
+g_0: 	3	4
+g_1: 	0	1
+
+Testing smart enumeration
+Smart elapsed time is 105

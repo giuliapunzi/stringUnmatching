@@ -1,0 +1,15 @@
+================== 	L=3	r=1	m=1	k=2 ==================
+Original input text has length N=25 and the number of input strings is 16
+
+Number of trials: 1
+
+================== 	L=30	r=10	m=10	k=2 ==================
+Original input text has length N=4107 and the number of input L-mers is 4002
+
+Number of trials: 1
+
+================== 	L=30	r=10	m=10	k=2 ==================
+Original input text has length N=4107 and the number of input L-mers is 4002
+
+Number of trials: 1
+

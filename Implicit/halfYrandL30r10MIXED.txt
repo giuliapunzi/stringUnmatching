@@ -1,0 +1,22 @@
+
+
+
+================== m=10		h=100 ==================
+Original input text has length N=13002990 and the number of input L-mers is 11051846
+
+Number of trials: 100
+
+Number of random successes over 100 extractions is 0
+Elapsed clock time: 52421; in seconds 52
+
+
+
+
+================== m=10		h=100 ==================
+Original input text has length N=13002990 and the number of input L-mers is 11051846
+
+Number of trials: 100
+
+Number of random successes over 100 extractions is 0
+Elapsed clock time: 52037; in seconds 52
+

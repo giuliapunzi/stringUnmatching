@@ -1,0 +1,58 @@
+
+================== 	L=30	r=10	m=5	k=1==================
+Original input text has length N=13002990 and the number of input strings is 11900026
+
+Number of trials: 1
+Number of successes with LSH: 0
+
+Number of random successes: 0
+
+
+
+================== 	L=30	r=10	m=5	k=1==================
+Original input text has length N=13002990 and the number of input strings is 11900026
+
+Number of trials: 20
+Found string GCCCTTCCTGCTCACACCGGCGTCCCCCAA in time 15
+Found string AGTAAGGTAGACTTCGCCCTACACGGCCAT in time 18
+Found string CAAGTAATCATGACGTCCCGTACGTTCCTA in time 18
+Number of successes with LSH: 3
+
+Number of random successes: 1
+
+
+
+================== 	L=30	r=10	m=5	k=1==================
+Original input text has length N=13002990 and the number of input strings is 11900026
+
+Number of trials: 100
+Found string CGCCATGTATGGCTCTACAGAGCACTTAGG in time 17
+Found string CCCAGAGTCATGGTCCCCTTCTGATCCTAT in time 15
+Found string TAACGGCGCGGAAGATCTGGCTCGGAACTG in time 17
+Found string TACGTTCACTTGTCCCGTTCGGCTAAGGAG in time 17
+Found string GAGAAGAGATCTATCTACGCGATCCCCGGG in time 18
+Found string ATCTAGGGATCAGCCAGAGAGCCAGAACGC in time 15
+Found string ATAGTACTCTTGACCGAAACCAACTTACGA in time 17
+Found string CAAGCCGATTAAATGGTAGCCCATGACAGT in time 16
+Found string CGGATGTCTACGTCTGTACCTATCCTAATA in time 15
+Found string AATATCGTCGTCGGAAAATTTCCAGTTCCC in time 16
+Found string TCCACGCGCGATAGAGGGTAAGCTCCTATC in time 16
+Found string CTCGCCAGAACCGGTCGCTAAATACATCCA in time 17
+Found string GCAGAAAGCGCTAGTATCTTGATTCTTGCG in time 16
+Found string GCGGTACAAGTACATAATGCCTCGTCATAT in time 18
+Number of successes with LSH: 14
+
+Number of random successes: 24
+
+
+
+================== 	L=30	r=12	m=6	k=1==================
+Original input text has length N=13002990 and the number of input strings is 11900026
+
+Number of trials: 100
+Number of successes with LSH: 0
+
+Number of random successes: 0
+
+
+

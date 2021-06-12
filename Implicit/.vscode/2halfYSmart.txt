@@ -1,0 +1,51 @@
+
+
+
+================== 	L=30	r=10	m=8	k=2	h=1000 ==================
+Original input text has length N=13002990 and the number of input L-mers is 11900026
+
+Number of trials: 1
+
+Hash functions are:
+g_0: 	0	1	8	17	18	20	22
+g_1: 	2	9	15	16	17	18	25	29
+
+Enumeration without completion in clock time 2590; in seconds: 2.59
+Found 1000 strings.
+Total elapsed clock time for trial 1 is 3183501; in seconds: 3183.5
+Successes (of extension) are 57, and failures are 943
+
+
+
+
+================== 	L=20	r=6	m=6	k=2	h=1000 ==================
+Original input text has length N=13002990 and the number of input L-mers is 11051846
+
+Number of trials: 1
+
+Hash functions are:
+g_0: 	4	10	11	13	16	17
+g_1: 	1	2	3	5	12
+
+Enumeration without completion in clock time 59; in seconds: 0.059
+Found 1000 strings.
+Total elapsed clock time for trial 1 is 296006; in seconds: 296.006
+Successes (of extension) are 0, and failures are 1000
+
+
+
+
+================== 	L=20	r=5	m=8	k=2	h=1000 ==================
+Original input text has length N=13002990 and the number of input L-mers is 11051846
+
+Number of trials: 1
+
+Hash functions are:
+g_0: 	2	3	4	7	9	16	17
+g_1: 	5	8	9	12	15
+
+Enumeration without completion in clock time 191; in seconds: 0.191
+Found 1000 strings.
+Total elapsed clock time for trial 1 is 2742769; in seconds: 2742.77
+Successes (of extension) are 92, and failures are 908
+
