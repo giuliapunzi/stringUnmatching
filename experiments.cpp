@@ -1823,7 +1823,7 @@ int main()
     }
 
     outputfile << endl << endl << endl << "================== m=" << m << "\t\th="<<h<< " ==================" << endl;
-    outputfile << "Origina input is made of " << genum << " genomes, specifically no. ";
+    outputfile << "Original input is made of " << genum << " genomes."; //, specifically no. ";
 
 
     ifstream myfile;
@@ -1833,8 +1833,8 @@ int main()
     while (genomecount < genum)
     {
         int curr = rand()%188039 +1;
-        outputfile << curr << ", \t";
-        string filename = "./Dataset/genome" + to_string(curr) + ".txt";
+        // outputfile << curr << ", \t";
+        string filename = "../../PhD/Codice/C/Farthest/Dataset/genome" + to_string(curr) + ".txt";
         myfile.open(filename); // myfile.open("./Dataset/genome1.txt");
 
         // cout << "Considering genome no. " << curr << endl;

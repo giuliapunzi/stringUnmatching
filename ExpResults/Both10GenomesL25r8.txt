@@ -1,0 +1,28 @@
+
+
+
+================== m=9		h=100 ==================
+Origina input is made of 10 genomes, specifically no. 163224, 	62191, 	9566, 	12129, 	62637, 	26102, 	155863, 	147479, 	50957, 	139785, 	
+Original input as a text is of total length N=69262 and the number of input L-mers is 68463
+
+Number of enumeration trials: 1
+Number of random trials: 100
+
+Hash functions are:
+g_0: 	4	5	11	13	16	17	18	22	24
+g_1: 	3	4	8	10	11	14	19
+
+Starting enumeration
+Enumeration without completion in clock time 4066154; in seconds: 4.06615
+Found 100 strings.
+Total elapsed clock time for trial 1 is 5717303; in seconds: 5.7173
+Successes (of extension) are 95, and failures are 5
+
+
+
+Now starting random trials
+Number of random successes over 100 extractions is 91
+Elapsed clock time: 1678791; in seconds 1
+
+
+
