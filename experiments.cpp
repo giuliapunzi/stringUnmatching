@@ -1727,7 +1727,7 @@ string extendString(string q, int L, vector<int> &pos)
 
 int main()
 {
-    int N,L,r,m,k,h,genum;
+    int N,L,r,m,k,h,genum,extnum;
     string W;
     vector<int> input;
     clock_t startTime, endTime;
@@ -1786,6 +1786,10 @@ int main()
         
         // if h=-1, full enumeration
 
+        cout << "How many extensions do you want to perform for each string enumerated? ";
+        cin >> extnum;
+        cout << endl;
+
         cout << "How many trials do you want to perform for enumeration? ";
         cin >> trialse;
         cout << endl;
@@ -1824,7 +1828,7 @@ int main()
 
     outputfile << endl << endl << endl << "================== m=" << m << "\t\th="<<h<< " ==================" << endl;
     outputfile << "Original input is made of " << genum << " genomes."; //, specifically no. ";
-
+    outputfile << "Each string found with LSH will be extended " << extnum << " times";
 
     ifstream myfile;
 
@@ -2203,38 +2207,43 @@ int main()
 
             
             // TRANSFORMED INTO JUST ONE LOOP
+            // EXTEND EXTENSIONSIZE PER EACH STRING FOUND
             for (int i = 0; i < enumerated.size(); i++)
             {
-                string extq = extendString(enumerated[i], L, positions);
-
-                // time_t compareBeg,compareEnd;
-
-                // compareBeg = clock();
-                bool found = check(extq, r, input, W); // COMPARE WITH CHECKSET USING INPUTSET
-                // compareEnd = clock();
-
-                // cout << "Check with vector takes " << compareEnd-compareBeg << " clock its." << endl;
-
-                // compareBeg = clock();
-                // bool foundset = checkSet(extq, r, inputset); // COMPARE WITH CHECKSET USING INPUTSET
-                // compareEnd = clock();
-
-                // cout << "Check with set takes " << compareEnd-compareBeg << " clock its." << endl;
-
-                // cout << "Considering string " << extq;
-
-                if (found)
+                for (int iext = 0; iext < extnum; iext++)
                 {
-                    // cout << " \t SUCCESS!!" << endl;
-                    // cout << "String found is " << extq << endl;
-                    // outputfile << "Found string " << extq << endl;
-                    succ++;
+                    string extq = extendString(enumerated[i], L, positions);
+
+                    // time_t compareBeg,compareEnd;
+
+                    // compareBeg = clock();
+                    bool found = check(extq, r, input, W); // COMPARE WITH CHECKSET USING INPUTSET
+                    // compareEnd = clock();
+
+                    // cout << "Check with vector takes " << compareEnd-compareBeg << " clock its." << endl;
+
+                    // compareBeg = clock();
+                    // bool foundset = checkSet(extq, r, inputset); // COMPARE WITH CHECKSET USING INPUTSET
+                    // compareEnd = clock();
+
+                    // cout << "Check with set takes " << compareEnd-compareBeg << " clock its." << endl;
+
+                    // cout << "Considering string " << extq;
+
+                    if (found)
+                    {
+                        // cout << " \t SUCCESS!!" << endl;
+                        // cout << "String found is " << extq << endl;
+                        // outputfile << "Found string " << extq << endl;
+                        succ++;
+                    }
+                    else
+                    {
+                        // cout << " \t FAILURE" << endl;
+                        fail++;
+                    }
                 }
-                else
-                {
-                    // cout << " \t FAILURE" << endl;
-                    fail++;
-                }
+                
             }
 
 

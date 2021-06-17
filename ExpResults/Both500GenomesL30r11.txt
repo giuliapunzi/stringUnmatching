@@ -1,0 +1,78 @@
+
+
+
+================== m=12		h=50 ==================
+Original input is made of 500 genomes.
+Original input as a text is of total length N=25538596 and the number of input L-mers is 25200698
+
+Number of enumeration trials: 2
+Number of random trials: 1000
+
+Hash functions are:
+g_0: 	12	13	18	19	20	22	23	28	29
+g_1: 	0	1	5	7	15	18
+
+Starting enumeration
+Enumeration without completion in clock time 431; in seconds: 0.000432
+Found 0 strings.
+Total elapsed clock time for trial 1 is 758; in seconds: 0.00076
+Successes (of extension) are 0, and failures are 0
+
+Hash functions are:
+g_0: 	0	9	10	11	14	23	25	29
+g_1: 	3	7	11	12	15	18	19	20	21	25	29
+
+Starting enumeration
+Enumeration without completion in clock time 32; in seconds: 3.2e-05
+Found 0 strings.
+Total elapsed clock time for trial 2 is 196; in seconds: 0.000208
+Successes (of extension) are 0, and failures are 0
+
+
+
+Now starting random trials
+Number of random successes over 1000 extractions is 0
+Elapsed clock time: 187702539; in seconds 187
+
+
+
+
+
+
+================== m=13		h=50 ==================
+Original input is made of 500 genomes.
+Original input as a text is of total length N=19135911 and the number of input L-mers is 18781819
+
+Number of enumeration trials: 2
+Number of random trials: 1000
+
+Hash functions are:
+g_0: 	1	2	6	7	8	13	14	15	18	25
+g_1: 	1	8	9	12	13	15	18	21	23	28	29
+
+Starting enumeration
+
+
+
+================== m=13		h=50 ==================
+Original input is made of 500 genomes.
+Original input as a text is of total length N=11218412 and the number of input L-mers is 11107017
+
+Number of enumeration trials: 2
+Number of random trials: 1000
+
+Hash functions are:
+g_0: 	2	7	9	12	16	17	24	25	26	27	28
+g_1: 	1	2	3	7	9	11	13	14	19	24	26
+
+Starting enumeration
+Enumeration without completion in clock time 40145397701; in seconds: 40145.4
+Found 50 strings.
+Total elapsed clock time for trial 1 is 40153410453; in seconds: 40153.4
+Successes (of extension) are 0, and failures are 50
+
+Hash functions are:
+g_0: 	1	4	7	12	13	14	15	20	21	24	26	27
+g_1: 	2	5	7	8	10	11	13	22	24	26	27	29
+
+Starting enumeration
