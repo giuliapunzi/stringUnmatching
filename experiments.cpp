@@ -2,6 +2,7 @@
 #include <fstream>
 #include <string>
 #include <vector>
+#include <array>
 #include <set>
 #include <algorithm> 
 #include <cmath>
@@ -1131,7 +1132,7 @@ void recSmartEnum(string prefix, vector<vector<int>> &stringsLeft, vector<vector
 }
 
 
-vector<string> enumSmart(vector<vector<int>> &mappedPos, vector<vector<int>> &g, string &W)
+vector<string> smartEnum(vector<vector<int>> &mappedPos, vector<vector<int>> &g, string &W)
 {
     // cout << "Inside enumSmart" << endl;
 
@@ -1300,13 +1301,13 @@ void recSmartEnumToph(int h, string prefix, vector<vector<int>> &stringsLeft, ve
                 vector<int> removed1;
 
                 // now, we need to update stringsLeft before moving on
-                // we need to scan all stringsLeft and remove the indices corresponding to m-mers having char c at the correct (last) position
+                // we need to scan all stringsLeft and remove the indices corresponding to m-mers having char different from c at the correct (last) position
                 // recall: position (offset) is current, the same for both g0 and g1
                 // let us first do first set, then second
                 for (int j  = 0; j < stringsLeft[0].size(); j++)
                 {
                     // if the character in the string is different from c, remove them
-                    // we also need to keep them to reinsert for successive iteration
+                    // keep them in the vector to reinsert for successive iteration
                     if(W[stringsLeft[0][j]+current] != c)
                     {   
                         // add the position to vector removed0
@@ -1564,7 +1565,7 @@ void recSmartEnumToph(int h, string prefix, vector<vector<int>> &stringsLeft, ve
 }
 
 
-vector<string> enumSmartToph(int h, vector<vector<int>> &mappedPos, vector<vector<int>> &g, string &W)
+vector<string> smartEnumToph(int h, vector<vector<int>> &mappedPos, vector<vector<int>> &g, string &W)
 {
     // cout << "Inside enumSmart" << endl;
     int n0 = g[0].size(); // length of strings in projected space
@@ -1688,22 +1689,36 @@ vector<string> enumSmartToph(int h, vector<vector<int>> &mappedPos, vector<vecto
 
 
 
-////  TODO: FUNCTIONS FOR ENUMERATING TOP H ELEMENTS, WITH K HASH FUNCTIONS
-
-void recEnumTophMultiple(int h, string prefix, vector<vector<int>> &stringsLeft, vector<vector<int>> &g, string &W, vector<string> &queries, vector<vector<int>> &freq0, vector<vector<int>> &freq1)
+void recEnumTophMultiple(int h, string prefix, vector<vector<int>> &stringsLeft, vector<vector<int>> &g, string &W, vector<string> &queries, vector<vector<array<int,4>>> &freq)
 {
     // cout << "Inside recursion" << endl;
     if(queries.size() == h)
         return; 
 
-    if(g[0].size() == 0 && g[1].size()==0)
+    // if all g have been emptied (all their offsets have been considered), we are in the base case
+    bool gempty = true;
+    for (int i = 0; i < g.size(); i++)
+    {
+        if (g[i].size() > 0)
+            gempty = false;
+    }
+    
+    if(gempty)
     {   
         // cout << "String considered is " << prefix << endl;
+
         // if we generated a string of correct length which is different from all other strings (stringsLeft is empty), we are done
-        if(stringsLeft[0].size() == 0 && stringsLeft[1].size() == 0)
+        bool stringempty = true;
+        for (int i = 0; i < stringsLeft.size(); i++)
         {
+            if (stringsLeft[i].size() > 0)
+                stringempty = false;
+        }
+
+        if(stringempty)
+        {
+            // we have been building the string back-to-front, so we need to reverse it, and then push it into the queries vector
             reverse(prefix.begin(), prefix.end());
-            // we need to compute the given string (by adding the projection offsets) that we are considering
             queries.push_back(prefix);
             // cout << "Valid string found: " << prefix << endl;
         }
@@ -1712,351 +1727,165 @@ void recEnumTophMultiple(int h, string prefix, vector<vector<int>> &stringsLeft,
     }
     else
     {
-        // take the next position; first deal with case when they are equal
         // positions are considered FROM THE BACK for ease of push/pop
-        int current;
-        int size0 = g[0].size();
-        int size1 = g[1].size();
+        // NOTE: the size of some g could be zero, as we remove elements from them; we need to check for this
 
-        vector<int> frequencies;
+        // take the "next" = biggest position
+        int current = 0;
+        for (int i = 0; i < g.size(); i++)
+        {
+            // if the last element of the array is bigger than current, it becomes current
+            if (g[i].size() > 0 && g[i].back() > current)
+                current = g[i].back();
+        }
+
+        // now select all indices which realize current as last position
+        vector<int> currentfunctions;
+        for (int i = 0; i < g.size(); i++)
+        {
+            if (g[i].size() > 0 && g[i].back() == current)
+                currentfunctions.push_back(i);
+        }
+        
+        // NOTE: g[currentfunctions[i]] for all i are the functions where we have removed the current index
+
+        array<int, 4> frequencies;
         vector<int> freqInd;
+
+
+        // pop the current position we are considering from the currentfunctions
+        for (int i = 0; i < currentfunctions.size(); i++)
+            g[currentfunctions[i]].pop_back();
         
-        // last position is overlapping
-        if(size0 > 0 && size1 > 0 && g[0][size0-1] == g[1][size1-1])
+        // cout << "Next position is " << current << endl;
+
+        // the frequencies are the sum of the frequencies of the corresponding currentfunctions frequency vectors
+        // so, start the vector of frequencies as the first current function frequency vector for the last offset
+        // (which corresponds to our current index), and then for every other current function sum the vectors
+        for (int i = 0; i < frequencies.size(); i++)
+            frequencies[i]= 0;
+        
+        //frequencies = freq[currentfunctions[0]].back();
+        for (int i = 0; i < currentfunctions.size(); i++)
         {
-
-            current = g[0][size0-1];
-            g[0].pop_back();
-            g[1].pop_back();
-
-            // cout << "Next position is " << current << endl;
-
-
-            // in this case, the frequencies are the sum of the frequencies of the two vectors
-            frequencies = freq0[freq0.size()-1];
-            for (int i = 0; i < frequencies.size(); i++)
-                frequencies[i]+=freq1[freq1.size()-1][i];
-
-            // cout << "Considering frequencies vector ";
-            // for (int i = 0; i < frequencies.size(); i++)
-            // {
-            //     cout << "\t" << frequencies[i];
-            // }
-
-            // order the indices such that frequencies is ordered (ascendingly) according to them
-            freqInd = {0,1,2,3};
-            sort(freqInd.begin(), freqInd.end(), [&](int i1, int i2) { return frequencies[i1] < frequencies[i2]; } );
-
-
-            // cout << endl << "Sorted indices: " << endl;
-            // for (int i = 0; i < freqInd.size(); i++)
-            // {
-            //     cout << "Index " << freqInd[i] << " with value " << frequencies[freqInd[i]] << endl;
-            // }
-
-            
-            // this goes through all character in increasing frequency order
-            for (int i = 0; i < freqInd.size(); i++)
-            {
-                // current character is exactly alph[freqInd[i]]
-                char c = alph[freqInd[i]];
-                vector<int> removed0;
-                vector<int> removed1;
-
-                // now, we need to update stringsLeft before moving on
-                // we need to scan all stringsLeft and remove the indices corresponding to m-mers having char c at the correct (last) position
-                // recall: position (offset) is current, the same for both g0 and g1
-                // let us first do first set, then second
-                for (int j  = 0; j < stringsLeft[0].size(); j++)
-                {
-                    // if the character in the string is different from c, remove them
-                    // we also need to keep them to reinsert for successive iteration
-                    if(W[stringsLeft[0][j]+current] != c)
-                    {   
-                        // add the position to vector removed0
-                        removed0.push_back(stringsLeft[0][j]);
-                        // erase the jth element from vector stringsLeft[0] TO BE DONE LATER!!!
-                        // stringsLeft[0].erase(stringsLeft[0].begin() + j);
-                    }
-                }
-
-                //  now, remove every element of removed0 from stringsLeft
-                for (int j = 0; j < removed0.size(); j++)
-                {
-                    vector<int>::iterator it = find(stringsLeft[0].begin(), stringsLeft[0].end(), removed0[j]);
-                    stringsLeft[0].erase(it);
-                }
-                
-
-                // the same for second vector 
-                for (int j  = 0; j < stringsLeft[1].size(); j++)
-                {
-                    // if the character in the string is different from c, remove them
-                    // we also need to keep them to reinsert for successive iteration
-                    if(W[stringsLeft[1][j]+current] != c)
-                    {   
-                        // add the position to vector removed1
-                        removed1.push_back(stringsLeft[1][j]);
-                        // erase the jth element from vector stringsLeft[1]
-                        // stringsLeft[1].erase(stringsLeft[1].begin() + j);
-                    }
-                }
-
-                //  now, remove every element of removed1 from stringsLeft
-                for (int j = 0; j < removed1.size(); j++)
-                {
-                    vector<int>::iterator it = find(stringsLeft[1].begin(), stringsLeft[1].end(), removed1[j]);
-                    stringsLeft[1].erase(it);
-                }
-
-                // cout << "About to recurse by appending char " << c << endl;
-                // cout << "Current strings left are:" << endl;
-                // cout << "StringsLeft[0] = ";
-                // for (int j = 0; j < stringsLeft[0].size(); j++)
-                // {
-                //     cout << "\t" << stringsLeft[0][j];
-                // }
-                // cout << endl;
-
-                // cout << "StringsLeft[1] = ";
-                // for (int j = 0; j < stringsLeft[1].size(); j++)
-                // {
-                //     cout << "\t" << stringsLeft[1][j];
-                // }
-                // cout << endl;
-                
-                recSmartEnumToph(h, prefix + c, stringsLeft, g, W, queries, freq0, freq1);
-
-                // if(queries.size() == h)
-                //     return; 
-                
-
-                // now re-add stringsLeft indices for next iteration
-                stringsLeft[0].insert( stringsLeft[0].end(), removed0.begin(), removed0.end() );
-                stringsLeft[1].insert( stringsLeft[1].end(), removed1.begin(), removed1.end() );
-
-            }
-
-            // re-add current to g before returning
-            g[0].push_back(current);
-            g[1].push_back(current);
-            return;
+            // for every character frequency, sum the value for the currentfunction's last offset character frequency
+            for (int j = 0; j < frequencies.size(); j++)
+                frequencies[j] += freq[currentfunctions[i]].back()[j];
         }
         
+        // cout << "Considering frequencies vector ";
+        // for (int i = 0; i < frequencies.size(); i++)
+        // {
+        //     cout << "\t" << frequencies[i];
+        // }
 
-        // last position is in first vector
-        if (size1 == 0 || (size1 > 0 && size0 > 0 && g[0][size0-1] > g[1][size1-1]))
+
+        // order the indices such that frequencies is ordered (ascendingly) according to them
+        freqInd = {0,1,2,3};
+        sort(freqInd.begin(), freqInd.end(), [&](int i1, int i2) { return frequencies[i1] < frequencies[i2]; } );
+
+        // cout << endl << "Sorted indices: " << endl;
+        // for (int i = 0; i < freqInd.size(); i++)
+        // {
+        //     cout << "Index " << freqInd[i] << " with value " << frequencies[freqInd[i]] << endl;
+        // }
+
+        
+        // this goes through all character in increasing frequency order (so, we start with the LEAST frequent), eliminating the most strings
+        for (int i = 0; i < freqInd.size(); i++)
         {
-            current = g[0][size0-1];
-            g[0].pop_back();
+            // current character is exactly alph[freqInd[i]]
+            char c = alph[freqInd[i]];
 
-            // cout << "Next position is " << current << endl;
-            
+            // vector removed is used to keep track of the positions that have been removed for every currentfunction
+            // this is needed to reappend the positions before exiting the recursive call
+            // this vector will have the same size as currentfunctions
+            vector<vector<int>> removed;
 
-            // in this case, the frequencies are just freq0
-            frequencies = freq0[freq0.size()-1];
-            // cout << "Considering frequencies vector ";
-            // for (int i = 0; i < frequencies.size(); i++)
-            // {
-            //     cout << "\t" << frequencies[i];
-            // }
-            
-            
-            // order the indices such that frequencies is ordered (ascendingly) according to them
-            freqInd = {0,1,2,3};
-            sort(freqInd.begin(), freqInd.end(), [&](int i1, int i2) { return frequencies[i1] < frequencies[i2]; } );
-
-            // cout << endl << "sorted indices: " << endl;
-            // for (int i = 0; i < freqInd.size(); i++)
-            // {
-            //     cout << "Index " << freqInd[i] << " with value " << frequencies[freqInd[i]] << endl;
-            // }
-            
-            // this goes through all character in increasing frequency order
-            for (int i = 0; i < freqInd.size(); i++)
+            // we need to update stringsLeft before recursing: for every currentfunction, we scan its stringsLeft and 
+            // remove the indices corresponding to m-mers having a char different from c at the correct (last) position
+            // recall: position (offset) is current, the same for all functions in currentfunctions
+            for (int fctn = 0; fctn < currentfunctions.size(); fctn++)
             {
-                // current character is exactly alph[i]
-                char c = alph[freqInd[i]];
-                vector<int> removed;
+                // NOTE: currentfunctions[fctn] are the indices of the functions we are considering
+                int fctnindex = currentfunctions[fctn];
 
-                // now, we need to update stringsLeft before moving on
-                // we need to scan all stringsLeft and remove the indices corresponding to m-mers having char c at the correct (last) position
-                // we only go through stringsLeft[0]
-                for (int j  = 0; j < stringsLeft[0].size(); j++)
-                {   
-                    // cout << "Now considering position " << stringsLeft[0][j] << "; we will sum it to offset " << current << endl;
-                    // cout << "In the string, we are looking at " << W[stringsLeft[0][j]+current] << endl;
-                    // if the character in the string is different from c, remove them
-                    // we also need to keep them to reinsert for successive iteration
-                    if(W[stringsLeft[0][j]+current] != c)
-                    {   
-                        // add the position to vector removed0
-                        removed.push_back(stringsLeft[0][j]);
-                        // erase the jth element from vector stringsLeft[0]
-                        // stringsLeft[0].erase(stringsLeft[0].begin() + j);
-                    }
-                }
+                vector<int> currRemoved;  // currRemoved will be filled with the positions to be removed at index fctnindex
 
-                //  now, remove every element of removed0 from stringsLeft
-                for (int j = 0; j < removed.size(); j++)
+                // this iterates over the stringsLeft for the function with index currentfunctions[fctn]
+                for (int j = 0; j< stringsLeft[fctnindex].size(); j++)
                 {
-                    vector<int>::iterator it = find(stringsLeft[0].begin(), stringsLeft[0].end(), removed[j]);
-                    stringsLeft[0].erase(it);
+                    // if the character in the string at the current offset is different from c, add them to the removed array
+                    // RECALL: stringsLeft are indexed just like the functions g, so we need to "apply" currentfunctions to the index
+                    if(W[stringsLeft[fctnindex][j]+current] != c)
+                        currRemoved.push_back(stringsLeft[fctnindex][j]);
                 }
-
-
-                // cout << "About to recurse by appending char " << c << endl;
-                // cout << "Current strings left are:" << endl;
-                // cout << "StringsLeft[0] = ";
-                // for (int j = 0; j < stringsLeft[0].size(); j++)
-                // {
-                //     cout << "\t" << stringsLeft[0][j];
-                // }
-                // cout << endl;
-
-                // cout << "StringsLeft[1] = ";
-                // for (int j = 0; j < stringsLeft[1].size(); j++)
-                // {
-                //     cout << "\t" << stringsLeft[1][j];
-                // }
-                // cout << endl;
-
-                recSmartEnumToph(h, prefix + c, stringsLeft, g, W, queries, freq0, freq1);
                 
-                // if(queries.size() == h)
-                //     return; 
-
-                // now re-add stringsLeft indices for next iteration
-                stringsLeft[0].insert( stringsLeft[0].end(), removed.begin(), removed.end() );
+                // push back the finalized vector of positions to be removed for the corresponding current function
+                removed.push_back(currRemoved);
             }
-        
-            // re-add current to g before returning
-            g[0].push_back(current);
-            return;
-        }
-        
-        
-        if(size0 == 0 || (size0>0 && size1>0 && g[0][size0-1] < g[1][size1-1])) // last position is in second vector
-        {
-            current = g[1][size1-1];
-            g[1].pop_back();
-
-            // cout << "Next position is " << current << endl;
             
-            // in this case, the frequencies are just freq1
-            frequencies = freq1[freq1.size()-1];
 
-            // cout << "Considering frequencies vector ";
-            // for (int i = 0; i < frequencies.size(); i++)
-            // {
-            //     cout << "\t" << frequencies[i];
-            // }
-            
-            // order the indices such that frequencies is ordered (ascendingly) according to them
-            freqInd = {0,1,2,3};
-            sort(freqInd.begin(), freqInd.end(), [&](int i1, int i2) { return frequencies[i1] < frequencies[i2]; } );
-            
-            // cout << endl << "sorted indices: " << endl;
-            // for (int i = 0; i < freqInd.size(); i++)
-            // {
-            //     cout << "Index " << freqInd[i] << " with value " << frequencies[freqInd[i]] << endl;
-            // }
-
-            // this goes through all character in increasing frequency order
-            for (int i = 0; i < freqInd.size(); i++)
+            // now, remove every element of removed from the corresponding stringsLeft
+            // iterate over the elements of removed, each corresponding to a currentfunction
+            for (int fctn = 0; fctn < removed.size(); fctn++)
             {
-                // current character is exactly alph[i]
-                char c = alph[freqInd[i]];
-                vector<int> removed;
-
-                // now, we need to update stringsLeft before moving on
-                // we need to scan all stringsLeft and remove the indices corresponding to m-mers having char c at the correct (last) position
-                // we only go through stringsLeft[1]
-                for (int j  = 0; j < stringsLeft[1].size(); j++)
+                // for every element to remove from the stringsLeft of currentfunctions[fctn]
+                for (int j = 0; j < removed[fctn].size(); j++)
                 {
-                    // if the character in the string is different from c, remove them
-                    // we also need to keep them to reinsert for successive iteration
-                    if(W[stringsLeft[1][j]+current] != c)
-                    {   
-                        // add the position to vector removed0
-                        removed.push_back(stringsLeft[1][j]);
-                        // erase the jth element from vector stringsLeft[0]
-                        // stringsLeft[1].erase(stringsLeft[1].begin() + j);
-                    }
-                }
-
-                //  now, remove every element of removed0 from stringsLeft
-                for (int j = 0; j < removed.size(); j++)
-                {
-                    vector<int>::iterator it = find(stringsLeft[1].begin(), stringsLeft[1].end(), removed[j]);
-                    stringsLeft[1].erase(it);
-                }
-
-                // cout << "About to recurse by appending char " << c << endl;
-                // cout << "Current strings left are:" << endl;
-                // cout << "StringsLeft[0] = ";
-                // for (int j = 0; j < stringsLeft[0].size(); j++)
-                // {
-                //     cout << "\t" << stringsLeft[0][j];
-                // }
-                // cout << endl;
-
-                // cout << "StringsLeft[1] = ";
-                // for (int j = 0; j < stringsLeft[1].size(); j++)
-                // {
-                //     cout << "\t" << stringsLeft[1][j];
-                // }
-                // cout << endl;
-
-                recSmartEnumToph(h, prefix + c, stringsLeft, g, W, queries, freq0, freq1);
-                
-                // if(queries.size() == h)
-                //     return; 
-
-                // now re-add stringsLeft indices for next iteration
-                stringsLeft[1].insert( stringsLeft[1].end(), removed.begin(), removed.end() );
+                    // find the position in stringsLeft with respect to the currentfunction we are considering, where the element
+                    // to be removed occurs, and remove it
+                    vector<int>::iterator it = find(stringsLeft[currentfunctions[fctn]].begin(), stringsLeft[currentfunctions[fctn]].end(), removed[fctn][j]);
+                    stringsLeft[currentfunctions[fctn]].erase(it);
+                }                
             }
-        
-            // re-add current to g before returning
-            g[1].push_back(current);
-            return;
-        }
 
-        throw logic_error("Next position does not fall under any case!");
-           
+            // cout << "About to recurse by appending char " << c << endl;
+            
+            recEnumTophMultiple(h, prefix + c, stringsLeft, g, W, queries, freq);
+
+
+            // now re-add stringsLeft indices for next iteration
+            for (int fctn = 0; fctn < currentfunctions.size(); fctn++)
+                stringsLeft[currentfunctions[fctn]].insert(stringsLeft[currentfunctions[fctn]].end(), removed[fctn].begin(), removed[fctn].end());
+            
+        } // this is the end of the loop over the alphabet chars 
+
+        // re-add current to all functions g where it was removed before returning
+        for (int i = 0; i < currentfunctions.size(); i++)
+            g[currentfunctions[i]].push_back(current);
+        
+        return;
     }
+
 }
 
 
 vector<string> enumTophMultiple(int h, vector<vector<int>> &mappedPos, vector<vector<int>> &g, string &W)
 {
     // cout << "Inside enumSmart" << endl;
-    int n0 = g[0].size(); // length of strings in projected space
-    int n1 = g[1].size();
+    int k = g.size();
 
-    if(mappedPos[0].size() == pow(alph.size(),g[0].size()) || mappedPos[1].size() == pow(alph.size(),g[1].size()))
-    {   
-        cout << "STRING SET IS FULL!" << endl;
-        return {};
-    }
 
-    int missing0 = pow(alph.size(),g[0].size()) - mappedPos[0].size();
-    int missing1 = pow(alph.size(),g[1].size()) - mappedPos[1].size();
-
-    cout << "Strings missing in first set: " << missing0 <<endl;
-    cout << "Strings missing in second set: " << missing1 <<endl;
-
-    if(missing0<h)
+    // check if any of the sets are full
+    for (int i = 0; i < mappedPos.size(); i++)
     {
-        cout << "missing0 < h" << endl;
-        h=missing0;
+        if(mappedPos[i].size() == pow(alph.size(),g[i].size()))
+        {
+            cout << i+1 << "TH STRING SET IS FULL!" << endl;
+            return {};
+        }
     }
-        
     
-    if(missing1<h)
+    
+    // output number of strings missing in each set
+    for (int i = 0; i < mappedPos.size(); i++)
     {
-        cout << "missing1 < h" << endl;
-        h=missing1;
+        int missing = pow(alph.size(),g[i].size()) - mappedPos[i].size();
+        cout << "Strings missing in the " << i+1 << "th set: " << missing <<endl;
+        
+        if (missing < h)
+            h = missing;   
     }
 
     cout << "Recursing with h=" << h<<endl;
@@ -2064,88 +1893,54 @@ vector<string> enumTophMultiple(int h, vector<vector<int>> &mappedPos, vector<ve
     vector<string> queries;
     int n; // n must be the amount of overlap
 
-    vector<vector<int>> freq0;
-    vector<vector<int>> freq1;
+    // frequencies will be a vector<vector<vector<int>>>: for every function we have a vector<vector<int>>, where for
+    // every offset given by the element of the function, we compute the vector frequency of the alphabet.
+    // to this end, we take every character, and for every mapped position we offset it and look at the character
+
+    vector<vector<array<int, 4>>> freq;
     vector<int> current;
 
-    // first loop for g[0]
-    // for every offset
-    for (int i = 0; i < g[0].size(); i++)
+    // loop over all functions
+    for (int i = 0; i < g.size(); i++)
     {
-        current.clear();
-
-        // for every alphabet char, we are performing the count
-        for (int charind = 0; charind < alph.size(); charind++)
+        // loop over all offsets
+        for (int j = 0; j < g[i].size(); j++)
         {
-            int count = 0;
+            current.clear();
+            array<int,4> count;
 
             // for every valid position for the current hash function
-            for (int pos = 0; pos < mappedPos[0].size(); pos++)
+            for (int pos = 0; pos < mappedPos[i].size(); pos++)
             {
-                // find character that occurs at position + offset is our char, increase its count
-                if(W[mappedPos[0][pos] + g[0][i]] == alph[charind])
-                    count++;
+                // compute the character for the current mappedPos + offset, find its index in the alphabet
+                // and increase its count
+                char c = W[mappedPos[i][pos] + g[i][j]];
+                int charpos = distance(alph.begin(), find(alph.begin(), alph.end(), c));
+                count[charpos]++;
             }
 
-            current.push_back(count);            
         }
-
-        freq0.push_back(current);
-    }
-
-    // cout << "Frequencies of chars for g[0]: " << endl;
-    // for (int i = 0; i < freq0.size(); i++)
-    // {
-    //     cout << "Frequencies at offset " << g[0][i] << ": " << endl;
-    //     for (int j = 0; j < freq0[i].size(); j++)
-    //     {
-    //         cout << "\tfreq(" << alph[j] << ") = " << freq0[i][j];
-    //     }
-    //     cout << endl;
         
-    // }
+    }
     
-
-    
-    // second loop for g[1]
-    // for every offset
-    for (int i = 0; i < g[1].size(); i++)
+    cout << "Frequencies of chars for all functions g: " << endl;
+    for (int i = 0; i < freq.size(); i++)
     {
-        current.clear();
-
-        // for every alphabet char, we are performing the count
-        for (int charind = 0; charind < alph.size(); charind++)
+        cout << "\ng_" << i << endl;
+        for (int j = 0; j < freq[i].size(); j++)
         {
-            int count = 0;
-
-            // for every valid position for the current hash function
-            for (int pos = 0; pos < mappedPos[1].size(); pos++)
+            cout << "Frequencies at offset " << g[i][j] << ": ";
+            for (int t = 0; t < freq[i][j].size(); t++)
             {
-                // find character that occurs at position + offset is our char, increase its count
-                if(W[mappedPos[1][pos] + g[1][i]] == alph[charind])
-                    count++;
+                cout << "\tfreq(" << alph[t] << ") = " << freq[i][j][t];
             }
-
-            current.push_back(count);            
+            cout << endl;    
         }
-
-        freq1.push_back(current);
+        cout << endl;
     }
+    
 
-    // cout << endl << "Frequencies of chars for g[1]: " << endl;
-    // for (int i = 0; i < freq1.size(); i++)
-    // {
-    //     cout << "Frequencies at offset " << g[1][i] << ": " << endl;
-    //     for (int j = 0; j < freq1[i].size(); j++)
-    //     {
-    //         cout << "\tfreq(" << alph[j] << ") = " << freq1[i][j];
-    //     }
-    //     cout << endl;
-        
-    // }
-
-
-    recSmartEnumToph(h, "", mappedPos, g, W, queries, freq0, freq1);
+    recEnumTophMultiple(h, "", mappedPos, g, W, queries, freq);
 
     return queries;
 }
@@ -2623,9 +2418,9 @@ int main()
             vector<string> enumerated;
 
             if(h==-1)
-                enumerated = enumSmart(mapped, g, W);
+                enumerated = smartEnum(mapped, g, W);
             else
-                enumerated = enumSmartToph(h, mapped, g, W);
+                enumerated = smartEnumToph(h, mapped, g, W);
 
 
             endTime = clock();
