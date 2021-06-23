@@ -21,3 +21,79 @@ Elapsed clock time: 149673024; in seconds 149
 
 
 
+
+
+
+================== m=12		h=100 ==================
+Original input is made of 100 genomes. Each string found with LSH will be extended 2 times.
+Original input as a text is of total length N=2044485 and the number of input L-mers is 2030405
+
+Number of enumeration trials: 1
+Number of random trials: 1000
+
+Hash functions are:
+g_0: 	0	7	10	12	13	16	17	19
+g_1: 	0	3	4	5	7	8	9	11	13
+
+Projected string sets are full.
+Total elapsed clock time for trial 1 is 98; in seconds: 9.8e-05
+Successes (of extension) are 0, and failures are 0
+
+
+
+Number of random successes over 1000 extractions is 6
+Elapsed clock time: 75364166; in seconds 75
+
+
+
+
+
+
+================== m=12		h=100 ==================
+Original input is made of 100 genomes. Each string found with LSH will be extended 2 times.
+Original input as a text is of total length N=6406073 and the number of input L-mers is 6317408
+
+Number of enumeration trials: 1
+Number of random trials: 1000
+
+Hash functions are:
+g_0: 	1	5	10	11	12	13	14	16	19
+g_1: 	1	4	8	11	13	16	18
+
+Projected string sets are full.
+Total elapsed clock time for trial 1 is 143; in seconds: 0.000144
+Successes (of extension) are 0, and failures are 0
+
+
+
+Number of random successes over 1000 extractions is 0
+Elapsed clock time: 141034512; in seconds 141
+
+
+
+
+
+
+================== m=13		h=100 ==================
+Original input is made of 100 genomes. Each string found with LSH will be extended 2 times.
+Original input as a text is of total length N=2221195 and the number of input L-mers is 2201110
+
+Number of enumeration trials: 1
+Number of random trials: 1000
+
+Hash functions are:
+g_0: 	1	2	5	6	7	8	10	11	13	15	18
+g_1: 	0	1	2	4	6	8	9	11	12	14	17	19
+
+Enumeration without completion in clock time 9035344009; in seconds: 9035.34
+Found 100 strings.
+Total elapsed clock time for trial 1 is 9056992724; in seconds: 9056.99
+Successes (of extension) are 6, and failures are 194
+
+
+
+Number of random successes over 1000 extractions is 8
+Elapsed clock time: 83384784; in seconds 83
+
+
+

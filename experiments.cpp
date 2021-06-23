@@ -2152,40 +2152,40 @@ int main()
     {
         cout << "Insert size of target space of LSH: ";
         cin >> m;
-        cout << endl;
+        // cout << endl;
         
 
         cout << "Insert required number of hash functions for LSH: ";
         cin >> k;
-        cout << endl;
+        // cout << endl;
         // k = 2; 
 
         cout << "Insert cutoff h for enumeration (-1 for full): ";
         cin >> h;
-        cout << endl;
+        // cout << endl;
         
         // if h=-1, full enumeration
 
         cout << "How many extensions do you want to perform for each string enumerated? ";
         cin >> extnum;
-        cout << endl;
+        // cout << endl;
 
         cout << "How many trials do you want to perform for enumeration? ";
         cin >> trialse;
-        cout << endl;
+        // cout << endl;
 
         if(rore == 'b')
         {
             cout << "How many random trials do you want to perform? ";
             cin >> trialsr;
-            cout << endl;
+            // cout << endl;
         }
     }
     else
     {
         cout << "How many trials do you want to perform? ";
         cin >> trialsr;
-        cout << endl;
+        // cout << endl;
     }
 
     ofstream outputfile;
