@@ -1875,16 +1875,19 @@ vector<string> enumTophMultiple(int h, vector<vector<int>> &mappedPos, vector<ve
         }
     }
     
-    
+    int missingprod=1;
     // output number of strings missing in each set
     for (int i = 0; i < mappedPos.size(); i++)
     {
         int missing = pow(alph.size(),g[i].size()) - mappedPos[i].size();
         cout << "Strings missing in the " << i+1 << "th set: " << missing <<endl;
-        
-        if (missing < h)
-            h = missing;   
+        missingprod*=missing;
+        // if (missing < h)
+        //     h = missing;   
     }
+
+    if (missingprod < h)
+        h = missingprod;   
 
     cout << "Recursing with h=" << h<<endl;
 
@@ -1896,16 +1899,19 @@ vector<string> enumTophMultiple(int h, vector<vector<int>> &mappedPos, vector<ve
     // to this end, we take every character, and for every mapped position we offset it and look at the character
 
     vector<vector<array<int, 4>>> freq;
-    vector<int> current;
+    vector<array<int,4>> gfreq;
+    array<int,4> count;
+
 
     // loop over all functions
     for (int i = 0; i < g.size(); i++)
     {
+        gfreq.clear();
+
         // loop over all offsets
         for (int j = 0; j < g[i].size(); j++)
         {
-            current.clear();
-            array<int,4> count;
+            fill(count.begin(), count.end(), 0);
 
             // for every valid position for the current hash function
             for (int pos = 0; pos < mappedPos[i].size(); pos++)
@@ -1914,16 +1920,20 @@ vector<string> enumTophMultiple(int h, vector<vector<int>> &mappedPos, vector<ve
                 // and increase its count
                 char c = W[mappedPos[i][pos] + g[i][j]];
                 int charpos = distance(alph.begin(), find(alph.begin(), alph.end(), c));
+                // cout << "Charpos is " << charpos << endl;
                 count[charpos]++;
             }
 
+            gfreq.push_back(count);
         }
         
+        freq.push_back(gfreq);
     }
     
     cout << "Frequencies of chars for all functions g: " << endl;
     for (int i = 0; i < freq.size(); i++)
     {
+
         cout << "\ng_" << i << endl;
         for (int j = 0; j < freq[i].size(); j++)
         {
@@ -1981,13 +1991,16 @@ string extendString(string q, int L, vector<int> &pos)
     return extq;
 }
 
-int main()
+int testmain()
 {
     string W="ACCTGTCACCTCACAAGGACCCCCA";
     int L = 5;
     int r = 3;
     int m = 2;
     int k = 3;
+    int h = 10;
+    int N = W.length();
+    vector<int> input;
 
 
     set<string> inputset;
@@ -2027,6 +2040,22 @@ int main()
     for (int i = 0; i < mapped.size(); i++)
         cout << "\t" << mapped[i].size();
     cout << endl;
+
+    cout << "Mapped inputs:" << endl;
+    for (int i = 0; i < g.size(); i++)
+    {
+        cout << i << "th function: ";
+        for (int l = 0; l < mapped[i].size(); l++)
+        {
+            cout << "\t";
+            for (int j = 0; j < g[i].size(); j++)
+            {
+                cout << W[mapped[i][l] + g[i][j]];
+            }
+        } 
+        cout << endl;
+    }
+    
 
     vector<string> queries = enumTophMultiple(h, mapped, g, W);
 
@@ -2076,7 +2105,7 @@ int main()
     return 0;
 }
 
-int expmain()
+int main()
 {
     int N,L,r,m,k,h,genum,extnum;
     string W;
@@ -2126,10 +2155,10 @@ int expmain()
         cout << endl;
         
 
-        cout << "Number of hash functions for LSH will be two." << endl;
-        // cin >> k;
-        // cout << endl;
-        k = 2; 
+        cout << "Insert required number of hash functions for LSH: " << endl;
+        cin >> k;
+        cout << endl;
+        // k = 2; 
 
         cout << "Insert cutoff h for enumeration (-1 for full): ";
         cin >> h;
@@ -2162,7 +2191,7 @@ int expmain()
     ofstream outputfile;
     if(rore == 'e')
     {
-        string outputname = "./ExpResults/"+to_string(genum)+"GenomesL" + to_string(L)+"r"+to_string(r)+".txt";
+        string outputname = "./ExpResults/"+to_string(genum)+"GenomesL" + to_string(L)+"r"+to_string(r)+"k"+to_string(k)+".txt";
         outputfile.open(outputname, ios_base::app);
     }
     if(rore == 'r')   
@@ -2172,7 +2201,7 @@ int expmain()
     }
     if(rore == 'b')   
     {
-        string outputname = "./ExpResults/Both"+to_string(genum)+"GenomesL" + to_string(L)+"r"+to_string(r)+".txt";
+        string outputname = "./ExpResults/Both"+to_string(genum)+"GenomesL" + to_string(L)+"r"+to_string(r)+"k"+to_string(k)+".txt";
         cout << "Output in file " << outputname << endl;
         outputfile.open(outputname, ios_base::app);
     }
@@ -2510,7 +2539,9 @@ int expmain()
             if(h==-1)
                 enumerated = smartEnum(mapped, g, W);
             else
-                enumerated = smartEnumToph(h, mapped, g, W);
+                enumerated = enumTophMultiple(h, mapped, g, W);
+
+                // enumerated = smartEnumToph(h, mapped, g, W);
 
 
             endTime = clock();
