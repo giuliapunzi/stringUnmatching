@@ -1871,23 +1871,23 @@ vector<string> enumTophMultiple(int h, vector<vector<int>> &mappedPos, vector<ve
         if(mappedPos[i].size() == pow(alph.size(),g[i].size()))
         {
             cout << i+1 << "TH STRING SET IS FULL!" << endl;
-            return {};
+            return {"fullsets"};
         }
     }
     
-    int missingprod=1;
+    // int missingprod=1;
     // output number of strings missing in each set
     for (int i = 0; i < mappedPos.size(); i++)
     {
         int missing = pow(alph.size(),g[i].size()) - mappedPos[i].size();
         cout << "Strings missing in the " << i+1 << "th set: " << missing <<endl;
-        missingprod*=missing;
+        // missingprod*=missing;
         // if (missing < h)
         //     h = missing;   
     }
 
-    if (missingprod < h)
-        h = missingprod;   
+    // if (missingprod < h)
+    //     h = missingprod;   
 
     cout << "Recursing with h=" << h<<endl;
 
@@ -2137,10 +2137,10 @@ int main()
     // r=10;
 
     
-    char rore;
-    cout << "Do you want random generation or enumeration, or both? (r/e/b) ";
-    cin  >> rore;
-    cout << endl;
+    char rore = 'b';
+    // cout << "Do you want random generation or enumeration, or both? (r/e/b) ";
+    // cin  >> rore;
+    // cout << endl;
 
 
     if(rore != 'e' && rore != 'r' && rore!= 'b')
@@ -2155,7 +2155,7 @@ int main()
         cout << endl;
         
 
-        cout << "Insert required number of hash functions for LSH: " << endl;
+        cout << "Insert required number of hash functions for LSH: ";
         cin >> k;
         cout << endl;
         // k = 2; 
@@ -2201,14 +2201,14 @@ int main()
     }
     if(rore == 'b')   
     {
-        string outputname = "./ExpResults/Both"+to_string(genum)+"GenomesL" + to_string(L)+"r"+to_string(r)+"k"+to_string(k)+".txt";
+        string outputname = "./ExpResults/"+to_string(genum)+"GenomesL" + to_string(L)+"r"+to_string(r)+"k"+to_string(k)+".txt";
         cout << "Output in file " << outputname << endl;
         outputfile.open(outputname, ios_base::app);
     }
 
     outputfile << endl << endl << endl << "================== m=" << m << "\t\th="<<h<< " ==================" << endl;
-    outputfile << "Original input is made of " << genum << " genomes."; //, specifically no. ";
-    outputfile << "Each string found with LSH will be extended " << extnum << " times";
+    outputfile << "Original input is made of " << genum << " genomes. "; //, specifically no. ";
+    outputfile << "Each string found with LSH will be extended " << extnum << " times.";
 
     ifstream myfile;
 
@@ -2490,7 +2490,14 @@ int main()
             for (int i = 0; i < g.size(); i++)
                 mapped.push_back(mapInput(input, g[i], W));
 
-            cout << "Mapped input sizes: " << mapped[0].size() <<", "<< mapped[1].size() << endl;
+            
+            cout << "Mapped input sizes: ";
+            for (int i = 0; i < mapped.size(); i++)
+                cout << mapped[i].size() << ", ";
+            cout << endl;
+            
+
+            // cout << "Mapped input sizes: " << mapped[0].size() <<", "<< mapped[1].size() << endl;
             
             // // cout << "Mapped input:" << endl;
             // // cout << "According to first function: ";
@@ -2530,7 +2537,7 @@ int main()
             fail = 0;
 
             // cout << "Testing smart enumeration" << endl;
-            outputfile <<"Starting enumeration" << endl;
+            // outputfile <<"Starting enumeration" << endl;
 
             startTime= clock();
 
@@ -2546,10 +2553,20 @@ int main()
 
             endTime = clock();
 
-            outputfile << "Enumeration without completion in clock time " << endTime - startTime << "; in seconds: " << ((float) endTime -startTime)/CLOCKS_PER_SEC << endl;
-            outputfile << "Found " << enumerated.size() << " strings." << endl;
-
-            cout << "Found " << enumerated.size() << " strings." << endl;
+            
+            if (enumerated[0] == "fullsets")
+            {
+                outputfile << "Projected string sets are full." << endl;
+                cout << "Projected string sets are full. " << endl;
+                enumerated = {};
+            }
+            else
+            {
+                outputfile << "Enumeration without completion in clock time " << endTime - startTime << "; in seconds: " << ((float) endTime -startTime)/CLOCKS_PER_SEC << endl;
+                outputfile << "Found " << enumerated.size() << " strings." << endl;
+                cout << "Found " << enumerated.size() << " strings." << endl;
+            }
+            
 
             // cout << "Strings found are:";
             // for (int i = 0; i < enumerated.size(); i++)
@@ -2645,7 +2662,7 @@ int main()
     {
         count = 0;
         succ = 0;
-        outputfile << endl << endl << "Now starting random trials"<< endl;
+        outputfile << endl << endl; // << "Now starting random trials"<< endl;
         startTime = clock();
         while (count < trialsr)
         {
