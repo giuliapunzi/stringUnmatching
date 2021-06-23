@@ -1226,7 +1226,6 @@ vector<string> smartEnum(vector<vector<int>> &mappedPos, vector<vector<int>> &g,
 }
 
 
-
 void recSmartEnumToph(int h, string prefix, vector<vector<int>> &stringsLeft, vector<vector<int>> &g, string &W, vector<string> &queries, vector<vector<int>> &freq0, vector<vector<int>> &freq1)
 {
     // cout << "Inside recursion" << endl;
@@ -1688,7 +1687,6 @@ vector<string> smartEnumToph(int h, vector<vector<int>> &mappedPos, vector<vecto
 }
 
 
-
 void recEnumTophMultiple(int h, string prefix, vector<vector<int>> &stringsLeft, vector<vector<int>> &g, string &W, vector<string> &queries, vector<vector<array<int,4>>> &freq)
 {
     // cout << "Inside recursion" << endl;
@@ -1983,8 +1981,102 @@ string extendString(string q, int L, vector<int> &pos)
     return extq;
 }
 
-
 int main()
+{
+    string W="ACCTGTCACCTCACAAGGACCCCCA";
+    int L = 5;
+    int r = 3;
+    int m = 2;
+    int k = 3;
+
+
+    set<string> inputset;
+    pair<set<string>::iterator,bool> insertion;   
+    for (int i = 0; i <= N-L; i++)
+    {
+        insertion = inputset.insert(W.substr(i,L));
+        if(insertion.second)
+            input.push_back(i);
+    }
+    
+    if (input.size() != inputset.size())
+        throw logic_error("Set elements are different number than positions!");
+
+
+    cout << "Dealing with " << input.size() << " L-mers: "<< endl;
+    for (int i = 0; i < input.size(); i++)
+        cout << "\t" << W.substr(input[i], L);
+
+    cout << endl;
+    
+    vector<vector<int>> g;
+    g.push_back({1,3});
+    g.push_back({1,4});
+    g.push_back({2,3});
+
+            
+    cout << "Vector of hash functions: " << endl;
+    printVectorVector(g);
+    
+
+    vector<vector<int>> mapped;
+    for (int i = 0; i < g.size(); i++)
+        mapped.push_back(mapInput(input, g[i], W));
+
+    cout << "Mapped input sizes: ";
+    for (int i = 0; i < mapped.size(); i++)
+        cout << "\t" << mapped[i].size();
+    cout << endl;
+
+    vector<string> queries = enumTophMultiple(h, mapped, g, W);
+
+    cout << "Strings found with top h enumeration are: ";
+    for (int i = 0; i < queries.size(); i++)
+        cout << "\t" << queries[i];
+    cout << endl;
+
+
+    // Now we need to complete them randomly; to do so, we need the union of positions for g
+    // we thus concatenate them, sort them, and remove duplicate indices
+    vector<int> positions = g[0];
+    for (int i = 1; i < g.size(); i++)
+    {
+        for (int j = 0; j < g[i].size(); j++)
+        {
+            vector<int>::iterator it = find(positions.begin(), positions.end(), g[i][j]);
+            if(it != positions.end())
+                positions.erase(it);
+        }
+
+        positions.insert(positions.end(), g[i].begin(), g[i].end());
+        
+    }
+    
+
+    cout << "Union of positions is: ";
+    for (int i = 0; i < positions.size(); i++)
+        cout << "\t" << positions[i];
+    cout << endl;
+
+    // NEED TO SORT POSITIONS!!!
+    sort(positions.begin(), positions.end());
+
+    cout << "Sorted positions are: ";
+    for (int i = 0; i < positions.size(); i++)
+        cout << "\t" << positions[i];
+    cout << endl;
+
+
+    for (int i = 0; i < queries.size(); i++)
+    {
+        string extq = extendString(queries[i], L , positions);
+        cout << "Extended string: " << extq << endl;
+    }
+    
+    return 0;
+}
+
+int expmain()
 {
     int N,L,r,m,k,h,genum,extnum;
     string W;
@@ -2266,8 +2358,6 @@ int main()
     }
     outputfile << endl;
     
-    
-    // myfile.open("smol2.txt");
 
     
     N= W.length();
