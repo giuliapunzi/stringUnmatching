@@ -1930,22 +1930,22 @@ vector<string> enumTophMultiple(int h, vector<vector<int>> &mappedPos, vector<ve
         freq.push_back(gfreq);
     }
     
-    cout << "Frequencies of chars for all functions g: " << endl;
-    for (int i = 0; i < freq.size(); i++)
-    {
+    // cout << "Frequencies of chars for all functions g: " << endl;
+    // for (int i = 0; i < freq.size(); i++)
+    // {
 
-        cout << "\ng_" << i << endl;
-        for (int j = 0; j < freq[i].size(); j++)
-        {
-            cout << "Frequencies at offset " << g[i][j] << ": ";
-            for (int t = 0; t < freq[i][j].size(); t++)
-            {
-                cout << "\tfreq(" << alph[t] << ") = " << freq[i][j][t];
-            }
-            cout << endl;    
-        }
-        cout << endl;
-    }
+    //     cout << "\ng_" << i << endl;
+    //     for (int j = 0; j < freq[i].size(); j++)
+    //     {
+    //         cout << "Frequencies at offset " << g[i][j] << ": ";
+    //         for (int t = 0; t < freq[i][j].size(); t++)
+    //         {
+    //             cout << "\tfreq(" << alph[t] << ") = " << freq[i][j][t];
+    //         }
+    //         cout << endl;    
+    //     }
+    //     cout << endl;
+    // }
     
 
     recEnumTophMultiple(h, "", mappedPos, g, W, queries, freq);
@@ -2117,7 +2117,7 @@ int main()
 
     cout << "How many genomes do you want to use? (1-188039) ";
     cin >> genum;
-    cout << endl;
+    // cout << e ndl;
     // genum = 1000;
 
     if (genum < 1 || genum > 188039)
@@ -2126,13 +2126,13 @@ int main()
     
     cout << "Insert length of input strings (L-mers): ";
     cin >> L;
-    cout << endl;
+    // cout << endl;
 
     // L=30;
 
     cout << "Insert required distance from input: ";
     cin >> r;
-    cout << endl;
+    // cout << endl;
 
     // r=10;
 
@@ -2473,16 +2473,15 @@ int main()
             printVectorVector(g);
 
             outputfile << "Hash functions are:" << endl;
-            outputfile << "g_0: ";
-            for (int j = 0; j < g[0].size(); j++)
-                outputfile << "\t" << g[0][j];
-            outputfile << endl;
 
-            outputfile << "g_1: ";
-            for (int j = 0; j < g[1].size(); j++)
-                outputfile << "\t" << g[1][j];
-            outputfile << endl << endl;
-
+            for (int i = 0; i < g.size(); i++)
+            {
+                outputfile << "g_" << i << ": ";
+                for (int j = 0; j < g[i].size(); j++)
+                    outputfile << "\t" << g[i][j];
+                outputfile << endl;
+            }
+            
 
             // we need to map the input, in the sense that we need the simple array of ints
             // of positions whose offsets yield DISTINCT m-mers.
