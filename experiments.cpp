@@ -1889,7 +1889,7 @@ vector<string> enumTophMultiple(int h, vector<vector<int>> &mappedPos, vector<ve
     // if (missingprod < h)
     //     h = missingprod;   
 
-    cout << "Recursing with h=" << h<<endl;
+    // cout << "Recursing with h=" << h<<endl;
 
     vector<string> queries;
     int n; // n must be the amount of overlap
@@ -2155,10 +2155,10 @@ int main()
         // cout << endl;
         
 
-        cout << "Insert required number of hash functions for LSH: ";
-        cin >> k;
+        // cout << "Insert required number of hash functions for LSH: ";
+        // cin >> k;
         // cout << endl;
-        // k = 2; 
+        k = 3; 
 
         cout << "Insert cutoff h for enumeration (-1 for full): ";
         cin >> h;
@@ -2201,7 +2201,7 @@ int main()
     }
     if(rore == 'b')   
     {
-        string outputname = "./ExpResults/"+to_string(genum)+"GenomesL" + to_string(L)+"r"+to_string(r)+"k"+to_string(k)+".txt";
+        string outputname = "./ExpResults/2vs3functions/"+to_string(genum)+"GenomesL" + to_string(L)+"r"+to_string(r)+"k"+to_string(k)+".txt";
         cout << "Output in file " << outputname << endl;
         outputfile.open(outputname, ios_base::app);
     }
@@ -2537,6 +2537,10 @@ int main()
 
             // cout << "Testing smart enumeration" << endl;
             // outputfile <<"Starting enumeration" << endl;
+            
+            // We want to test k-1 vs k functions on the same instance, so we first run it with all k, and then with the first k-1 of the k
+            outputfile << "First, enumerate with " << k << " functions." << endl;
+            cout << "First, enumerate with " << k << " functions." << endl;
 
             startTime= clock();
 
@@ -2552,10 +2556,9 @@ int main()
 
             endTime = clock();
 
-            
             if (enumerated[0] == "fullsets")
             {
-                outputfile << "Projected string sets are full." << endl;
+                outputfile << "Projected string sets for " << k << " functions are full." << endl;
                 cout << "Projected string sets are full. " << endl;
                 enumerated = {};
             }
@@ -2580,18 +2583,22 @@ int main()
             // Now we need to complete them randomly; to do so, we need the union of positions for g
             // we thus concatenate them, sort them, and remove duplicate indices
             vector<int> positions = g[0];
-            for (int i = 0; i < g[1].size(); i++)
+            for (int gpos = 1; gpos < g.size(); gpos++)
             {
-                vector<int>::iterator it = find(positions.begin(), positions.end(), g[1][i]);
-                if(it != positions.end())
-                    positions.erase(it);
+                for (int i = 0; i < g[gpos].size(); i++)
+                {
+                    vector<int>::iterator it = find(positions.begin(), positions.end(), g[gpos][i]);
+                    if(it != positions.end())
+                        positions.erase(it);
+                }
+                positions.insert(positions.end(), g[gpos].begin(), g[gpos].end());
             }
-            positions.insert(positions.end(), g[1].begin(), g[1].end());
-
-            // cout << "Union of positions is: ";
-            // for (int i = 0; i < positions.size(); i++)
-            //     cout << "\t" << positions[i];
-            // cout << endl;
+            
+            
+            cout << "Union of positions is: ";
+            for (int i = 0; i < positions.size(); i++)
+                cout << "\t" << positions[i];
+            cout << endl;
 
             // NEED TO SORT POSITIONS!!!
             sort(positions.begin(), positions.end());
@@ -2646,12 +2653,149 @@ int main()
             endTime = clock();
 
             
-            cout << "Total elapsed clock time for trial " << count+1 << " is " << endTime - startTime<< "; in seconds: " << ((float) endTime -startTime)/CLOCKS_PER_SEC  << endl;
+            // cout << "Total elapsed clock time for trial " << count+1 << " is " << endTime - startTime<< "; in seconds: " << ((float) endTime -startTime)/CLOCKS_PER_SEC  << endl;
             cout << "Successes are " << succ << ", and failures are " << fail << endl<<endl;
 
-            outputfile << "Total elapsed clock time for trial " << count+1 << " is " << endTime - startTime<< "; in seconds: " << ((float) endTime -startTime)/CLOCKS_PER_SEC  << endl;
+            // outputfile << "Total elapsed clock time for trial " << count+1 << " is " << endTime - startTime<< "; in seconds: " << ((float) endTime -startTime)/CLOCKS_PER_SEC  << endl;
             outputfile << "Successes (of extension) are " << succ << ", and failures are " << fail << endl<<endl;
         
+
+            //++++++++++++++++++++
+            cout << "Now trying with " << k-1 << " hash functions." << endl;
+            outputfile << "Now trying with " << k-1 << " hash functions." << endl;
+
+        
+            enumerated.clear();
+            k= k-1;
+            g.pop_back();
+            mapped.pop_back();
+            positions.clear();
+            succ=0;
+            fail=0;
+
+            startTime= clock();
+
+            if(h==-1)
+                enumerated = smartEnum(mapped, g, W);
+            else
+                enumerated = enumTophMultiple(h, mapped, g, W);
+
+                // enumerated = smartEnumToph(h, mapped, g, W);
+
+
+            endTime = clock();
+
+            if (enumerated[0] == "fullsets")
+            {
+                outputfile << "Projected string sets for " << k << " functions are full." << endl;
+                cout << "Projected string sets are full. " << endl;
+                enumerated = {};
+            }
+            else
+            {
+                outputfile << "Enumeration without completion in clock time " << endTime - startTime << "; in seconds: " << ((float) endTime -startTime)/CLOCKS_PER_SEC << endl;
+                outputfile << "Found " << enumerated.size() << " strings." << endl;
+                cout << "Found " << enumerated.size() << " strings." << endl;
+            }
+            
+
+            // cout << "Strings found are:";
+            // for (int i = 0; i < enumerated.size(); i++)
+            //     cout << "\t" << enumerated[i];
+            // cout << endl;
+
+
+            cout << "Vector g is "<< endl;
+            printVectorVector(g);
+            
+
+            // Now we need to complete them randomly; to do so, we need the union of positions for g
+            // we thus concatenate them, sort them, and remove duplicate indices
+            // positions = g[0];
+            // for (int i = 0; i < g[1].size(); i++)
+            // {
+            //     vector<int>::iterator it = find(positions.begin(), positions.end(), g[1][i]);
+            //     if(it != positions.end())
+            //         positions.erase(it);
+            // }
+            // positions.insert(positions.end(), g[1].begin(), g[1].end());
+
+            positions = g[0];
+            for (int gpos = 1; gpos < g.size(); gpos++)
+            {
+                for (int i = 0; i < g[gpos].size(); i++)
+                {
+                    vector<int>::iterator it = find(positions.begin(), positions.end(), g[gpos][i]);
+                    if(it != positions.end())
+                        positions.erase(it);
+                }
+                positions.insert(positions.end(), g[gpos].begin(), g[gpos].end());
+            }
+
+            cout << "Union of positions is: ";
+            for (int i = 0; i < positions.size(); i++)
+                cout << "\t" << positions[i];
+            cout << endl;
+
+            // NEED TO SORT POSITIONS!!!
+            sort(positions.begin(), positions.end());
+
+            cout << "Sorted positions are: ";
+            for (int i = 0; i < positions.size(); i++)
+                cout << "\t" << positions[i];
+            cout << endl;
+
+            
+            // TRANSFORMED INTO JUST ONE LOOP
+            // EXTEND EXTENSIONSIZE PER EACH STRING FOUND
+            for (int i = 0; i < enumerated.size(); i++)
+            {
+                for (int iext = 0; iext < extnum; iext++)
+                {
+                    string extq = extendString(enumerated[i], L, positions);
+
+                    // time_t compareBeg,compareEnd;
+
+                    // compareBeg = clock();
+                    bool found = check(extq, r, input, W); // COMPARE WITH CHECKSET USING INPUTSET
+                    // compareEnd = clock();
+
+                    // cout << "Check with vector takes " << compareEnd-compareBeg << " clock its." << endl;
+
+                    // compareBeg = clock();
+                    // bool foundset = checkSet(extq, r, inputset); // COMPARE WITH CHECKSET USING INPUTSET
+                    // compareEnd = clock();
+
+                    // cout << "Check with set takes " << compareEnd-compareBeg << " clock its." << endl;
+
+                    // cout << "Considering string " << extq;
+
+                    if (found)
+                    {
+                        // cout << " \t SUCCESS!!" << endl;
+                        // cout << "String found is " << extq << endl;
+                        // outputfile << "Found string " << extq << endl;
+                        succ++;
+                    }
+                    else
+                    {
+                        // cout << " \t FAILURE" << endl;
+                        fail++;
+                    }
+                }
+                
+            }
+
+
+            endTime = clock();
+
+            
+            // cout << "Total elapsed clock time for trial " << count+1 << " is " << endTime - startTime<< "; in seconds: " << ((float) endTime -startTime)/CLOCKS_PER_SEC  << endl;
+            cout << "Successes are " << succ << ", and failures are " << fail << endl<<endl;
+
+            // outputfile << "Total elapsed clock time for trial " << count+1 << " is " << endTime - startTime<< "; in seconds: " << ((float) endTime -startTime)/CLOCKS_PER_SEC  << endl;
+            outputfile << "Successes (of extension) are " << succ << ", and failures are " << fail << endl<<endl;
+
             count++;
         }
 
@@ -2661,7 +2805,7 @@ int main()
     {
         count = 0;
         succ = 0;
-        outputfile << endl << endl; // << "Now starting random trials"<< endl;
+        // outputfile << endl << endl; // << "Now starting random trials"<< endl;
         startTime = clock();
         while (count < trialsr)
         {

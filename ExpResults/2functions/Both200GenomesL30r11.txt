@@ -2,7 +2,7 @@
 
 
 ================== m=12		h=25 ==================
-Original input is made of 200 genomes.Each string found with LSH will be extended 4 times
+Original input is made of 200 genomes. Each string found with LSH will be extended 4 times.
 Original input as a text is of total length N=4290540 and the number of input L-mers is 4271080
 
 Number of enumeration trials: 1
@@ -30,7 +30,7 @@ Elapsed clock time: 271573887; in seconds 271
 
 
 ================== m=12		h=50 ==================
-Original input is made of 200 genomes.Each string found with LSH will be extended 4 times
+Original input is made of 200 genomes. Each string found with LSH will be extended 4 times.
 Original input as a text is of total length N=11402799 and the number of input L-mers is 11325319
 
 Number of enumeration trials: 1

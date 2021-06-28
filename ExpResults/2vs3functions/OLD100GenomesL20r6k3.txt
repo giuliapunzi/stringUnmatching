@@ -1,0 +1,56 @@
+
+
+
+================== m=10		h=50 ==================
+Original input is made of 100 genomes. Each string found with LSH will be extended 2 times.
+Original input as a text is of total length N=21295408 and the number of input L-mers is 20951147
+
+Number of enumeration trials: 1
+Number of random trials: 1000
+
+Hash functions are:
+g_0: 	0	4	6	7	8	9	10	12	14
+g_1: 	3	4	6	7	9	10	14
+g_2: 	0	1	5	6	8	11	15	16	18	19
+First, enumerate with 3 functions.
+Projected string sets for 3 functions are full.
+Successes (of extension) are 0, and failures are 0
+
+Now trying with 2 hash functions.
+Projected string sets for 2 functions are full.
+Successes (of extension) are 0, and failures are 0
+
+
+
+Number of random successes over 1000 extractions is 0
+Elapsed clock time: 367370054; in seconds 367
+
+
+
+
+
+
+================== m=10		h=50 ==================
+Original input is made of 100 genomes. Each string found with LSH will be extended 2 times.
+Original input as a text is of total length N=7951328 and the number of input L-mers is 7840489
+
+Number of enumeration trials: 1
+Number of random trials: 1000
+
+Hash functions are:
+g_0: 	2	7	9	10	12	13	15	19
+g_1: 	1	2	3	4	7	9	12	13
+g_2: 	0	2	9	10	13	15	16	18	19
+First, enumerate with 3 functions.
+Projected string sets for 3 functions are full.
+Successes (of extension) are 0, and failures are 0
+
+Now trying with 2 hash functions.
+Projected string sets for 2 functions are full.
+Successes (of extension) are 0, and failures are 0
+
+Number of random successes over 1000 extractions is 0
+Elapsed clock time: 69307256; in seconds 69
+
+
+

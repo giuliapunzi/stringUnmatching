@@ -1,0 +1,5 @@
+
+
+
+================== m=12		h=50 ==================
+Original input is made of 100 genomes. Each string found with LSH will be extended 2 times.
