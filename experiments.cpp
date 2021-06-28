@@ -1799,6 +1799,7 @@ void recEnumTophMultiple(int h, string prefix, vector<vector<int>> &stringsLeft,
             // this is needed to reappend the positions before exiting the recursive call
             // this vector will have the same size as currentfunctions
             vector<vector<int>> removed;
+            vector<vector<int>> posToRemove;
 
             // we need to update stringsLeft before recursing: for every currentfunction, we scan its stringsLeft and 
             // remove the indices corresponding to m-mers having a char different from c at the correct (last) position
@@ -1809,6 +1810,7 @@ void recEnumTophMultiple(int h, string prefix, vector<vector<int>> &stringsLeft,
                 int fctnindex = currentfunctions[fctn];
 
                 vector<int> currRemoved;  // currRemoved will be filled with the positions to be removed at index fctnindex
+                vector<int> currpos;
 
                 // this iterates over the stringsLeft for the function with index currentfunctions[fctn]
                 for (int j = 0; j< stringsLeft[fctnindex].size(); j++)
@@ -1816,25 +1818,29 @@ void recEnumTophMultiple(int h, string prefix, vector<vector<int>> &stringsLeft,
                     // if the character in the string at the current offset is different from c, add them to the removed array
                     // RECALL: stringsLeft are indexed just like the functions g, so we need to "apply" currentfunctions to the index
                     if(W[stringsLeft[fctnindex][j]+current] != c)
+                    {
+                        currpos.push_back(j); // try to directly push back the position! In this way we do not need to use a find
                         currRemoved.push_back(stringsLeft[fctnindex][j]);
+                    }
                 }
                 
                 // push back the finalized vector of positions to be removed for the corresponding current function
                 removed.push_back(currRemoved);
+                posToRemove.push_back(currpos);
             }
             
 
             // now, remove every element of removed from the corresponding stringsLeft
-            // iterate over the elements of removed, each corresponding to a currentfunction
-            for (int fctn = 0; fctn < removed.size(); fctn++)
+            // iterate over the elements of posToRemove, each corresponding to a currentfunction
+            for (int fctn = 0; fctn < posToRemove.size(); fctn++)
             {
                 // for every element to remove from the stringsLeft of currentfunctions[fctn]
-                for (int j = 0; j < removed[fctn].size(); j++)
+                for (int j = 0; j < posToRemove[fctn].size(); j++)
                 {
                     // find the position in stringsLeft with respect to the currentfunction we are considering, where the element
-                    // to be removed occurs, and remove it
-                    vector<int>::iterator it = find(stringsLeft[currentfunctions[fctn]].begin(), stringsLeft[currentfunctions[fctn]].end(), removed[fctn][j]);
-                    stringsLeft[currentfunctions[fctn]].erase(it);
+                    // to be removed occurs, and remove it == we know what position we have to remove. 
+                    // vector<int>::iterator it = find(stringsLeft[currentfunctions[fctn]].begin(), stringsLeft[currentfunctions[fctn]].end(), removed[fctn][j]);
+                    stringsLeft[currentfunctions[fctn]].erase(stringsLeft[currentfunctions[fctn]].begin() + posToRemove[fctn][j]);
                 }                
             }
 
