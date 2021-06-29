@@ -1840,7 +1840,9 @@ void recEnumTophMultiple(int h, string prefix, vector<vector<int>> &stringsLeft,
                     // find the position in stringsLeft with respect to the currentfunction we are considering, where the element
                     // to be removed occurs, and remove it == we know what position we have to remove. 
                     // vector<int>::iterator it = find(stringsLeft[currentfunctions[fctn]].begin(), stringsLeft[currentfunctions[fctn]].end(), removed[fctn][j]);
-                    stringsLeft[currentfunctions[fctn]].erase(stringsLeft[currentfunctions[fctn]].begin() + posToRemove[fctn][j]);
+                    // NOTE: we need to subtract the index j of how many elements we have already removed, 
+                    // as the vector stringsleft is getting shorter every loop!
+                    stringsLeft[currentfunctions[fctn]].erase(stringsLeft[currentfunctions[fctn]].begin() + (posToRemove[fctn][j]-j));
                 }                
             }
 
@@ -1997,6 +1999,94 @@ string extendString(string q, int L, vector<int> &pos)
     return extq;
 }
 
+
+// extq: extension so far
+// currpos: position from 0 to L of the current character 
+// cposind: position index in cpos array 
+// cpos: array of positions in 0,L-1 which need to be changed for extension
+// output vector: vector of extended string we will output at the end
+// extnum: number of extensions to be built (final output size)
+void recExtendStringMult(string extq, int cposind, vector<int> &cpos, vector<string> &output, int extnum)
+{
+    // if we have already performed the correct number of extensions, return
+    if(output.size() == extnum)
+        return;
+
+    // if we have finished filling all positions in cpos, we are done and output
+    if (cposind >= cpos.size())
+    {
+        output.push_back(extq);
+        return;
+    }
+    else
+    {
+        // for every alphabet char, recur by placing it at position cposind, and increasing the index
+        for (int i = 0; i < alph.size(); i++)
+        {
+            char c = alph[i];
+            // cout << "Considering char " << c << endl; 
+            string recext = extq;
+            recext[cpos[cposind]] = c; 
+            // cout << "Recursing with " << recext<<endl; 
+            recExtendStringMult(recext, cposind+1, cpos, output, extnum);
+        }
+        
+    }
+    
+}
+
+// given a string, a total length and a set of positions, complete the string randomly extnum times with the
+// input string characters at the given positions, generating all different strings
+vector<string> extendStringMult(string q, int L, vector<int> &pos, int extnum)
+{
+    if (q == "")
+        return {""};
+    
+    if (q == "x")
+        return {"x"};
+
+
+    // check how many strings we can actually compute
+    int freespace = pow(alph.size(), L-pos.size()); 
+    if(extnum > freespace)
+        extnum = freespace;
+    
+    cout << "We can find at most " << freespace << " extensions. " <<endl;
+
+    // first, create array of complementary pos
+    vector<int> cpos;
+    int j=0;
+    for (int i = 0; i < pos.size(); i++)
+    {
+        while (j < pos[i] && j<L)
+        {
+            cpos.push_back(j);
+            j++;
+        }
+        
+        j++;
+    }
+
+    cout << "Complementary array is ";
+    for (int i = 0; i < cpos.size(); i++)
+        cout << "\t" << cpos[i];
+    cout << endl;  
+    
+
+    string extq(L, 'X');
+    for (int i = 0; i < pos.size(); i++)
+        extq[pos[i]] = q[i];
+
+    cout << "String before filling is " << extq<<endl;
+    
+
+    vector<string> output;
+    recExtendStringMult(extq, 0, cpos, output, extnum);
+
+    return output;
+}
+
+
 int testmain()
 {
     string W="ACCTGTCACCTCACAAGGACCCCCA";
@@ -2004,7 +2094,7 @@ int testmain()
     int r = 3;
     int m = 2;
     int k = 3;
-    int h = 10;
+    int h = 15;
     int N = W.length();
     vector<int> input;
 
@@ -2104,8 +2194,13 @@ int testmain()
 
     for (int i = 0; i < queries.size(); i++)
     {
-        string extq = extendString(queries[i], L , positions);
-        cout << "Extended string: " << extq << endl;
+        // string extq = extendString(queries[i], L , positions);
+        // cout << "Extended string: " << extq << endl;
+        vector<string> extq = extendStringMult(queries[i], L , positions, 5);
+        cout << i+1 <<"th query's 5 extensions are: ";
+        for (int j = 0; j < extq.size(); j++)
+            cout << "\t" << extq[j];
+        cout << endl;
     }
     
     return 0;
@@ -2207,7 +2302,7 @@ int main()
     }
     if(rore == 'b')   
     {
-        string outputname = "./ExpResults/2vs3functions/"+to_string(genum)+"GenomesL" + to_string(L)+"r"+to_string(r)+"k"+to_string(k)+".txt";
+        string outputname = "./ExpResults/OneTemplate/"+to_string(genum)+"GenomesL" + to_string(L)+"r"+to_string(r)+"k"+to_string(k)+".txt";
         cout << "Output in file " << outputname << endl;
         outputfile.open(outputname, ios_base::app);
     }
@@ -2617,44 +2712,64 @@ int main()
             
             // TRANSFORMED INTO JUST ONE LOOP
             // EXTEND EXTENSIONSIZE PER EACH STRING FOUND
+            // for (int i = 0; i < enumerated.size(); i++)
+            // {
+            //     for (int iext = 0; iext < extnum; iext++)
+            //     {
+            //         string extq = extendString(enumerated[i], L, positions);
+                    
+                    
+
+            //         // time_t compareBeg,compareEnd;
+
+            //         // compareBeg = clock();
+            //         bool found = check(extq, r, input, W); // COMPARE WITH CHECKSET USING INPUTSET
+            //         // compareEnd = clock();
+
+            //         // cout << "Check with vector takes " << compareEnd-compareBeg << " clock its." << endl;
+
+            //         // compareBeg = clock();
+            //         // bool foundset = checkSet(extq, r, inputset); // COMPARE WITH CHECKSET USING INPUTSET
+            //         // compareEnd = clock();
+
+            //         // cout << "Check with set takes " << compareEnd-compareBeg << " clock its." << endl;
+
+            //         // cout << "Considering string " << extq;
+
+            //         if (found)
+            //         {
+            //             // cout << " \t SUCCESS!!" << endl;
+            //             // cout << "String found is " << extq << endl;
+            //             // outputfile << "Found string " << extq << endl;
+            //             succ++;
+            //         }
+            //         else
+            //         {
+            //             // cout << " \t FAILURE" << endl;
+            //             fail++;
+            //         }
+            //     }
+                
+            // }
+
+
             for (int i = 0; i < enumerated.size(); i++)
             {
-                for (int iext = 0; iext < extnum; iext++)
+                vector<string> extq = extendStringMult(enumerated[i], L , positions, extnum);
+
+                for (int j = 0; j < extq.size(); j++)
                 {
-                    string extq = extendString(enumerated[i], L, positions);
-
-                    // time_t compareBeg,compareEnd;
-
-                    // compareBeg = clock();
-                    bool found = check(extq, r, input, W); // COMPARE WITH CHECKSET USING INPUTSET
-                    // compareEnd = clock();
-
-                    // cout << "Check with vector takes " << compareEnd-compareBeg << " clock its." << endl;
-
-                    // compareBeg = clock();
-                    // bool foundset = checkSet(extq, r, inputset); // COMPARE WITH CHECKSET USING INPUTSET
-                    // compareEnd = clock();
-
-                    // cout << "Check with set takes " << compareEnd-compareBeg << " clock its." << endl;
-
-                    // cout << "Considering string " << extq;
-
+                    bool found = check(extq[j], r, input, W); // COMPARE WITH CHECK USING INPUTSET
+                    
                     if (found)
-                    {
-                        // cout << " \t SUCCESS!!" << endl;
-                        // cout << "String found is " << extq << endl;
-                        // outputfile << "Found string " << extq << endl;
                         succ++;
-                    }
-                    else
-                    {
-                        // cout << " \t FAILURE" << endl;
+                    else    
                         fail++;
-                    }
+                    
                 }
                 
             }
-
+            
 
             endTime = clock();
 
@@ -2754,40 +2869,58 @@ int main()
             
             // TRANSFORMED INTO JUST ONE LOOP
             // EXTEND EXTENSIONSIZE PER EACH STRING FOUND
+            // for (int i = 0; i < enumerated.size(); i++)
+            // {
+            //     for (int iext = 0; iext < extnum; iext++)
+            //     {
+            //         string extq = extendString(enumerated[i], L, positions);
+
+            //         // time_t compareBeg,compareEnd;
+
+            //         // compareBeg = clock();
+            //         bool found = check(extq, r, input, W); // COMPARE WITH CHECKSET USING INPUTSET
+            //         // compareEnd = clock();
+
+            //         // cout << "Check with vector takes " << compareEnd-compareBeg << " clock its." << endl;
+
+            //         // compareBeg = clock();
+            //         // bool foundset = checkSet(extq, r, inputset); // COMPARE WITH CHECKSET USING INPUTSET
+            //         // compareEnd = clock();
+
+            //         // cout << "Check with set takes " << compareEnd-compareBeg << " clock its." << endl;
+
+            //         // cout << "Considering string " << extq;
+
+            //         if (found)
+            //         {
+            //             // cout << " \t SUCCESS!!" << endl;
+            //             // cout << "String found is " << extq << endl;
+            //             // outputfile << "Found string " << extq << endl;
+            //             succ++;
+            //         }
+            //         else
+            //         {
+            //             // cout << " \t FAILURE" << endl;
+            //             fail++;
+            //         }
+            //     }
+                
+            // }
+
+
             for (int i = 0; i < enumerated.size(); i++)
             {
-                for (int iext = 0; iext < extnum; iext++)
+                vector<string> extq = extendStringMult(enumerated[i], L , positions, extnum);
+
+                for (int j = 0; j < extq.size(); j++)
                 {
-                    string extq = extendString(enumerated[i], L, positions);
-
-                    // time_t compareBeg,compareEnd;
-
-                    // compareBeg = clock();
-                    bool found = check(extq, r, input, W); // COMPARE WITH CHECKSET USING INPUTSET
-                    // compareEnd = clock();
-
-                    // cout << "Check with vector takes " << compareEnd-compareBeg << " clock its." << endl;
-
-                    // compareBeg = clock();
-                    // bool foundset = checkSet(extq, r, inputset); // COMPARE WITH CHECKSET USING INPUTSET
-                    // compareEnd = clock();
-
-                    // cout << "Check with set takes " << compareEnd-compareBeg << " clock its." << endl;
-
-                    // cout << "Considering string " << extq;
-
+                    bool found = check(extq[j], r, input, W); // COMPARE WITH CHECK USING INPUTSET
+                    
                     if (found)
-                    {
-                        // cout << " \t SUCCESS!!" << endl;
-                        // cout << "String found is " << extq << endl;
-                        // outputfile << "Found string " << extq << endl;
                         succ++;
-                    }
-                    else
-                    {
-                        // cout << " \t FAILURE" << endl;
+                    else    
                         fail++;
-                    }
+                    
                 }
                 
             }

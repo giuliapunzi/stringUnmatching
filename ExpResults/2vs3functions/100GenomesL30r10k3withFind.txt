@@ -109,18 +109,3 @@ Elapsed clock time: 539228510; in seconds 539
 
 
 
-
-
-
-================== m=12		h=50 ==================
-Original input is made of 100 genomes. Each string found with LSH will be extended 1 times.
-Original input as a text is of total length N=7310383 and the number of input L-mers is 7288256
-
-Number of enumeration trials: 1
-Number of random trials: 1000
-
-Hash functions are:
-g_0: 	3	7	8	9	10	13	20	22	23	26
-g_1: 	0	1	6	9	12	18	24	25	29
-g_2: 	1	11	12	16	21	23	25	26	27	28	29
-First, enumerate with 3 functions.
