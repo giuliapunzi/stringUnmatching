@@ -2302,7 +2302,7 @@ int main()
     }
     if(rore == 'b')   
     {
-        string outputname = "./ExpResults/OneTemplate/"+to_string(genum)+"GenomesL" + to_string(L)+"r"+to_string(r)+"k"+to_string(k)+".txt";
+        string outputname = "./ExpResults/2vs3functions/"+to_string(genum)+"GenomesL" + to_string(L)+"r"+to_string(r)+"k"+to_string(k)+".txt";
         cout << "Output in file " << outputname << endl;
         outputfile.open(outputname, ios_base::app);
     }
