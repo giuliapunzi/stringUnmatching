@@ -9,7 +9,6 @@
 
 using namespace std;
 
-
 /* Q-GRAMS */
 
 constexpr auto Q = 32;    // max val is 32 as we pack a Q-gram into a 64-bit word uint64_t
@@ -21,7 +20,7 @@ void print_Q_gram(uint64_t gram){
     char s[Q+1];
     s[Q] = '\0';
     for (auto i=Q-1; i >= 0; i--, gram >>= 2){
-        switch (gram & 0x11)
+        switch (gram & 0x3)
         {
         case 0:
             s[i] = 'A';
@@ -65,16 +64,16 @@ void find_Q_grams(const char * filename){
         switch (toupper(text[i]))
         {
         case 'A':
-            key |= 0x00;
+            // key |= 0x0;
             break;
         case 'C':
-            key |= 0x01;
+            key |= 0x1;
             break;
         case 'G':
-            key |= 0x10;
+            key |= 0x2;
             break;
         case 'T':
-            key |= 0x11;
+            key |= 0x3;
             break;
         case '\n':
             skip = true;
@@ -82,6 +81,8 @@ void find_Q_grams(const char * filename){
         case '>':
         case ';':
             while( i < textlen && text[i] != '\n') i++;
+            key = 0;
+            key_len = 0;
             skip = true;
             break;
         default:
@@ -95,11 +96,12 @@ void find_Q_grams(const char * filename){
             skip = false; 
             continue;
         }
+        // here only if the current char is A, C, G, T
         if (++key_len == Q){
             key_len = Q-1;        // for the next iteration
             check_Q_gram( key );
-            key <<= 2;            // shift two bits to the left
         }
+        key <<= 2;            // shift two bits to the left
     }
 
     unmap_file(text, textlen);
