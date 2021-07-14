@@ -57,7 +57,7 @@ void find_Q_grams(const char * filename){
 
     uint64_t key = 0;  // 32 chars from { A, C, G, T } packed as a 64-bit unsigned integer
     auto key_len = 0;
-    auto i = 0;
+    uint64_t i = 0;  // bug if we use auto :(
     auto skip = false;
 
     while(i < textlen){
@@ -103,7 +103,6 @@ void find_Q_grams(const char * filename){
         }
         key <<= 2;            // shift two bits to the left
     }
-
     unmap_file(text, textlen);
 }
 
