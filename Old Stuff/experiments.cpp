@@ -1926,8 +1926,8 @@ vector<string> enumTophMultiple(int h, vector<vector<int>> &mappedPos, vector<ve
             {
                 // compute the character for the current mappedPos + offset, find its index in the alphabet
                 // and increase its count
-                char c = W[mappedPos[i][pos] + g[i][j]];
-                int charpos = distance(alph.begin(), find(alph.begin(), alph.end(), c));
+                char c = W[mappedPos[i][pos] + g[i][j]]; // jsima coppia di 1 nella mask
+                int charpos = distance(alph.begin(), find(alph.begin(), alph.end(), c)); // non c'è piu bisogno 
                 // cout << "Charpos is " << charpos << endl;
                 count[charpos]++;
             }
