@@ -12,8 +12,16 @@ void complete (uint64_t template, uint64_t mask)
     template = template & g;
 
     // perform all completions; find the positions not belonging to g and fill in all possible ways
-    // this will go in OR with the template
-    g = ~g;
+    // we need to perform an OR with a random mask, which is zero over g
+    uint64_t cg = ~g;
+
+    // since the free positions of g are 4, we need numbers from 0000 to 1111 (0 to 15)
+    // we will perform all these completions
+    for(int curr = 0; curr < 15; curr++) // Q - size of g = 4
+    {
+        // int last = curr & 0b11;
+        // int first = curr & 0b1100;
+    }
 }
 
 
