@@ -2,6 +2,8 @@
 
 #include <iostream>
 #include <unordered_set>
+#include <map>
+#include <unordered_map>
 
 // for mmap:
 #include <sys/mman.h>
@@ -15,6 +17,8 @@ constexpr auto Q = 32;    // max val is 32 as we pack a Q-gram into a 64-bit wor
                           // 2-bit encoding: A = 00, C = 01, G = 10, T = 11 
 std::unordered_set<uint64_t> Q_hash;
 
+uint8_t char_counter[4] __attribute__ ((aligned (4)));  // invariant: char_counter[i] <= Q < 256, and sum_ i char_counter[i] = Q. char_counter[] is seen as uint32_t
+unordered_map<uint32_t, uint64_t> Parish_counter;
 
 void print_Q_gram(uint64_t gram){
     char s[Q+1];
@@ -42,8 +46,10 @@ void print_Q_gram(uint64_t gram){
 }
 
 void check_Q_gram(uint64_t gram){
-    if (!Q_hash.contains( gram ))
-        Q_hash.insert( gram );        
+    if (!Q_hash.contains( gram )){
+        Q_hash.insert( gram );
+        Parish_counter[*reinterpret_cast<uint32_t *>(char_counter)]++;    
+    }
 }
 
 
@@ -55,6 +61,7 @@ void find_Q_grams(const char * filename){
     size_t textlen = 0;   
     const char * text = map_file(filename, textlen);      
 
+    for (auto i =0; i < 4; i++) char_counter[i] = 0;
     uint64_t key = 0;  // 32 chars from { A, C, G, T } packed as a 64-bit unsigned integer
     auto key_len = 0;
     uint64_t i = 0;  // bug if we use auto :(
@@ -65,15 +72,19 @@ void find_Q_grams(const char * filename){
         {
         case 'A':
             // key |= 0x0;
+            char_counter[0]++;
             break;
         case 'C':
             key |= 0x1;
+            char_counter[1]++;
             break;
         case 'G':
             key |= 0x2;
+            char_counter[2]++;
             break;
         case 'T':
             key |= 0x3;
+            char_counter[3]++;
             break;
         case '\n':
             skip = true;
@@ -83,11 +94,13 @@ void find_Q_grams(const char * filename){
             while( i < textlen && text[i] != '\n') i++;
             key = 0;
             key_len = 0;
+            for (auto i =0; i < 4; i++) char_counter[i] = 0;
             skip = true;
             break;
         default:
             key = 0;
             key_len = 0;
+            for (auto i =0; i < 4; i++) char_counter[i] = 0;
             skip = true;
             break;
         }
@@ -99,7 +112,8 @@ void find_Q_grams(const char * filename){
         // here only if the current char is A, C, G, T
         if (++key_len == Q){
             key_len = Q-1;        // for the next iteration
-            check_Q_gram( key );
+            check_Q_gram( key );  // & mask when Q < 32
+            char_counter[(key >> (Q-1+Q-1)) & 0x3]--;  // exiting char
         }
         key <<= 2;            // shift two bits to the left
     }
@@ -151,8 +165,20 @@ int main(int argc, char *argv[]){
 
     find_Q_grams(argv[1]);
 
-    for (const auto& gram: Q_hash) {
-        print_Q_gram(gram);
+    // for (const auto& gram: Q_hash) {
+    //     print_Q_gram(gram);
+    // }
+
+    // for (auto e : Parish_counter) {
+    //     uint32_t temp = e.first;
+    //     uint8_t * tempa = const_cast<uint8_t *>(reinterpret_cast<const uint8_t *>(&temp));
+    //     for (auto i = 0; i < 4; i++)
+    //         cout << static_cast<uint64_t>(tempa[i]) << ' ';
+    //     cout << "\t : " << e.second << "\n";
+    // }
+
+    for (auto e : Parish_counter) {
+        cout << e.second << "\n";
     }
 
     return 0;
