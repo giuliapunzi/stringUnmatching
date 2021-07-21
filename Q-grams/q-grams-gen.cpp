@@ -18,7 +18,7 @@ constexpr auto Q = 32;    // max val is 32 as we pack a Q-gram into a 64-bit wor
 std::unordered_set<uint64_t> Q_hash;
 
 uint8_t char_counter[4] __attribute__ ((aligned (4)));  // invariant: char_counter[i] <= Q < 256, and sum_ i char_counter[i] = Q. char_counter[] is seen as uint32_t
-unordered_map<uint32_t, uint64_t> Parish_counter;
+unordered_map<uint32_t, uint64_t> Parikh_classes;
 
 void print_Q_gram(uint64_t gram){
     char s[Q+1];
@@ -48,7 +48,7 @@ void print_Q_gram(uint64_t gram){
 void check_Q_gram(uint64_t gram){
     if (!Q_hash.contains( gram )){
         Q_hash.insert( gram );
-        Parish_counter[*reinterpret_cast<uint32_t *>(char_counter)]++;    
+        Parikh_classes[*reinterpret_cast<uint32_t *>(char_counter)]++;    
     }
 }
 
@@ -169,7 +169,7 @@ int main(int argc, char *argv[]){
     //     print_Q_gram(gram);
     // }
 
-    // for (auto e : Parish_counter) {
+    // for (auto e : Parikh_classes) {
     //     uint32_t temp = e.first;
     //     uint8_t * tempa = const_cast<uint8_t *>(reinterpret_cast<const uint8_t *>(&temp));
     //     for (auto i = 0; i < 4; i++)
@@ -177,7 +177,7 @@ int main(int argc, char *argv[]){
     //     cout << "\t : " << e.second << "\n";
     // }
 
-    for (auto e : Parish_counter) {
+    for (auto e : Parikh_classes) {
         cout << e.second << "\n";
     }
 
