@@ -8,14 +8,16 @@ using namespace std;
 
 constexpr auto Q = 32;
 constexpr int N_missing = 4; // Q - 2m
-constexpr int N_tests = 2;
-constexpr int N_completions = 256;
+constexpr int N_tests = 3;
+constexpr int N_completions = 50;
 
 // array of 256 completions we will need to check
 uint64_t completions[N_completions];
 
-uint8_t text[] = {"ACAGCTTTTTGCGTATCTGGGCGCTATGCATGCTTAGGCTATCGGGCGCGCGCGATTATGCGCGCTA"};
+// uint8_t text[] = {"ACAGCTTTTTGCGTATCTGGGCGCTATGCATGCTTAGGCTATCGGGCGCGCGCGATTATGCGCGCTAG"};
 
+uint8_t text[] = {0b00010010, 0b01111111, 0b11111001, 0b10110011, 0b01111010, 0b10011001, 0b11001110, 0b01001110, 0b01111100, 0b10100111, 0b00110110, 0b10100110, 0b01100110, 0b01100011, 0b11001110, 0b01100110, 0b01110010};
+constexpr int textlen = 17;
 
 void print_Q_gram(uint64_t gram){
     char s[Q+1];
@@ -53,7 +55,8 @@ __attribute__((always_inline)) int Hamming_distance(uint64_t x, uint64_t y) // D
 }
 
  // the check will need to be performed taking one byte at a time, where the byte now contains 4 chars instead of 1
-void check (uint8_t * text, uint64_t textlen, int* mindist) // min dist will be filled with minimum distances? or just abort when it gets too  
+ // min dist will be filled with minimum distances? or just abort when it gets too small?
+void check (uint8_t * text, uint64_t textlen, int* mindist)  // DEBUGGED
 {
     for(int i=0; i<N_completions; i++) // mindist has the same size as completions
         mindist[i]=Q+1;
@@ -61,11 +64,17 @@ void check (uint8_t * text, uint64_t textlen, int* mindist) // min dist will be 
     uint64_t key = 0;  
 
     // setup first Q characters by hand
-    // for Q=32, first 4 elements of text array (4*8=32)
-    key &= text[0];
-    key = (key<<2) & text[1];
-    key = (key<<2) & text[2];
-    key = (key<<2) & text[3];
+    // for Q=32, first 8 elements of text array (8*8=64)
+    key |= text[0];
+    key = (key<<8) | text[1];
+    key = (key<<8) | text[2];
+    key = (key<<8) | text[3];
+    key = (key<<8) | text[4];
+    key = (key<<8) | text[5];
+    key = (key<<8) | text[6];
+    key = (key<<8) | text[7];
+
+    // cout << "First key is " << bitset<64>(key) << endl << flush;
 
 
     // initialize distances for every template
@@ -74,10 +83,15 @@ void check (uint8_t * text, uint64_t textlen, int* mindist) // min dist will be 
 
 
     // now, for every element of text (every uint8_t), 3 shift and three Qgrams
-    for(uint64_t i = 4;i < textlen; i++)
+    for(uint64_t i = 8;i < textlen; i++)
     {
+
+        // cout << "Iteration no. " << i << " for text integer " << bitset<8>(text[i]) << endl << flush; 
+
         key <<= 2;
-        key |= ((text[i] << 6) & 0b11); // after being shifted by two, key gets an OR with the last two bits of the current uint8 shifted by six       
+        key |= ((text[i] >> 6) & 0b11); // after being shifted by two, key gets an OR with the last two bits of the current uint8 shifted by six       
+
+        // cout << "key is " << bitset<64>(key) << endl << flush;
 
         for(int j=0; j<N_completions;j++)
         {
@@ -87,7 +101,9 @@ void check (uint8_t * text, uint64_t textlen, int* mindist) // min dist will be 
         }
 
         key <<= 2;
-        key |= ((text[i] << 4) & 0b11); // after being shifted by two, key gets an OR with the last two bits of the current uint8 shifted by four       
+        key |= ((text[i] >> 4) & 0b11); // after being shifted by two, key gets an OR with the last two bits of the current uint8 shifted by four       
+
+        // cout << "key is " << bitset<64>(key) << endl << flush;
 
         for(int j=0; j<N_completions;j++)
         {
@@ -97,7 +113,9 @@ void check (uint8_t * text, uint64_t textlen, int* mindist) // min dist will be 
         }
 
         key <<= 2;
-        key |= ((text[i] << 2) & 0b11); // after being shifted by two, key gets an OR with the last two bits of the current uint8 shifted by two       
+        key |= ((text[i] >> 2) & 0b11); // after being shifted by two, key gets an OR with the last two bits of the current uint8 shifted by two       
+
+        // cout << "key is " << bitset<64>(key) << endl << flush;
 
         for(int j=0; j<N_completions;j++)
         {
@@ -108,6 +126,8 @@ void check (uint8_t * text, uint64_t textlen, int* mindist) // min dist will be 
 
         key <<= 2;
         key |= (text[i] & 0b11); // after being shifted by two, key gets an OR with the last two bits of the current uint8        
+
+        // cout << "key is " << bitset<64>(key) << endl << flush;
 
         for(int j=0; j<N_completions;j++)
         {
@@ -141,7 +161,7 @@ void complete (uint64_t gtemplate, int* missing) // DEBUGGED
 {
     // since the free positions of g are 4, we need numbers from 00000000 to 11111111 (0 to 255)
     // we will perform all these completions
-    for(uint64_t curr = 0; curr < 256; curr++) 
+    for(uint64_t curr = 0; curr < N_completions; curr++) 
     {
         // cout << endl << "Completing with " << curr << ", which is " << bitset<64>(curr) << endl << flush;
         uint64_t compmask = 0;
@@ -162,11 +182,13 @@ void complete (uint64_t gtemplate, int* missing) // DEBUGGED
     
     // cout << "Completions array is: {";
 
-    // for(int i = 0; i<256; i++)
+    // for(int i = 0; i<N_completions; i++)
     // {
     //     cout << bitset<64>(completions[i]) << ", \t";
     // }
     // cout << "}"<< endl << flush;
+
+    cout << endl;
 }
 
 
@@ -204,7 +226,7 @@ void sample_product_set(const uint64_t g1, uint64_t * c1,  int n1, const uint64_
         int i = rand() % n1;
         int j = rand() % n2;
 
-        // cout << "Indices chosen: i=" << i<< "; j="<< j << endl <<flush;
+        cout << "Indices chosen: i=" << i<< "; j="<< j << endl <<flush;
 
         // c1[i] and c2[j] are two uint64_t representing two M-grams we wish to compute the product of
         // first, set the two elements to zero outside g1, g2 (apply the mask with bitwise AND)
@@ -214,13 +236,115 @@ void sample_product_set(const uint64_t g1, uint64_t * c1,  int n1, const uint64_
         // cout << "c1[i] = " << bitset<64>(c1[i]) << endl << flush;
         // cout << "c2[j] = " << bitset<64>(c2[j]) << endl << flush;
 
-        // cout << "Template is " << bitset<64>(gtemplate) << endl << flush;
+        cout << "Template is " << bitset<64>(gtemplate) << endl << flush;
         complete(gtemplate, missing);
 
-        // check()
+        int mindist[N_completions];
+        check(text, textlen, mindist);
+
+        cout << "Printing min distances for the two completions: " << flush;
+        for(int dd = 0; dd< N_completions; dd++)
+            cout << mindist[dd] << " " << flush;
+
+        cout << endl << endl << flush;
     }
 }
 
+
+int char_dist(string x, string y) // used for debugging
+{
+    if(x.size() != y.size())
+        return -1;
+
+    int dist = 0;
+
+    for(int i = 0; i < x.size(); i++)
+    {
+        if(x[i] != y[i])
+            dist++;
+    }
+
+    return dist;
+
+}
+
+void simple_check() // used for debugging
+{    
+    // setup input (both completions and text)
+    string string_compl[N_completions];
+    for(int i= 0; i<N_completions; i++)
+    {
+        uint64_t gram = completions[i];
+
+        char s[Q+1];
+        s[Q] = '\0';
+        for (auto i=Q-1; i >= 0; i--, gram >>= 2){
+            switch (gram & 0x3)
+            {
+            case 0:
+                s[i] = 'A';
+                break;
+            case 1:
+                s[i] = 'C';
+                break;
+            case 2:
+                s[i] = 'G';
+                break;
+            case 3:
+                s[i] = 'T';
+                break;
+            default:
+                break;
+            }
+        }
+
+        string_compl[i] = string(s);
+    }
+
+    // cout << "Completions are: ";
+    // for(int i = 0; i<N_completions ; i++)
+    //     cout << string_compl[i] << ", " << flush;
+    // cout << endl;
+
+
+    char string_text[] = {"ACAGCTTTTTGCGTATCTGGGCGCTATGCATGCTTAGGCTATCGGGCGCGCGCGATTATGCGCGCTAG"};
+    int string_textlen = 68;
+
+    int string_mindist[N_completions];
+    for(int i = 0; i< N_completions; i++)
+        string_mindist[i] = Q+1;
+
+    // cout << "Before starting, min distances: ";
+    // for(int i = 0; i < N_completions; i++)
+    //     cout << string_mindist[i] << " ";
+    // cout << endl << flush;
+
+    for(int i = 0; i < string_textlen-Q+1; i++)
+    {
+        string current_Qgram = "";
+
+        // get the current Qgram
+        for(int j = 0; j<Q; j++)
+            current_Qgram = current_Qgram + string_text[i+j];
+
+        // cout << "Current Qgram: " << current_Qgram << endl << flush;
+
+        // test the distance of current Qgram to others
+        for(int j = 0; j < N_completions; j++)
+        {
+            int distance = char_dist(string_compl[j], current_Qgram);
+            if(distance < string_mindist[j])
+                string_mindist[j] = distance;
+        }
+    }
+
+    cout << "Min distances are ";
+    for(int i = 0; i < N_completions; i++)
+        cout << string_mindist[i] << " ";
+    cout << endl << flush;
+
+    return;
+}
 
 
 int main()
@@ -231,7 +355,7 @@ int main()
     cout << "g1 is " << bitset<64>(g1) << "; g2 is " << bitset<64>(g2) << endl << flush;
 
     // initialize complementaries and their sizes
-    int n1 = 3;
+    int n1 = 3; 
     int n2 = 2;
 
     // uint64_t c1[n1] = {0b0001001001110010011010011011, 0b0011011000110100011001100010, 0b1100110011001101100111000100}; // ACAGCTAGCGGCGT, ATCGATCACGCGAG, TATATATCGCTACA
@@ -242,19 +366,19 @@ int main()
     uint64_t c2[n2] = {0b0000110000000000000100001011000011011000000000000000001100000111, 0b0000101000000000011100001010000001110010000000000000011100001101}; // TAACGTTCGAATCT, GGCTGGCTAGCTTC 
 
     // print qgrams in complementaries
-    cout << "c1: ";
-    for(int i =0; i<n1; i++)
-    {
-        cout << bitset<64>(c1[i]) << "=";
-        print_Q_gram(c1[i]);
-    }
+    // cout << "c1: ";
+    // for(int i =0; i<n1; i++)
+    // {
+    //     cout << bitset<64>(c1[i]) << "=";
+    //     print_Q_gram(c1[i]);
+    // }
         
-    cout << "c2: ";
-    for(int i =0; i<n2; i++)
-    {
-        cout << bitset<64>(c2[i]) << "=";
-        print_Q_gram(c2[i]);
-    }
+    // cout << "c2: ";
+    // for(int i =0; i<n2; i++)
+    // {
+    //     cout << bitset<64>(c2[i]) << "=";
+    //     print_Q_gram(c2[i]);
+    // }
 
     // int dist = Hamming_distance(c1[0], c1[1]);
     // cout << "Distance between c1[0], c1[1] is " << dist << endl << flush;
@@ -263,6 +387,8 @@ int main()
     // cout << "Distance between c2[0], c2[1] is " << Hamming_distance(c2[0], c2[1]) << endl << flush;
 
     sample_product_set(g1, c1, n1, g2, c2, n2);
+
+    simple_check();
 
     return 0;
 }
