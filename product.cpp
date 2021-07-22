@@ -51,8 +51,8 @@ __attribute__((always_inline)) int Hamming_distance(uint64_t x, uint64_t y) // D
     return Q - popcount(diff); // I counted where they are equal, subtract it from Q to find the difference
 }
 
-
-void check(uint8_t * text, uint64_t textlen, int* mindist) // min dist will be filled with minimum distances
+ // the check will need to be performed taking one byte at a time, where the byte now contains 4 chars instead of 1
+void check (uint8_t * text, uint64_t textlen, int* mindist) // min dist will be filled with minimum distances? or just abort when it gets too  
 {
     for(int i=0; i<256; i++)
         mindist[i]=Q+1;
@@ -136,13 +136,13 @@ void complete (uint64_t gtemplate, int* missing) // DEBUGGED
     }
 
     
-    cout << "Completions array is: {";
+    // cout << "Completions array is: {";
 
-    for(int i = 0; i<256; i++)
-    {
-        cout << bitset<64>(completions[i]) << ", \t";
-    }
-    cout << "}"<< endl << flush;
+    // for(int i = 0; i<256; i++)
+    // {
+    //     cout << bitset<64>(completions[i]) << ", \t";
+    // }
+    // cout << "}"<< endl << flush;
 }
 
 
@@ -191,7 +191,7 @@ void sample_product_set(const uint64_t g1, uint64_t * c1,  int n1, const uint64_
         cout << "c2[j] = " << bitset<64>(c2[j]) << endl << flush;
 
         cout << "Template is " << bitset<64>(gtemplate) << endl << flush;
-        // complete(gtemplate, missing);
+        complete(gtemplate, missing);
 
         // check()
     }
