@@ -9,9 +9,10 @@ using namespace std;
 constexpr auto Q = 32;
 constexpr int N_missing = 4; // Q - 2m
 constexpr int N_tests = 2;
+constexpr int N_completions = 256;
 
 // array of 256 completions we will need to check
-uint64_t completions[256];
+uint64_t completions[N_completions];
 
 uint8_t text[] = {"ACAGCTTTTTGCGTATCTGGGCGCTATGCATGCTTAGGCTATCGGGCGCGCGCGATTATGCGCGCTA"};
 
@@ -54,51 +55,31 @@ __attribute__((always_inline)) int Hamming_distance(uint64_t x, uint64_t y) // D
  // the check will need to be performed taking one byte at a time, where the byte now contains 4 chars instead of 1
 void check (uint8_t * text, uint64_t textlen, int* mindist) // min dist will be filled with minimum distances? or just abort when it gets too  
 {
-    for(int i=0; i<256; i++)
+    for(int i=0; i<N_completions; i++) // mindist has the same size as completions
         mindist[i]=Q+1;
 
-    uint64_t key = 0;  // 32 chars from { A, C, G, T } packed as a 64-bit unsigned integer
+    uint64_t key = 0;  
 
-    for(uint64_t i = 0; i< Q-1; i++)
+    // setup first Q characters by hand
+    // for Q=32, first 4 elements of text array (4*8=32)
+    key &= text[0];
+    key = (key<<2) & text[1];
+    key = (key<<2) & text[2];
+    key = (key<<2) & text[3];
+
+
+    // initialize distances for every template
+    for(int templindex = 0; templindex < N_completions; templindex++)
+        mindist[templindex] = Hamming_distance(completions[templindex], key); 
+
+
+    // now, for every element of text (every uint8_t), 3 shift and three Qgrams
+    for(uint64_t i = 4;i < textlen; i++)
     {
-        switch (text[i])
-        {
-        case 'A':
-            // key |= 0x0;
-            break;
-        case 'C':
-            key |= 0x1;
-            break;
-        case 'G':
-            key |= 0x2;
-            break;
-        case 'T':
-            key |= 0x3;
-            break;
-        }
+        key <<= 2;
+        key |= ((text[i] << 6) & 0b11); // after being shifted by two, key gets an OR with the last two bits of the current uint8 shifted by six       
 
-        key<<=2;
-    }
-
-    uint64_t i;
-    for( ;i < textlen; i++){
-        switch (text[i])
-        {
-        case 'A':
-            // key |= 0x0;
-            break;
-        case 'C':
-            key |= 0x1;
-            break;
-        case 'G':
-            key |= 0x2;
-            break;
-        case 'T':
-            key |= 0x3;
-            break;
-        }
-
-        for(int j=0; j<256;j++)
+        for(int j=0; j<N_completions;j++)
         {
             int dist = Hamming_distance(key, completions[j]);
             if(dist < mindist[j])
@@ -106,7 +87,50 @@ void check (uint8_t * text, uint64_t textlen, int* mindist) // min dist will be 
         }
 
         key <<= 2;
+        key |= ((text[i] << 4) & 0b11); // after being shifted by two, key gets an OR with the last two bits of the current uint8 shifted by four       
+
+        for(int j=0; j<N_completions;j++)
+        {
+            int dist = Hamming_distance(key, completions[j]);
+            if(dist < mindist[j])
+                mindist[j] = dist;
+        }
+
+        key <<= 2;
+        key |= ((text[i] << 2) & 0b11); // after being shifted by two, key gets an OR with the last two bits of the current uint8 shifted by two       
+
+        for(int j=0; j<N_completions;j++)
+        {
+            int dist = Hamming_distance(key, completions[j]);
+            if(dist < mindist[j])
+                mindist[j] = dist;
+        }
+
+        key <<= 2;
+        key |= (text[i] & 0b11); // after being shifted by two, key gets an OR with the last two bits of the current uint8        
+
+        for(int j=0; j<N_completions;j++)
+        {
+            int dist = Hamming_distance(key, completions[j]);
+            if(dist < mindist[j])
+                mindist[j] = dist;
+        }
     }
+
+    // // now, for every element of text (every uint8_t), 3 shift and three Qgrams
+    // for(uint64_t i = 4;i < textlen; i++)
+    // {  
+    //     for(int j=0; j<256;j++)
+    //     {
+    //         int dist = Hamming_distance(key, completions[j]);
+    //         if(dist < mindist[j])
+    //             mindist[j] = dist;
+    //     }
+
+    //     key <<= 2;
+    // }
+
+    return;
 }
 
 
@@ -180,17 +204,17 @@ void sample_product_set(const uint64_t g1, uint64_t * c1,  int n1, const uint64_
         int i = rand() % n1;
         int j = rand() % n2;
 
-        cout << "Indices chosen: i=" << i<< "; j="<< j << endl <<flush;
+        // cout << "Indices chosen: i=" << i<< "; j="<< j << endl <<flush;
 
         // c1[i] and c2[j] are two uint64_t representing two M-grams we wish to compute the product of
         // first, set the two elements to zero outside g1, g2 (apply the mask with bitwise AND)
         // bitwise OR is now sufficient to produce an element in the direct product            
         uint64_t gtemplate = (c1[i] & g1) | (c2[j] & g2);
 
-        cout << "c1[i] = " << bitset<64>(c1[i]) << endl << flush;
-        cout << "c2[j] = " << bitset<64>(c2[j]) << endl << flush;
+        // cout << "c1[i] = " << bitset<64>(c1[i]) << endl << flush;
+        // cout << "c2[j] = " << bitset<64>(c2[j]) << endl << flush;
 
-        cout << "Template is " << bitset<64>(gtemplate) << endl << flush;
+        // cout << "Template is " << bitset<64>(gtemplate) << endl << flush;
         complete(gtemplate, missing);
 
         // check()
