@@ -9,9 +9,9 @@ using namespace std;
 constexpr auto Q = 32;
 constexpr int N_missing = 4; // Q - 2m
 constexpr int N_tests = 3;
-constexpr int N_completions = 50;
+constexpr int N_completions = 256;
 
-// array of 256 completions we will need to check
+// array of N_completions (between 1 and 256) completions we will check
 uint64_t completions[N_completions];
 
 // uint8_t text[] = {"ACAGCTTTTTGCGTATCTGGGCGCTATGCATGCTTAGGCTATCGGGCGCGCGCGATTATGCGCGCTAG"};
@@ -53,6 +53,9 @@ __attribute__((always_inline)) int Hamming_distance(uint64_t x, uint64_t y) // D
 
     return Q - popcount(diff); // I counted where they are equal, subtract it from Q to find the difference
 }
+
+
+void simple_check(int * mindist);
 
  // the check will need to be performed taking one byte at a time, where the byte now contains 4 chars instead of 1
  // min dist will be filled with minimum distances? or just abort when it gets too small?
@@ -221,6 +224,8 @@ void sample_product_set(const uint64_t g1, uint64_t * c1,  int n1, const uint64_
         cout << "\t" << missing[i];
     cout << endl << flush;
 
+    srand (time(NULL));
+
     for(int test=0; test< N_tests; test++)
     {
         int i = rand() % n1;
@@ -242,10 +247,13 @@ void sample_product_set(const uint64_t g1, uint64_t * c1,  int n1, const uint64_
         int mindist[N_completions];
         check(text, textlen, mindist);
 
-        cout << "Printing min distances for the two completions: " << flush;
+        cout << "Printing min distances for the " << N_completions << " completions: " << flush;
         for(int dd = 0; dd< N_completions; dd++)
             cout << mindist[dd] << " " << flush;
 
+        cout << endl << flush;
+
+        simple_check(mindist);
         cout << endl << endl << flush;
     }
 }
@@ -268,7 +276,7 @@ int char_dist(string x, string y) // used for debugging
 
 }
 
-void simple_check() // used for debugging
+void simple_check(int * mindist) // used for debugging
 {    
     // setup input (both completions and text)
     string string_compl[N_completions];
@@ -338,10 +346,22 @@ void simple_check() // used for debugging
         }
     }
 
-    cout << "Min distances are ";
+    cout << "Min distances when seen as strings are ";
     for(int i = 0; i < N_completions; i++)
         cout << string_mindist[i] << " ";
     cout << endl << flush;
+
+    bool same = true;
+    for(int i = 0; i<N_completions; i++)
+    {
+        if(string_mindist[i] != mindist[i])
+            same = false;
+    }
+
+    if(same)
+        cout << "OK: The two vectors are equal" << endl << flush;
+    else 
+        cout << "KO: The two vectors differ!" << endl << flush;
 
     return;
 }
@@ -349,36 +369,42 @@ void simple_check() // used for debugging
 
 int main()
 {
-    uint64_t g1 = 0xF00F0F0F00F0F0F0; // alternating 14 pairs
-    uint64_t g2 = 0x0F00F0F0FF000F0F; // 14 pairs in complementary of g1
+    // randomize g1,g2
+    srand(time(NULL));
+
+    // uint64_t g1 = 0xF00F0F0F00F0F0F0; // alternating 14 pairs
+    // uint64_t g2 = 0x0F00F0F0FF000F0F; // 14 pairs in complementary of g1
+
+    uint64_t g1 = 0b0011000011000011000011110011001100110000111100001111000011110000;
+    uint64_t g2 = 0b1100001100110000111100000000110011001111000011000000111100001111;
 
     cout << "g1 is " << bitset<64>(g1) << "; g2 is " << bitset<64>(g2) << endl << flush;
 
     // initialize complementaries and their sizes
-    int n1 = 3; 
-    int n2 = 2;
+    int n1 = 6; 
+    int n2 = 4;
 
     // uint64_t c1[n1] = {0b0001001001110010011010011011, 0b0011011000110100011001100010, 0b1100110011001101100111000100}; // ACAGCTAGCGGCGT, ATCGATCACGCGAG, TATATATCGCTACA
-    uint64_t c1[n1] = {0b0001000000000010000001110000001000000000011000001001000010110000, 0b0011000000000110000000110000010000000000011000000110000000100000, 0b1100000000001100000011000000110100000000100100001100000001000000}; // ACAGCTAGCGGCGT, ATCGATCACGCGAG, TATATATCGCTACA
+    uint64_t c1[n1] = {0b0001000000000010000001110000001000000000011000001001000010110000, 0b0011000000000110000000110000010000000000011000000110000000100000, 0b1100000000001100000011000000110100000000100100001100000001000000, 0b0101001110000100010001010011001000111000011001001001000010110100, 0b0011000100010110001100100001110000011100011001000110001100100100, 0b1100001001001101000111000110110101000010100100001100111001000111}; // ACAGCTAGCGGCGT, ATCGATCACGCGAG, TATATATCGCTACA
 
     // note: since c2 corresponds to the positions from 29-56, need to add 28 zeroes at the end
     // uint64_t c2[n2] = {0b11000001101111011000001101110000000000000000000000000000, 0b10100111101001110010011111010000000000000000000000000000}; // TAACGTTCGAATCT, GGCTGGCTAGCTTC
-    uint64_t c2[n2] = {0b0000110000000000000100001011000011011000000000000000001100000111, 0b0000101000000000011100001010000001110010000000000000011100001101}; // TAACGTTCGAATCT, GGCTGGCTAGCTTC 
+    uint64_t c2[n2] = {0b0000110000000000000100001011000011011000000000000000001100000111, 0b0000101000000000011100001010000001110010000000000000011100001101, 0b1000110001110001000100001011010011011001001001000111001100000111, 0b0000101000110010010100111010010101110010000110000100011100101101}; // TAACGTTCGAATCT, GGCTGGCTAGCTTC 
 
     // print qgrams in complementaries
-    // cout << "c1: ";
-    // for(int i =0; i<n1; i++)
-    // {
-    //     cout << bitset<64>(c1[i]) << "=";
-    //     print_Q_gram(c1[i]);
-    // }
+    cout << "c1: ";
+    for(int i =0; i<n1; i++)
+    {
+        cout << bitset<64>(c1[i]) << "=";
+        print_Q_gram(c1[i]);
+    }
         
-    // cout << "c2: ";
-    // for(int i =0; i<n2; i++)
-    // {
-    //     cout << bitset<64>(c2[i]) << "=";
-    //     print_Q_gram(c2[i]);
-    // }
+    cout << "c2: ";
+    for(int i =0; i<n2; i++)
+    {
+        cout << bitset<64>(c2[i]) << "=";
+        print_Q_gram(c2[i]);
+    }
 
     // int dist = Hamming_distance(c1[0], c1[1]);
     // cout << "Distance between c1[0], c1[1] is " << dist << endl << flush;
@@ -388,7 +414,7 @@ int main()
 
     sample_product_set(g1, c1, n1, g2, c2, n2);
 
-    simple_check();
+    // simple_check();
 
     return 0;
 }
