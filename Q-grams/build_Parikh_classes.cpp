@@ -121,14 +121,14 @@ void find_Q_grams(const char * filename){
 }
 
 void clean_dump_classes(){
-    auto total = 0;
-    for( auto v: Parikh_class ){
+    for( auto i: class_to_ID ){
+        auto v = Parikh_class[ i.second ];
         sort( v.begin(), v.end() );
         v.erase( unique( v.begin(), v.end() ), v.end() );
         // TBD: dump to a file
         if (v.size() > 0 ){
             ofstream fout;
-            string outfilename = "file_Parikh_" + to_string(total++); // we need to recover the Parish vector to build the outfilename
+            string outfilename = "file_Parikh_" + to_string(i.first); // we need to recover the Parish vector to build the outfilename
             fout.open(outfilename, ios::binary | ios::out);
             for (auto& e : v)
                 fout.write(reinterpret_cast<char *>(&e), sizeof(uint64_t)); 
