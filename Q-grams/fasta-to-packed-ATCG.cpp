@@ -64,7 +64,7 @@ void find_Q_grams(const char * filename, const char * outfilename){
         // here only if the current char is A, C, G, T
         if (++key_len == Q){  // we have 4 chars packed in a byte
             fout.write(&key, 1);
-            key_len = Q-1;        // for the next iteration
+            key_len = 0;        // for the next iteration
         }
         key <<= 2;            // shift two bits to the left
     }

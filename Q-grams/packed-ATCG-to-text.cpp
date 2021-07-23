@@ -22,19 +22,19 @@ void find_Q_grams(const char * filename, const char * outfilename){
     for(uint64_t i = 0; i < textlen; i++){ // auto i is a bug here
         auto key = text[i];
         for (auto j =0; j < Q; j++){
-            switch (key >> (Q-1+Q-1))
+            switch ((key >> (Q-1+Q-1)) & 0x3)
             {
             case 0:
-                cout << "A";
+                fout << "A";
                 break;
             case 1:
-                cout << "C";
+                fout << "C";
                 break;
             case 2:
-                cout << "G";
+                fout << "G";
                 break;
             case 3:
-                cout << "T";
+                fout << "T";
                 break;
             default:
                 ;
