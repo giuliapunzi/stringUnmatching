@@ -46,7 +46,7 @@ void process_mask(uint64_t mask, const char * outfilename){
     for (auto i = 0; i < N_CLASSES; i++){
         uint32_t suffix = Parikh_class_partition[i];
         string name = "file_Parikh_" + to_string(suffix);
-        // open name as an array of uint64_t
+        // open name as a sequence of uint64_t
         ifstream fin;
         fin.open(name, ios::binary | ios::in);
         uint64_t gram;
