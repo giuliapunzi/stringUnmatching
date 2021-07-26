@@ -33,7 +33,7 @@ inline uint64_t qgram_to_index(uint64_t gram, uint64_t mask){
 
 //__attribute__((always_inline)) 
 uint64_t index_to_qgram(uint64_t index, uint64_t mask){
-    return _pdep_u64(index & mask, mask);
+    return _pdep_u64(index, mask);
 }
 
 void process_mask(uint64_t mask, const char * outfilename){
