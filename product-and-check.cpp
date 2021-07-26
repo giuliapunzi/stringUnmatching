@@ -8,17 +8,20 @@ using namespace std;
 
 constexpr auto Q = 32;
 constexpr int N_missing = 4; // Q - 2m
-constexpr int N_tests = 3;
-constexpr int N_completions = 256;
+constexpr int N_tests = 3; // number of products to compute
+constexpr int N_completions = 256; // number of completions of each product
 
 // array of N_completions (between 1 and 256) completions we will check
 uint64_t completions[N_completions];
 
-// uint8_t text[] = {"ACAGCTTTTTGCGTATCTGGGCGCTATGCATGCTTAGGCTATCGGGCGCGCGCGATTATGCGCGCTAG"};
-
+// text used for debugging
 uint8_t text[] = {0b00010010, 0b01111111, 0b11111001, 0b10110011, 0b01111010, 0b10011001, 0b11001110, 0b01001110, 0b01111100, 0b10100111, 0b00110110, 0b10100110, 0b01100110, 0b01100011, 0b11001110, 0b01100110, 0b01110010};
 constexpr int textlen = 17;
 
+void simple_check(int * mindist); // used for debugging
+
+
+// given an uint64_t, print it in A,C,G,T alphabet
 void print_Q_gram(uint64_t gram){
     char s[Q+1];
     s[Q] = '\0';
@@ -45,6 +48,7 @@ void print_Q_gram(uint64_t gram){
 }
 
 
+// given two uint64_t, compute their Hamming distance
 __attribute__((always_inline)) int Hamming_distance(uint64_t x, uint64_t y) // DEBUGGED
 {
     uint64_t diff = ~(x^y);
@@ -55,10 +59,10 @@ __attribute__((always_inline)) int Hamming_distance(uint64_t x, uint64_t y) // D
 }
 
 
-void simple_check(int * mindist);
 
- // the check will need to be performed taking one byte at a time, where the byte now contains 4 chars instead of 1
- // min dist will be filled with minimum distances? or just abort when it gets too small?
+ // the check will taking one byte of the text at a time, where the byte contains 4 chars
+ // it scans every Qgram of the text, comparing it to every template and keeping an array 
+ // mindist of minimum distances
 void check (uint8_t * text, uint64_t textlen, int* mindist)  // DEBUGGED
 {
     for(int i=0; i<N_completions; i++) // mindist has the same size as completions
@@ -85,17 +89,14 @@ void check (uint8_t * text, uint64_t textlen, int* mindist)  // DEBUGGED
         mindist[templindex] = Hamming_distance(completions[templindex], key); 
 
 
-    // now, for every element of text (every uint8_t), 3 shift and three Qgrams
+    // for every element of text (every uint8_t), 3 shift and three Qgrams
     for(uint64_t i = 8;i < textlen; i++)
     {
-
         // cout << "Iteration no. " << i << " for text integer " << bitset<8>(text[i]) << endl << flush; 
-
         key <<= 2;
         key |= ((text[i] >> 6) & 0b11); // after being shifted by two, key gets an OR with the last two bits of the current uint8 shifted by six       
 
         // cout << "key is " << bitset<64>(key) << endl << flush;
-
         for(int j=0; j<N_completions;j++)
         {
             int dist = Hamming_distance(key, completions[j]);
@@ -222,7 +223,7 @@ void sample_product_set(const uint64_t g1, uint64_t * c1,  int n1, const uint64_
     cout << "Missing positions are: ";
     for(int i=0; i<=N_missing; i++)
         cout << "\t" << missing[i];
-    cout << endl << flush;
+    cout << endl << endl << flush;
 
     srand (time(NULL));
 
@@ -247,14 +248,14 @@ void sample_product_set(const uint64_t g1, uint64_t * c1,  int n1, const uint64_
         int mindist[N_completions];
         check(text, textlen, mindist);
 
-        cout << "Printing min distances for the " << N_completions << " completions: " << flush;
-        for(int dd = 0; dd< N_completions; dd++)
-            cout << mindist[dd] << " " << flush;
+        // cout << "Printing min distances for the " << N_completions << " completions: " << flush;
+        // for(int dd = 0; dd< N_completions; dd++)
+        //     cout << mindist[dd] << " " << flush;
 
-        cout << endl << flush;
+        // cout << endl << flush;
 
         simple_check(mindist);
-        cout << endl << endl << flush;
+        cout << endl << flush;
     }
 }
 
@@ -265,15 +266,12 @@ int char_dist(string x, string y) // used for debugging
         return -1;
 
     int dist = 0;
-
     for(int i = 0; i < x.size(); i++)
     {
         if(x[i] != y[i])
             dist++;
     }
-
     return dist;
-
 }
 
 void simple_check(int * mindist) // used for debugging
@@ -346,10 +344,10 @@ void simple_check(int * mindist) // used for debugging
         }
     }
 
-    cout << "Min distances when seen as strings are ";
-    for(int i = 0; i < N_completions; i++)
-        cout << string_mindist[i] << " ";
-    cout << endl << flush;
+    // cout << "Min distances when seen as strings are ";
+    // for(int i = 0; i < N_completions; i++)
+    //     cout << string_mindist[i] << " ";
+    // cout << endl << flush;
 
     bool same = true;
     for(int i = 0; i<N_completions; i++)
@@ -392,19 +390,19 @@ int main()
     uint64_t c2[n2] = {0b0000110000000000000100001011000011011000000000000000001100000111, 0b0000101000000000011100001010000001110010000000000000011100001101, 0b1000110001110001000100001011010011011001001001000111001100000111, 0b0000101000110010010100111010010101110010000110000100011100101101}; // TAACGTTCGAATCT, GGCTGGCTAGCTTC 
 
     // print qgrams in complementaries
-    cout << "c1: ";
-    for(int i =0; i<n1; i++)
-    {
-        cout << bitset<64>(c1[i]) << "=";
-        print_Q_gram(c1[i]);
-    }
+    // cout << "c1: ";
+    // for(int i =0; i<n1; i++)
+    // {
+    //     cout << bitset<64>(c1[i]) << "=";
+    //     print_Q_gram(c1[i]);
+    // }
         
-    cout << "c2: ";
-    for(int i =0; i<n2; i++)
-    {
-        cout << bitset<64>(c2[i]) << "=";
-        print_Q_gram(c2[i]);
-    }
+    // cout << "c2: ";
+    // for(int i =0; i<n2; i++)
+    // {
+    //     cout << bitset<64>(c2[i]) << "=";
+    //     print_Q_gram(c2[i]);
+    // }
 
     // int dist = Hamming_distance(c1[0], c1[1]);
     // cout << "Distance between c1[0], c1[1] is " << dist << endl << flush;
@@ -415,6 +413,5 @@ int main()
     sample_product_set(g1, c1, n1, g2, c2, n2);
 
     // simple_check();
-
     return 0;
 }
