@@ -16,7 +16,7 @@ using namespace std;
 
 /* Q-GRAMS */
 
-constexpr auto Q = 32;    // max val is 32 as we pack a Q-gram into a 64-bit word uint64_t
+//constexpr auto Q = 32;    // max val is 32 as we pack a Q-gram into a 64-bit word uint64_t
                           // 2-bit encoding: A = 00, C = 01, G = 10, T = 11 
 uint8_t char_counter[4] __attribute__ ((aligned (4)));  // invariant: char_counter[i] <= Q < 256, and sum_ i char_counter[i] = Q. char_counter[] is seen as uint32_t
 
@@ -26,16 +26,18 @@ constexpr auto UNIVERSE_SIZE = 268435456;    // 4^14 = 268435456
 
 bitset<UNIVERSE_SIZE> universe_bitvector;  // 33 554 432 bytes
 
-__attribute__((always_inline)) uint64_t qgram_to_index(uint64_t gram, uint64_t mask){
+//__attribute__((always_inline)) 
+inline uint64_t qgram_to_index(uint64_t gram, uint64_t mask){
     return _pext_u64(gram & mask, mask);
 }
 
-__attribute__((always_inline)) uint64_t index_to_qgram(uint64_t index, uint64_t mask){
+//__attribute__((always_inline)) 
+uint64_t index_to_qgram(uint64_t index, uint64_t mask){
     return _pdep_u64(index & mask, mask);
 }
 
 void process_mask(uint64_t mask, const char * outfilename){
-    assert( __popcount(mask) == 14 );
+    assert( __builtin_popcountll(mask) == MASK_WEIGHT );
 
     // initialize bit vector
     universe_bitvector.reset();
@@ -43,16 +45,20 @@ void process_mask(uint64_t mask, const char * outfilename){
     // scan all files and sets the bits corresponding to each masked q-gram
     for (auto i = 0; i < N_CLASSES; i++){
         uint32_t suffix = Parikh_class_partition[i];
-        // open filename as an array of uint64_t
         string name = "file_Parikh_" + to_string(suffix);
-        size_t gramlen = 0;   
-        const char * temp = map_file(name.c_str(), gramlen);      
-        const uint64_t * gram = reinterpret_cast<const uint64_t *>(temp);      
-        for(size_t i = 0; i < gramlen/8; i++){
-            universe_bitvector[ qgram_to_index(gram[i], mask)] = true;
+        // open name as an array of uint64_t
+        ifstream fin;
+        fin.open(name, ios::binary | ios::in);
+        uint64_t gram;
+        while (true){
+            fin.read(reinterpret_cast<char *>(&gram), sizeof(uint64_t)); 
+            if (!fin) break;
+            universe_bitvector[ qgram_to_index(gram, mask)] = true;
         }
-        unmap_file(temp, gramlen);
+        fin.close();
+        cout << "*" << flush;
     }
+    cout << endl << endl << flush;
 
     // scan the bit vector and populate the complement 
     ofstream fout;
