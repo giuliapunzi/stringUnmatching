@@ -1,8 +1,9 @@
-// compile with option -std=c++2a
+// compile with option -mbmi2 -std=c++2a
 #include <iostream>
 #include <bit> // for popcount
-#include <bitset> // to print in binary form
+#include <bitset> // to print in binary form 
 #include <stdlib.h>
+#include <immintrin.h> // to use pdep, pext
 
 using namespace std;
 
@@ -161,26 +162,30 @@ void check (uint8_t * text, uint64_t textlen, int* mindist)  // DEBUGGED
 // INPUT: template given as uint64, array of 4 positions that need to be filled (shift from the right necessary to have them as last two)
 // gtemplate needs to be zero in the missing pairs of positions.
 // OUTPUT: completion to uint64 in missing positions
-void complete (uint64_t gtemplate, int* missing) // DEBUGGED
+void complete (uint64_t gtemplate, int* missing, uint64_t cmask) // DEBUGGED WITH PDEP
 {
     // since the free positions of g are 4, we need numbers from 00000000 to 11111111 (0 to 255)
     // we will perform all these completions
     for(uint64_t curr = 0; curr < N_completions; curr++) 
     {
         // cout << endl << "Completing with " << curr << ", which is " << bitset<64>(curr) << endl << flush;
-        uint64_t compmask = 0;
-        uint64_t tcurr = curr;
+        // uint64_t compmask = 0;
+        // uint64_t tcurr = curr;
 
-        for(int i = 1; i<= N_missing; i++, tcurr >>= 2) // possible optimization: unroll the loop
-        {
-            compmask = compmask | (tcurr & 0b11);
-            compmask <<= missing[i]-missing[i-1];
-        }
+        // for(int i = 1; i<= N_missing; i++, tcurr >>= 2) // possible optimization: unroll the loop
+        // {
+        //     compmask = compmask | (tcurr & 0b11);
+        //     compmask <<= missing[i]-missing[i-1];
+        // }
 
-        // cout << "Mask is " << bitset<64>(compmask) << endl << flush;
-        completions[curr] = gtemplate | compmask;
-
+        // cout << "Mask for first completion is " << bitset<64>(compmask) << endl << flush;
+        // completions[curr] = gtemplate | compmask;
         // cout << "Current completion is " << bitset<64>(completions[curr]) << endl << flush;
+
+        // cout << "Depositing bits of curr according to cmask yields: " << bitset<64>(_pdep_u64(curr, cmask)) << endl << flush;
+        // cout << "Completion with pdep is " << bitset<64>(gtemplate | _pdep_u64(curr, cmask)) << endl << flush;
+        // cout << "Are the two completions equal? " << (completions[curr] == (gtemplate | _pdep_u64(curr, cmask))) << endl << endl << flush;
+        completions[curr] = gtemplate | _pdep_u64(curr, cmask);
     }
 
     
@@ -205,7 +210,7 @@ void sample_product_set(const uint64_t g1, uint64_t * c1,  int n1, const uint64_
     uint64_t cg = ~(g1 | g2);  // cg is the complementary of positions of hash functions
 
 
-    int missing[N_missing+1];
+    int missing[N_missing+1]; // don't need missing array; we can use pdep
     int pos = Q-1;
     int index = 0; 
 
@@ -243,7 +248,8 @@ void sample_product_set(const uint64_t g1, uint64_t * c1,  int n1, const uint64_
         // cout << "c2[j] = " << bitset<64>(c2[j]) << endl << flush;
 
         cout << "Template is " << bitset<64>(gtemplate) << endl << flush;
-        complete(gtemplate, missing);
+
+        complete(gtemplate, missing, ~(g1 | g2));
 
         int mindist[N_completions];
         check(text, textlen, mindist);
