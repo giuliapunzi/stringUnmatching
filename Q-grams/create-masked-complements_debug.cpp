@@ -43,16 +43,16 @@ string qgram_to_string(uint64_t gram){
         switch (gram & 0x3)
         {
         case 0:
-            s += "A";
+            s = "A" + s;
             break;
         case 1:
-            s += "C";
+            s = "C" + s;
             break;
         case 2:
-            s += "G";
+            s = "G" + s;
             break;
         case 3:
-            s += "T";
+            s = "T" + s;
             break;
         default:
             break;
@@ -69,16 +69,16 @@ string qgram_to_string_mask(uint64_t gram, uint64_t mask){
         switch (gram & 0x3)
         {
         case 0:
-            s += "A";
+            s = "A" + s;
             break;
         case 1:
-            s += "C";
+            s = "C" + s;
             break;
         case 2:
-            s += "G";
+            s = "G" + s;
             break;
         case 3:
-            s += "T";
+            s = "T" + s;
             break;
         default:
             break;
