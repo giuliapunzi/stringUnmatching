@@ -20,7 +20,7 @@ constexpr auto Q = 32;    // max val is 32 as we pack a Q-gram into a 64-bit wor
                           // 2-bit encoding: A = 00, C = 01, G = 10, T = 11 
 uint8_t char_counter[4] __attribute__ ((aligned (4)));  // invariant: char_counter[i] <= Q < 256, and sum_ i char_counter[i] = Q. char_counter[] is seen as uint32_t
 
-constexpr auto MASK_WEIGHT = 14;  // number of 1s
+constexpr auto MASK_WEIGHT = 28;  // number of 1s, twice the number of selected chars (as the alphabet is 4)
 
 constexpr auto UNIVERSE_SIZE = 268435456;    // 4^14 = 268435456
 
@@ -227,7 +227,7 @@ int main(int argc, char *argv[]){
         exit(255);
     }
 
-    uint64_t mask = 0x3FFF;
+    uint64_t mask = 0xFFFFFFF;
 
     process_mask( argv[1], mask, argv[2]);
     

@@ -20,7 +20,7 @@ using namespace std;
                           // 2-bit encoding: A = 00, C = 01, G = 10, T = 11 
 uint8_t char_counter[4] __attribute__ ((aligned (4)));  // invariant: char_counter[i] <= Q < 256, and sum_ i char_counter[i] = Q. char_counter[] is seen as uint32_t
 
-constexpr auto MASK_WEIGHT = 14;  // number of 1s
+constexpr auto MASK_WEIGHT = 28;  // number of 1s, twice the number of selected chars (as the alphabet is 4)
 
 constexpr auto UNIVERSE_SIZE = 268435456;    // 4^14 = 268435456
 
@@ -60,16 +60,23 @@ void process_mask(uint64_t mask, const char * outfilename){
     }
     cout << endl << endl << flush;
 
+    cout << "found " << universe_bitvector.count() << " qgrams" << endl << flush;
+
     // scan the bit vector and populate the complement 
     ofstream fout;
     fout.open(outfilename, ios::binary | ios::out);
+    uint64_t counter = 0;
     for (uint64_t i = 0; i < UNIVERSE_SIZE; i++){
         if (!(universe_bitvector[i])){
+            counter++;
             uint64_t t = index_to_qgram( i, mask);
             fout.write(reinterpret_cast<char *>(&t), sizeof(uint64_t)); 
         }
     }
     fout.close();
+
+    cout << "found " << counter << " complement qgrams out of " << UNIVERSE_SIZE << endl << flush;
+    assert(UNIVERSE_SIZE == universe_bitvector.count() + counter);
 }
 
 
@@ -79,7 +86,7 @@ int main(int argc, char *argv[]){
         exit(255);
     }
 
-    uint64_t mask = 0x3FFF;
+    uint64_t mask = 0xFFFFFFF;
 
     process_mask( mask, argv[1]);
     
