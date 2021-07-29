@@ -35,7 +35,7 @@ uint64_t index_to_qgram(uint64_t index, uint64_t mask){
     return _pdep_u64(index, mask);
 }
 
-void process_mask(uint64_t mask, const char * outfilename){
+void process_mask(uint64_t mask, const string outfilename){
     assert( __builtin_popcountll(mask) == MASK_WEIGHT );
 
     // initialize bit vector
@@ -148,15 +148,17 @@ int main(int argc, char *argv[]){
     g2 <<= (64 - 2 - secondmaskpos[13]);
     cout << "g2 is " << bitset<64>(g2) << endl << flush;
 
-    if(!(g2 & g1)){
+
+    if(g2 & g1){
         cout << "Functions are not disjoint!"<< endl;
         exit(255);
     }
 
-    process_mask( mask, "complementary" + to_string(g1)); //argv[1]);
+    // TODO: LINK THE TWO FILES 
+    process_mask( g1, "../data/complementaries/complementary" + to_string(g1)); //argv[1]);
     cout << "Finished processing first mask" << endl << flush;
 
-    process_mask( mask, "complementary" + to_string(g2));
+    process_mask( g2, "../data/complementaries/complementary" + to_string(g2));
     cout << "Finished processing second mask" << endl << flush;
     
     return 0;
