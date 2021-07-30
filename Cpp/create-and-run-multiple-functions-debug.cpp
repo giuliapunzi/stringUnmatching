@@ -21,10 +21,10 @@ constexpr auto Q = 32;
 constexpr int N_tests = 3; // number of tests
 constexpr int N_completions = 256; // number of completions for each template
 constexpr int N_hash_fctns = 4;  // number of hash functions 
-constexpr int target_size = 14; // target space size of hash functions
+constexpr int target_size = 10; // target space size of hash functions
 // constexpr int MAX_complement_size = 150000;
 vector<uint64_t> compl_array[N_hash_fctns]; // array of vectors for complementary sets
-// uint64_t csets_sizes[N_hash_fctns];
+vector<uint64_t> global_outcome;
 
 uint8_t char_counter[4] __attribute__ ((aligned (4)));  // invariant: char_counter[i] <= Q < 256, and sum_ i char_counter[i] = Q. char_counter[] is seen as uint32_t
 
@@ -252,6 +252,80 @@ void sort_according_to_masks(const uint64_t* g) // DEBUGGED
 }
 
 
+
+
+
+void rec_compute_templates(uint64_t candidate, int function_index, const uint64_t* g, uint64_t* redmasks){
+    // for now, we use a std function: [interval.first, interval.second) is the interval
+    pair<vector<uint64_t>::iterator,vector<uint64_t>::iterator> interval = equal_range(compl_array[function_index].begin(), compl_array[function_index].end(), candidate, [=](uint64_t x, uint64_t y) {
+		    return (x & redmasks[function_index]) < (y & redmasks[function_index]);
+        }); // complementary_search(candidate, function_index, redmasks[function_index]);
+
+    cout << "Inside recursive call with index " << function_index << "; we have candidate " << bitset<64>(candidate) << " which occurs in range " << interval.first - compl_array[function_index].begin() << ", " << interval.second - compl_array[function_index].begin() << endl << endl;
+
+    // if the range was empty, we have first= second 
+    if(interval.first == interval.second) //-1 || interval.second == -1)
+        return;
+
+    if(function_index == N_hash_fctns -1){
+        for(vector<uint64_t>::iterator it = interval.first; it != interval.second; it++){ //vector<uint64_t>::iterator it = compl_array[function_index].begin() + interval.first; it!= compl_array[function_index].begin() + interval.second +1; it++){
+            assert(((*it) & redmasks[function_index])==(candidate & redmasks[function_index]));
+            global_outcome.push_back(((*it)& g[function_index]) | candidate);
+        }
+    }
+    else{
+        for(vector<uint64_t>::iterator it = interval.first; it != interval.second; it++ ){ //compl_array[function_index].begin() + interval.first; it!= compl_array[function_index].begin() + interval.second +1; it++){
+            assert(((*it) & redmasks[function_index])==(candidate & redmasks[function_index]));
+            rec_compute_templates(((*it) & g[function_index]) | candidate, function_index+1, g, redmasks);
+        }
+            
+    }
+}
+
+
+void compute_templates(const uint64_t *g){
+    // TODO: sort functions according to the number of elements of the complementary 
+    uint64_t redmasks[N_hash_fctns];
+
+    // for the first function, no overlap
+    redmasks[0] = 0;
+    uint64_t overlapmask = g[0];
+    
+    // for each function, find the overlap with the previous and sort its corresponding array
+    for(int i = 1; i< N_hash_fctns; i++)
+    {
+        // cout << "Considering function " << i << " given by " << bitset<64>(g[i]) << endl << flush;
+        uint64_t currentfctn = g[i]; 
+        redmasks[i] = overlapmask & currentfctn;
+        // cout << "and between " << bitset<64>(overlapmask) << " and " << bitset<64>(currentfctn) << endl << endl << flush;
+
+        overlapmask |= currentfctn;
+
+        // sort the corresponding vector of complementaries according to the masks
+        sort(compl_array[i].begin(), compl_array[i].end(), [=](uint64_t x, uint64_t y) {
+		    return (x & redmasks[i]) < (y & redmasks[i]);
+        });
+
+    }
+
+    cout << "redmasks: ";
+    for(int i = 0; i<N_hash_fctns; i++)
+        cout << bitset<64>(redmasks[i]) << ", ";
+    cout << endl << endl;
+
+    // start a recursive computation for every element of the first complementary set
+    for(auto &x : compl_array[0])
+        rec_compute_templates(x, 1, g, redmasks);
+
+    // Now, file dump + complete and check
+    cout << "Global outcomes (" << global_outcome.size() << "): ";
+    for(auto x : global_outcome)
+        cout << ", " << bitset<64>(x);
+    cout << endl;
+}
+
+
+
 int main()
 {
     // uint64_t g1 = 58318922431328316;  
@@ -266,10 +340,10 @@ int main()
     g[3] = 0b1100110000000000110000110000110000000000001100001100001100110011;
 
     
-    vector<uint64_t> set0 = {0b0001000010000000000100000100000000000000110000000001000001110000, 0b0011001011000000000000001000010000000000010000000011000000100000, 0b0010001101000000000100000000110000000000100000000001000011100000};
-    vector<uint64_t> set1 = {0b1111001000110000000001000000000100001100000000001000000000000000, 0b0101001000110000000011000000001000001000000000000011000000000000, 0b1011000000010011000000000000000100001000000000001001000000000000, 0b1111000000110000000001000000000100001100000000001001000000000000};
-    vector<uint64_t> set2 = {0b0000100000000011000100100000000000000000010001000000000010001100, 0b0000100000001001000100100000000000000000100000000000000011001000, 0b0000110000000100001000010000000001000000110001000000000000000000};
-    vector<uint64_t> set3 = {0b0000100000000000100000010000000000000000000100000100001100000001, 0b1100010000000000000000000000100000000000000100000100001000110010};
+    vector<uint64_t> set0 = {0, 0b1111111111111111111111111111111111111111111111111111111111111111, 0b0001000010000000000100000100000000000000110000000001000001110000, 0b0011001011000000000000001000010000000000010000000000000000100000, 0b0010001101000000000100000000110000000000100000000001000011100000};
+    vector<uint64_t> set1 = {0b1100000011111111111111111111111111111111111111111100111111111111,    0b0011001100000000000000000000000000000000000000000011000000000000, 0b1111001000110000000001000000000100001100000000001000000000000000, 0b0101001000110000000011000000001000001000000000000011000000000000, 0b1011000000010011000000000000000100001000000000001001000000000000, 0b1111000000110000000001000000000100001100000000001001000000000000};
+    vector<uint64_t> set2 = {0b1111111111111111111111111111111111111111111111111111111111111111, 0, 0b0000100000000011000100100000000000000000010001000000000010001100, 0b0000100000001001000100100000000000000000100000000000000011001000, 0b0000110000000100001000010000000001000000110001000000000000000000};
+    vector<uint64_t> set3 = {0b1111111111111111111111111111111111111111111111111111111111111111, 0, 0b0000100000000000100000010000000000000000000100000100001100000001, 0b1100010000000000000000000000100000000000000100000100001000110010};
 
     // uint64_t* csets[N_hash_fctns] = {set0, set1, set2, set3};
 
@@ -327,14 +401,33 @@ int main()
     cout << endl;
 
 
-    pair<int,int> search = complementary_search(0b0000100000000001000100100000001000000000100000001111000011000000, 2, 0b0000000000000011001100000000000000000000110000000000000011000000);
+    // pair<int,int> search = complementary_search(0b0000100000000001000100100000001000000000100000001111000011000000, 2, 0b0000000000000011001100000000000000000000110000000000000011000000);
     cout << "Searching for " << bitset<64>(0b0000100000000000001000100000001000000000110000001111000000000000) << " in the third set." << endl << flush;
-    cout << "Result of the first search: " << search.first << ", " << search.second << endl << flush;
+    // cout << "Result of the first search: " << search.first << ", " << search.second << endl << flush;
 
-    search = complementary_search(0b1011000001000100110000001010001010100001001010101001101000010101, 1, 0b0011001100000000000000000000000000000000000000000011000000000000);
+    pair<vector<uint64_t>::iterator,vector<uint64_t>::iterator> interval = equal_range(compl_array[2].begin(), compl_array[2].end(), 0b0000100000000001000100100000001000000000100000001111000011000000, [=](uint64_t x, uint64_t y) {
+		    return (x & 0b0000000000000011001100000000000000000000110000000000000011000000) < (y & 0b0000000000000011001100000000000000000000110000000000000011000000);
+        });
+    cout << "With standard: " << interval.first-compl_array[2].begin() << ", " << interval.second-compl_array[2].begin() << endl << endl;
+
+    // search = complementary_search(0b1011000001000100110000001010001010100001001010101001101000010101, 1, 0b0011001100000000000000000000000000000000000000000011000000000000);
     cout << "Searching for " << bitset<64>(0b1011000101000100110000001010001010100001001010101000101000010101) << " in the second set." << endl << flush;
-    cout << "Result of the second search: " << search.first << ", " << search.second << endl << flush;
+    // cout << "Result of the second search: " << search.first << ", " << search.second << endl << flush;
 
+    uint64_t key = 0b1111000000101010010010101010000010101010101010001001010011111010;
+    uint64_t mask = g[1] & g[0];
+    interval = equal_range(compl_array[1].begin(), compl_array[1].end(), key, [=](uint64_t x, uint64_t y) {
+		    return (x & mask) < (y & mask);
+        });
+    cout << "With standard: " << interval.first-compl_array[1].begin() << ", " << interval.second-compl_array[1].begin() << endl << endl;
+
+    // cout << "Masked compl array: ";
+    // for(auto x : compl_array[1])
+    //     cout << bitset<64>(x & mask) << ", ";
+    // cout << endl;
+
+
+    compute_templates(g);
 
     return 0;
 }
