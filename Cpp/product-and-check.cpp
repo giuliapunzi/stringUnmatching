@@ -60,6 +60,84 @@ __attribute__((always_inline)) int Hamming_distance(uint64_t x, uint64_t y) // D
 }
 
 
+void rand_check()
+{
+    srand(time(NULL));
+    ofstream outputfile;
+    outputfile.open("../exp_results/Random", ios::out | ios::app);
+    outputfile << N_completions << " random tests " << endl;
+
+
+    // re-initialize distances for every template
+    for(int templindex = 0; templindex < N_completions; templindex++)
+        mindist[templindex] = Q+1; //Hamming_distance(completions[templindex], key); 
+
+    uint64_t rand_tests[N_completions];
+    for(int r=0; r<N_completions; r++){
+        uint64_t rand_gram = 0;
+        for(int i = 0; i < Q; i++, rand_gram <<= 2)
+        {
+            int rand_char = rand()%4;
+            switch (rand_char)
+            {
+            case 0:
+                break;
+            case 1:
+                rand_gram |= 0b01;
+                break;
+            case 2:
+                rand_gram |= 0b10;
+                break;
+            case 3:
+                rand_gram |= 0b11;
+                break;
+            default:
+                break;
+            }
+        }
+        cout << "Random string " << bitset<64>(rand_gram) << "\t";
+        rand_tests[r] = rand_gram;
+    }
+    cout << endl;
+
+    // scan all files and sets the bits corresponding to each masked q-gram
+    for (auto i = 0; i < N_CLASSES; i++){
+        uint32_t suffix = Parikh_class_partition[i];
+        string name = "../data/FILES/file_Parikh_" + to_string(suffix);
+        // open name as a sequence of uint64_t
+        ifstream fin;
+        fin.open(name, ios::binary | ios::in);
+        uint64_t gram;
+        while (true){
+            fin.read(reinterpret_cast<char *>(&gram), sizeof(uint64_t)); 
+            if (!fin) break;
+            // compute distance for each Qgram of the file 
+            for(int j=0; j<N_completions;j++){
+                int dist = Hamming_distance(gram, rand_tests[j]);
+                // if(i%1000 == 0 && j%100 == 0)
+                    // cout << "distance is " << dist << " " << flush;
+                if(dist < mindist[j])
+                    mindist[j] = dist;
+            }
+        }
+        fin.close();
+        cout << "*" << flush;
+    }
+
+    cout << endl << "Printing min distances for the " << N_completions << " random tests: " << flush;
+        for(int dd = 0; dd< N_completions; dd++)
+            cout << mindist[dd] << " " << flush;
+
+    outputfile << "Printing min distances for the " << N_completions << " random tests: " << flush;
+        for(int dd = 0; dd< N_completions; dd++)
+            outputfile << mindist[dd] << " ";
+
+    outputfile << endl << endl;
+    outputfile.close();
+    return;
+}
+
+
 // text is now a file composed of uint64_t
 
  // the check will taking one byte of the text at a time, where the byte contains 4 chars
@@ -130,7 +208,7 @@ void sample_product_set(const uint64_t g1, const string filename1, const uint64_
         for(int scan = 0; scan < randtest; scan++)
             complementary1.read(reinterpret_cast<char *>(&gram1), sizeof(uint64_t)); 
         // complementary2.read(reinterpret_cast<char *>(&gram2), sizeof(uint64_t));
-        outputfile << "Computing product of the " << randtest << "th gram " << bitset<64>(gram1);
+        outputfile << endl << "Computing product of the " << randtest << "th gram " << bitset<64>(gram1);
 
         randtest = rand()%50000;
         for(int scan = 0; scan < randtest; scan++)
@@ -160,7 +238,7 @@ void sample_product_set(const uint64_t g1, const string filename1, const uint64_
             cout << mindist[dd] << " " << flush;
 
 
-        outputfile << endl << "Printing min distances for the " << N_completions << " completions: ";
+        outputfile << "Printing min distances for the " << N_completions << " completions: ";
         for(int dd = 0; dd< N_completions; dd++)
             outputfile << mindist[dd] << " ";
 
@@ -178,11 +256,15 @@ void sample_product_set(const uint64_t g1, const string filename1, const uint64_
 int main()
 {
     // randomize g1,g2
-    uint64_t g1 = 58318922431328316;  
-    uint64_t g2 = 878429593903304643;
+    // uint64_t g1 = 58318922431328316;  
+    // uint64_t g2 = 878429593903304643;
+    uint64_t g1 = 13902679106799848448;  
+    uint64_t g2 = 3679370539919672316;
 
     cout << "g1 is " << bitset<64>(g1) << " and g2 is " << bitset<64>(g2) << endl << flush;
     sample_product_set(g1, "../data/complementaries/complementary" + to_string(g1), g2, "../data/complementaries/complementary" + to_string(g2));
+
+    // rand_check();
 
     return 0;
 }
