@@ -167,6 +167,7 @@ void sort_according_to_masks(const uint64_t* g) // DEBUGGED
 }
 
 
+
 // search in complementary set number compl_index for the interval with values equal to key over the mask overlapmask
 pair<int,int> complementary_search(uint64_t key, int compl_index, uint64_t overlapmask){
     vector<uint64_t> curr_vector = compl_array[compl_index];
@@ -179,7 +180,7 @@ pair<int,int> complementary_search(uint64_t key, int compl_index, uint64_t overl
     int end_pos = compl_size-1;
 
     while (beg_pos <= end_pos && pos_of_equality < 0) {
-        int mid = beg_pos + (end_pos - l) / 2;
+        int mid = beg_pos + (end_pos - beg_pos) / 2;
         
         if (((*(curr_vector.begin() + mid)) & overlapmask) == (key & overlapmask))
             pos_of_equality = mid;
@@ -194,6 +195,7 @@ pair<int,int> complementary_search(uint64_t key, int compl_index, uint64_t overl
     if(pos_of_equality == -1) // element does not occur
         return make_pair(-1,-1);
     
+    cout << "Found pos of equality " << pos_of_equality << endl << flush;
 
     // now, we want to find the extremes of the interval
     int beg_equality = pos_of_equality;
@@ -201,12 +203,16 @@ pair<int,int> complementary_search(uint64_t key, int compl_index, uint64_t overl
 
     while(beg_equality-1 >= 0 && ((*(curr_vector.begin() + beg_equality-1)) & overlapmask) == (key & overlapmask)) // keep going unless we go past the beginning, or find a different value
         beg_equality--;
+        
 
     while(end_equality+1 < compl_size && ((*(curr_vector.begin() + end_equality+1)) & overlapmask) == (key & overlapmask)) // keep going unless we go past the beginning, or find a different value
         end_equality++;
 
+    
+
     return make_pair(beg_equality, end_equality);
 }
+
 
 
 void rec_compute_templates(uint64_t candidate, int function_index, const uint64_t* g, uint64_t redmasks, uint64_t greenmasks){
