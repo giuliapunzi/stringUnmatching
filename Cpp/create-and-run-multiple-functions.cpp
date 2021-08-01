@@ -6,14 +6,18 @@
 #include <fstream>
 #include <stdlib.h>
 #include <vector>
-#include <pair>
 #include <immintrin.h> // to use pdep, pext
 
 // for mmap:
-#include "../script/mapfile.hpp"
+// #include "../script/mapfile.hpp"
+
+// // for Parikh classes Parikh_class_partition[N_CLASSES] where N_CLASSES = 6545 = (35 choose 3)
+// #include "../script/class_partitions_6545.h" // "../script/class_partitions_6545.h"
+
+#include "../Q-grams/mapfile.hpp"
 
 // for Parikh classes Parikh_class_partition[N_CLASSES] where N_CLASSES = 6545 = (35 choose 3)
-#include "../script/class_partitions_6545.h" // "../script/class_partitions_6545.h"
+#include "../Q-grams/class_partitions_6545.h" // "../script/class_partitions_6545.h"
 
 using namespace std;
 
@@ -169,7 +173,7 @@ void sort_according_to_masks(const uint64_t* g) // DEBUGGED
 
 
 // search in complementary set number compl_index for the interval with values equal to key over the mask overlapmask
-pair<int,int> complementary_search(uint64_t template, int compl_index, uint64_t mask){
+pair<int,int> complementary_search(uint64_t Qgram_template, int compl_index, uint64_t mask){
     vector<uint64_t> &curr_vector = compl_array[compl_index];
     int pos_of_equality = -1;
 
@@ -181,9 +185,9 @@ pair<int,int> complementary_search(uint64_t template, int compl_index, uint64_t 
     while (beg_pos <= end_pos && pos_of_equality < 0) {
         int mid = (beg_pos + end_pos)/2;
         
-        if (((*(curr_vector.begin() + mid)) & mask) == (template & mask))
+        if (((*(curr_vector.begin() + mid)) & mask) == (Qgram_template & mask))
             pos_of_equality = mid;
-        else if (((*(curr_vector.begin() + mid)) & mask) > (template & mask))
+        else if (((*(curr_vector.begin() + mid)) & mask) > (Qgram_template & mask))
             end_pos = mid - 1;
         else
             beg_pos = mid + 1;
@@ -198,11 +202,11 @@ pair<int,int> complementary_search(uint64_t template, int compl_index, uint64_t 
     int beg_equality = pos_of_equality;
     int end_equality = pos_of_equality;
 
-    while(beg_equality-1 >= 0 && ((*(curr_vector.begin() + beg_equality-1)) & overlapmask) == (key & overlapmask)) // keep going unless we go past the beginning, or find a different value
+    while(beg_equality-1 >= 0 && ((*(curr_vector.begin() + beg_equality-1)) & mask) == (Qgram_template & mask)) // keep going unless we go past the beginning, or find a different value
         beg_equality--;
         
 
-    while(end_equality+1 < curr_vector.size() && ((*(curr_vector.begin() + end_equality+1)) & overlapmask) == (key & overlapmask)) // keep going unless we go past the beginning, or find a different value
+    while(end_equality+1 < curr_vector.size() && ((*(curr_vector.begin() + end_equality+1)) & mask) == (Qgram_template & mask)) // keep going unless we go past the beginning, or find a different value
         end_equality++;
 
     return make_pair(beg_equality, end_equality);
@@ -225,6 +229,7 @@ void rec_compute_templates(uint64_t candidate, int function_index, const uint64_
         for(vector<uint64_t>::iterator it = interval.first; it != interval.second; it++){ //vector<uint64_t>::iterator it = compl_array[function_index].begin() + interval.first; it!= compl_array[function_index].begin() + interval.second +1; it++){
             assert(((*it) & redmasks[function_index])==(candidate & redmasks[function_index]));
             global_outcome.push_back(((*it) & g[function_index]) | candidate);
+            cout << "Found a template \t" << flush;
         }
     }
     else{
@@ -264,35 +269,119 @@ void compute_templates(const uint64_t *g){
     for(auto &x : compl_array[0])
         rec_compute_templates(x, 1, g, redmasks);
 
-    // Now, file dump + complete and check
+    cout << endl << flush;
+
+    // File dump of results
+    ofstream outputfile, binaryout; 
+    outputfile.open("../exp_results/TestMultFunct", ios::app);
+    binaryout.open("../exp_results/TestMultFunctTemplates", ios::binary | ios::app);
+    outputfile << "Test with " << N_hash_fctns << " functions: " << endl;
+    outputfile << "Functions g: " << endl << flush;
+    for(int i = 0; i< N_hash_fctns; i++)
+        outputfile << "g_" << i << ": " << bitset<64>(g[i]) << endl;
+    outputfile << endl << endl;
+
+    outputfile << "Templates to check are " << global_outcome.size() << ": " << endl;
+    cout << "Templates found are " << global_outcome.size() <<  endl << flush;
+
+    for(int i = 0; i < global_outcome.size(); i++){
+        uint64_t templ = global_outcome[i];
+        binaryout.write(reinterpret_cast<char *>(&templ), sizeof(uint64_t)); 
+        outputfile << bitset<64>(templ) << ", "; //print_Q_gram(templ);
+    }
+    outputfile << endl << endl;
+
+    binaryout.close();
+    outputfile.close();
 }
 
+
+
+void build_functions(uint64_t* g){
+    srand(111);
+
+    bool all_covered = false; 
+    while( !all_covered ){
+        // Crete random functions
+        for(int i=0; i<N_hash_fctns; i++){
+            int pos[target_size];
+            pos[0] = rand() % 32;
+            int filled = 1;
+            bool new_position = true;
+            while(filled < target_size){
+                int candidate_pos = rand() % 32;
+                new_position = true;
+                for(int j=0; j<filled; j++){
+                    if(pos[j] == candidate_pos)
+                        new_position = false;
+                }
+
+                if(new_position){
+                    pos[filled] = candidate_pos;
+                    filled++;
+                }
+            }
+
+            sort(pos, pos + target_size);
+
+            // cout << "Array of random positions is: ";
+            // for(int j=0; j<target_size; j++)
+            //     cout << pos[j] << ", ";
+            // cout << endl;
+
+            // for(int j=0; j<target_size; j++)
+            //     pos[j] =2*pos[j];
+
+            // cout << "Array of doubled random positions is: ";
+            // for(int j=0; j<target_size; j++)
+            //     cout << pos[j] << ", ";
+            // cout << endl;
+
+            // build the correspondin uint64 number and assign it to g[i]
+            uint64_t currg = 0b11;
+            for(int j=1; j< target_size; j++){
+                // cout << "g1 is " << bitset<64>(g1) << endl << flush;
+                currg <<= (2*pos[j] - 2*pos[j-1]);
+                currg |= 0b11;
+            }
+
+            currg <<= (2*Q - 2 - 2*pos[target_size-1]);
+            g[i] = currg;
+
+            assert( __builtin_popcountll(g[i]) == MASK_WEIGHT );
+        }
+
+        cout << "Functions g: " << endl << flush;
+        for(int i = 0; i< N_hash_fctns; i++)
+            cout << "g" << i+1 << ": " << bitset<64>(g[i]) << endl;
+        cout << endl; 
+
+        // compute the complementary to check if all positions are covered
+        uint64_t cg = g[0];
+        for(int i=1; i<N_hash_fctns; i++)
+            cg |= g[i];
+        
+        cout << "Complementary is " << bitset<64>(~cg) << endl;
+
+        if( ~cg == 0)
+            all_covered = true;
+    }
+}
 
 int main()
 {
     uint64_t g[N_hash_fctns];
-    srand(111);
 
-    // Crete random functions
-    int pos[target_size];
-    int filled = 0;
-    while(filled < target_size){
-        int new_pos = rand() % 32;
-        // TODO
-    }
-        
+    build_functions(g);
 
     cout << "Functions g: " << endl << flush;
     for(int i = 0; i< N_hash_fctns; i++)
         cout << "g" << i+1 << ": " << bitset<64>(g[i]) << endl;
-    cout << endl;    
+    cout << endl; 
 
+    // process_multiple_masks(g);
 
-    process_multiple_masks(g);
-
-    sort_according_to_masks(g);
-
-
+    // sort_according_to_masks(g);
 
 
     return 0;
