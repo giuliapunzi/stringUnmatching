@@ -78,7 +78,8 @@ void check_from_file (string filename)
     cout << "Candidates are " << templ_size << ": " << endl << flush;
     for(uint64_t i = 0; i < candidates.size(); i++){
         uint64_t templ = candidates[i];
-        cout << bitset<64>(templ) << ", "; //print_Q_gram(templ);
+        cout << bitset<64>(templ) << "= "; 
+        print_Q_gram(templ);
     }
     cout << endl << flush;
 
@@ -128,7 +129,7 @@ void check_from_file (string filename)
 
 int main()
 {
-    check_from_file("../exp_results/TestMultFunctTemplates");
+    check_from_file("../exp_results/QgramsDist9");
 
     return 0;
 }

@@ -18,15 +18,17 @@
 using namespace std;
 
 constexpr auto Q = 32;
-constexpr int N_tests = 3; // number of tests
-constexpr int N_completions = 10; // number of completions for each template
-constexpr int N_hash_fctns = 6;  // number of hash functions 
+// constexpr int N_tests = 3; // number of tests
+// constexpr int N_completions = 10; // number of completions for each template
+constexpr int N_hash_fctns = 7;  // number of hash functions 
 constexpr int target_size = 14; // target space size of hash functions
 // constexpr int MAX_complement_size = 150000;
 vector<uint64_t> compl_array[N_hash_fctns]; // array of vectors for complementary sets
 vector<uint64_t> global_outcome;
 
-constexpr int SEED = 227; // 87; // 111
+constexpr int SEED = 13; //19; //227; // 87; // 111
+
+constexpr int MIN_DIST = 9;
 
 uint8_t char_counter[4] __attribute__ ((aligned (4)));  // invariant: char_counter[i] <= Q < 256, and sum_ i char_counter[i] = Q. char_counter[] is seen as uint32_t
 
@@ -286,7 +288,7 @@ void compute_templates(const uint64_t *g){
     // File dump of results
     ofstream outputfile, binaryout; 
     outputfile.open("../exp_results/" +to_string(N_hash_fctns) + "MultFunctSeed" + to_string(SEED), ios::app);
-    binaryout.open("../exp_results/" +to_string(N_hash_fctns) + "MultFunctBinarySeed"  + to_string(SEED), ios::binary | ios::app);
+    // binaryout.open("../exp_results/" +to_string(N_hash_fctns) + "MultFunctBinarySeed"  + to_string(SEED), ios::binary | ios::app);
     outputfile << "Test with " << N_hash_fctns << " functions: " << endl;
     outputfile << "Functions g: " << endl << flush;
     for(int i = 0; i< N_hash_fctns; i++)
@@ -298,12 +300,12 @@ void compute_templates(const uint64_t *g){
 
     for(uint64_t i = 0; i < global_outcome.size(); i++){
         uint64_t templ = global_outcome[i];
-        binaryout.write(reinterpret_cast<char *>(&templ), sizeof(uint64_t)); 
+        // binaryout.write(reinterpret_cast<char *>(&templ), sizeof(uint64_t)); 
         outputfile << bitset<64>(templ) << ", "; //print_Q_gram(templ);
     }
     outputfile << endl << endl;
 
-    binaryout.close();
+    // binaryout.close();
     outputfile.close();
 }
 
@@ -436,6 +438,7 @@ void check ()
     outputfile << endl << "Printing min distances for the " << templ_size << " templates: " << flush;
     for(uint64_t dd = 0; dd< templ_size; dd++)
         outputfile << mindist[dd] << " " << flush;
+    outputfile << endl;
 
     uint64_t max_dist_index = 0;
     for(uint64_t i=0; i<global_outcome.size(); i++){
@@ -449,6 +452,18 @@ void check ()
 
     outputfile.close();
 
+    if(mindist[max_dist_index] >= MIN_DIST){
+        // create a file containing all the far Qgrams
+        ofstream goodgrams;
+        goodgrams.open("../exp_results/QgramsDist" + to_string(MIN_DIST), ios::binary | ios::out | ios::app );
+
+        for(uint64_t i = 0; i < global_outcome.size(); i++){
+            if(mindist[i] == mindist[max_dist_index])
+                goodgrams.write(reinterpret_cast<char *>(&(global_outcome[i])), sizeof(uint64_t)); 
+        }
+        goodgrams.close();
+    }
+    
     return;
 }
 
@@ -498,6 +513,8 @@ int main()
 
     cout << "End of template computation, which took " << elapsed_secs << " seconds. " << endl << flush;
 
+    if(global_outcome.size() == 0)
+        return 0;
 
     begin = clock();
     check();
