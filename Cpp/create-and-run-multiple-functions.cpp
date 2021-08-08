@@ -20,7 +20,7 @@ using namespace std;
 constexpr auto Q = 32;
 // constexpr int N_tests = 3; // number of tests
 // constexpr int N_completions = 10; // number of completions for each template
-constexpr int N_hash_fctns = 7;  // number of hash functions 
+constexpr int N_hash_fctns = 6;  // number of hash functions 
 constexpr int target_size = 14; // target space size of hash functions
 // constexpr int MAX_complement_size = 150000;
 vector<uint64_t> compl_array[N_hash_fctns]; // array of vectors for complementary sets
@@ -288,7 +288,7 @@ void compute_templates(const uint64_t *g){
     // File dump of results
     ofstream outputfile, binaryout; 
     outputfile.open("../exp_results/" +to_string(N_hash_fctns) + "MultFunctSeed" + to_string(SEED), ios::app);
-    // binaryout.open("../exp_results/" +to_string(N_hash_fctns) + "MultFunctBinarySeed"  + to_string(SEED), ios::binary | ios::app);
+    binaryout.open("../exp_results/" +to_string(N_hash_fctns) + "MultFunctBinarySeed"  + to_string(SEED), ios::binary | ios::app);
     outputfile << "Test with " << N_hash_fctns << " functions: " << endl;
     outputfile << "Functions g: " << endl << flush;
     for(int i = 0; i< N_hash_fctns; i++)
@@ -300,12 +300,12 @@ void compute_templates(const uint64_t *g){
 
     for(uint64_t i = 0; i < global_outcome.size(); i++){
         uint64_t templ = global_outcome[i];
-        // binaryout.write(reinterpret_cast<char *>(&templ), sizeof(uint64_t)); 
+        binaryout.write(reinterpret_cast<char *>(&templ), sizeof(uint64_t)); 
         outputfile << bitset<64>(templ) << ", "; //print_Q_gram(templ);
     }
     outputfile << endl << endl;
 
-    // binaryout.close();
+    binaryout.close();
     outputfile.close();
 }
 
