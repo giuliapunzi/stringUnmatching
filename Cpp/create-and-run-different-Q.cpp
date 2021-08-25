@@ -16,15 +16,18 @@
 #include "../script/mapfile.hpp"
 
 // for Parikh classes Parikh_class_partition[N_CLASSES] where N_CLASSES = 6545 = (35 choose 3)
-#include "../script/class_partitions_6545.h" // "../script/class_partitions_6545.h"
+// #include "../script/class_partitions_6545.h" // "../script/class_partitions_6545.h"
 
 using namespace std;
 
 constexpr auto maxQ = 32; // max value of Q as we use 64 bit integers
-constexpr auto Q = 20; // strings will be represented as 64 bit integers, stored in the last (least significative) 2*Q positions
+constexpr auto Q = 20; // strings will be represented as 64 bit integers, stored in the first (most significative) 2*Q positions
 
 constexpr int N_hash_fctns = 6;  // number of hash functions 
 constexpr int target_size = 14; // target space size of hash functions
+
+// maschere con prima-ultima pos dist 20
+
 // constexpr int MAX_complement_size = 150000;
 vector<uint64_t> compl_array[N_hash_fctns]; // array of vectors for complementary sets
 vector<uint64_t> global_outcome;
@@ -39,7 +42,6 @@ constexpr auto MASK_WEIGHT = 28;  // number of 1s, twice the number of selected 
 
 constexpr auto UNIVERSE_SIZE = 268435456;    // 4^14 = 268435456
 
-bitset<UNIVERSE_SIZE>[N_hash_fctns] universe_bitvector_array;  // 33 554 432 bytes
 
 
 
@@ -76,19 +78,21 @@ inline uint64_t qgram_to_index(uint64_t gram, uint64_t mask){
 }
 
 //__attribute__((always_inline)) 
-uint64_t index_to_qgram(uint64_t index, uint64_t mask){
+inline uint64_t index_to_qgram(uint64_t index, uint64_t mask){
     return _pdep_u64(index, mask);
 }
  
 
 // given two uint64_t, compute their Hamming distance
-__attribute__((always_inline)) int Hamming_distance(uint64_t x, uint64_t y) // DEBUGGED
+__attribute__((always_inline)) int Hamming_distance(uint64_t x, uint64_t y) 
 {
-    uint64_t diff = ~(x^y);
-    diff &= (diff << 1);
+    uint64_t diff = ~(x^y); // no not
+    diff &= (diff << 1); // or
     diff &= 0xAAAAAAAAAAAAAAAA;
 
-    return Q - (popcount(diff) - ( (int) ((maxQ - Q)/2) ) ); // need to subtract the ones coming from the common maxQ-Q trailing zeros
+    // & for maxQ-Q posizioni 
+
+    return Q - (popcount(diff) - ( (maxQ - Q) ); // need to subtract the ones coming from the common maxQ-Q trailing zeros
 }
 
 
@@ -96,10 +100,12 @@ __attribute__((always_inline)) int Hamming_distance(uint64_t x, uint64_t y) // D
 // directly from main file instead of through parikh classes
 // need to open main file and fill the bitvector when parsing it
 void process_multiple_masks(uint64_t* mask_array){
+    bitset<UNIVERSE_SIZE>[N_hash_fctns] universe_bitvector_array;  // 33 554 432 bytes * N_hash_fctns
+
     // TODO we can later remove this loop
     // uint64_t mask = mask_array[maskindex]; // current mask
     for(int maskindex=0; maskindex < N_hash_fctns; maskindex++) {
-        assert( __builtin_popcountll(mask_array[maskindex]) == MASK_WEIGHT );-
+        assert( __builtin_popcountll(mask_array[maskindex]) == MASK_WEIGHT );
         // initialize bit vector
         universe_bitvector_array[maskindex].reset();
     }
@@ -114,6 +120,7 @@ void process_multiple_masks(uint64_t* mask_array){
     auto key_len = 0;
     uint64_t i = 0;  // bug if we use auto :(
     auto skip = false;
+    auto count_situation = 0;
 
     while(i < textlen){
         switch (toupper(text[i]))
@@ -168,12 +175,15 @@ void process_multiple_masks(uint64_t* mask_array){
                 universe_bitvector_array[maskindex][qgram_to_index(key, mask_array[maskindex])] = true;
             }
 
+            count_situation++;
+
         }
         key <<= 2;            // shift two bits to the left
 
-        if(i % 10000000 == 0)
+        if(count_situation == 10000000) 
             cout << "*" << flush;
     }
+
     unmap_file(text, textlen);
     cout << endl << flush;
 
@@ -450,6 +460,7 @@ void build_functions(uint64_t* g){
 // ======================================================================
 
 
+// CHECK NEEDS TO BE CHANGED
 void check ()
 {
 
@@ -472,7 +483,7 @@ void check ()
     for(uint64_t dd = 0; dd< templ_size; dd++)
         cout << mindist[dd] << " " << flush;
 
-    // scan all files and sets the bits corresponding to each masked q-gram
+    // scan all files and sets the bits corresponding to each masked q-gram // NEED TO SCAN TEXT
     for (auto i = 0; i < N_CLASSES; i++){
         uint32_t suffix = Parikh_class_partition[i];
         string name = "../data/FILES/file_Parikh_" + to_string(suffix);
