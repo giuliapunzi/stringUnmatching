@@ -9,19 +9,25 @@
 #include <immintrin.h> // to use pdep, pext
 #include <ctime> // for elapsed time
 
+#include <unordered_map>
+
+
 // for mmap:
-#include "../script/mapfile.hpp"
+// #include "../script/mapfile.hpp"
 
 // for Parikh classes Parikh_class_partition[N_CLASSES] where N_CLASSES = 6545 = (35 choose 3)
-#include "../script/class_partitions_6545.h" // "../script/class_partitions_6545.h"
+// #include "../script/class_partitions_6545.h" // "../script/class_partitions_6545.h"
 
 using namespace std;
 
-constexpr auto Q = 32;
-// constexpr int N_tests = 3; // number of tests
-// constexpr int N_completions = 10; // number of completions for each template
+constexpr auto maxQ = 32; // max value of Q as we use 64 bit integers
+constexpr auto Q = 20; // strings will be represented as 64 bit integers, stored in the first (most significative) 2*Q positions
+
 constexpr int N_hash_fctns = 6;  // number of hash functions 
 constexpr int target_size = 14; // target space size of hash functions
+
+// maschere con prima-ultima pos dist 20
+
 // constexpr int MAX_complement_size = 150000;
 vector<uint64_t> compl_array[N_hash_fctns]; // array of vectors for complementary sets
 vector<uint64_t> global_outcome;
@@ -36,7 +42,6 @@ constexpr auto MASK_WEIGHT = 28;  // number of 1s, twice the number of selected 
 
 constexpr auto UNIVERSE_SIZE = 268435456;    // 4^14 = 268435456
 
-bitset<UNIVERSE_SIZE> universe_bitvector;  // 33 554 432 bytes
 
 
 
@@ -73,61 +78,126 @@ inline uint64_t qgram_to_index(uint64_t gram, uint64_t mask){
 }
 
 //__attribute__((always_inline)) 
-uint64_t index_to_qgram(uint64_t index, uint64_t mask){
+inline uint64_t index_to_qgram(uint64_t index, uint64_t mask){
     return _pdep_u64(index, mask);
 }
-
-
+ 
 
 // given two uint64_t, compute their Hamming distance
-__attribute__((always_inline)) int Hamming_distance(uint64_t x, uint64_t y) // DEBUGGED
+__attribute__((always_inline)) int Hamming_distance(uint64_t x, uint64_t y) 
 {
-    uint64_t diff = ~(x^y);
-    diff &= (diff << 1);
+    uint64_t diff = ~(x^y); // no not
+    diff &= (diff << 1); // or
     diff &= 0xAAAAAAAAAAAAAAAA;
 
-    return Q - popcount(diff); // I counted where they are equal, subtract it from Q to find the difference
+    // & for maxQ-Q posizioni 
+
+    return Q - (popcount(diff) - (maxQ - Q) ); // need to subtract the ones coming from the common maxQ-Q trailing zeros
 }
 
 
-
+// ==================================== CHANGED! ==================================
+// directly from main file instead of through parikh classes
+// need to open main file and fill the bitvector when parsing it
 void process_multiple_masks(uint64_t* mask_array){
+    bitset<UNIVERSE_SIZE> universe_bitvector_array[N_hash_fctns];  // 33 554 432 bytes * N_hash_fctns
+
     // TODO we can later remove this loop
-    for(int maskindex = 0; maskindex < N_hash_fctns; maskindex++){
-        uint64_t mask = mask_array[maskindex]; // current mask
-
-        assert( __builtin_popcountll(mask) == MASK_WEIGHT );
-
+    // uint64_t mask = mask_array[maskindex]; // current mask
+    for(int maskindex=0; maskindex < N_hash_fctns; maskindex++) {
+        assert( __builtin_popcountll(mask_array[maskindex]) == MASK_WEIGHT );
         // initialize bit vector
-        universe_bitvector.reset();
+        universe_bitvector_array[maskindex].reset();
+    }
 
-        // scan all files and sets the bits corresponding to each masked q-gram
-        for (auto i = 0; i < N_CLASSES; i++){
-            uint32_t suffix = Parikh_class_partition[i];
-            string name = "../data/FILES/file_Parikh_" + to_string(suffix);
-            // open name as a sequence of uint64_t
-            ifstream fin;
-            fin.open(name, ios::binary | ios::in);
-            uint64_t gram;
-            while (true){
-                fin.read(reinterpret_cast<char *>(&gram), sizeof(uint64_t)); 
-                if (!fin) break;
-                universe_bitvector[ qgram_to_index(gram, mask)] = true;
-            }
-            fin.close();
-            cout << "*" << flush;
+    
+    // map file
+    size_t textlen = 0;   
+    const char * text; //= map_file("./data/all_seqs.fa", textlen);      
+
+    // for (auto i =0; i < 4; i++) char_counter[i] = 0;
+    uint64_t key = 0;  // 32 chars from { A, C, G, T } packed as a 64-bit unsigned integer
+    auto key_len = 0;
+    uint64_t i = 0;  // bug if we use auto :(
+    auto skip = false;
+    auto count_situation = 0;
+
+    while(i < textlen){
+        switch (toupper(text[i]))
+        {
+        case 'A':
+            // key |= 0x0;
+            // char_counter[0]++;
+            break;
+        case 'C':
+            key |= 0x1;
+            // char_counter[1]++;
+            break;
+        case 'G':
+            key |= 0x2;
+            // char_counter[2]++;
+            break;
+        case 'T':
+            key |= 0x3;
+            // char_counter[3]++;
+            break;
+        case '\n':
+            skip = true;
+            break;
+        case '>':
+        case ';':
+            while( i < textlen && text[i] != '\n') i++;
+            key = 0;
+            key_len = 0;
+            // for (auto i =0; i < 4; i++) char_counter[i] = 0;
+            skip = true;
+            break;
+        default:
+            key = 0;
+            key_len = 0;
+            // for (auto i =0; i < 4; i++) char_counter[i] = 0;
+            skip = true;
+            break;
         }
-        cout << endl << endl << flush;
+        i++;
+        if (skip){ 
+            skip = false; 
+            continue;
+        }
+        // here only if the current char is A, C, G, T
+        if (++key_len == Q){
+            key_len = Q-1;        // for the next iteration
+            // check_Q_gram( key );  // & mask when Q < 32
+            // char_counter[(key >> (Q-1+Q-1)) & 0x3]--;  // exiting char
+            
+            // insert into all mask arrays
+            for(int maskindex=0; maskindex < N_hash_fctns; maskindex++) {
+                universe_bitvector_array[maskindex][qgram_to_index(key, mask_array[maskindex])] = true;
+            }
 
-        cout << "found " << universe_bitvector.count() << " qgrams" << endl << flush;
+            count_situation++;
 
-        // vector<uint64_t> current_complement;
+        }
+        key <<= 2;            // shift two bits to the left
+
+        if(count_situation == 10000000) 
+            cout << "*" << flush;
+    }
+
+    // unmap_file(text, textlen);
+    cout << endl << flush;
+
+    // last for loop populates the complementary for each function
+    for(int maskindex = 0; maskindex < N_hash_fctns; maskindex++){
+        cout << "found " << universe_bitvector_array[maskindex].count() << " qgrams for " << maskindex << "th function." << endl << flush;
+
         compl_array[maskindex].clear();
+
         // scan the bit vector and populate the complement vector 
         uint64_t counter = 0;
         for (uint64_t i = 0; i < UNIVERSE_SIZE; i++){
-            if (!(universe_bitvector[i])){
-                uint64_t t = index_to_qgram( i, mask);
+            if (!(universe_bitvector_array[maskindex][i])){
+                uint64_t t = index_to_qgram( i, mask_array[maskindex]);
                 // current_complement[counter] = t;
                 compl_array[maskindex].push_back(t);
                 counter++;
@@ -137,13 +207,15 @@ void process_multiple_masks(uint64_t* mask_array){
         cout << "found " << counter << " complement qgrams out of " << UNIVERSE_SIZE << endl << flush;
         // compl_array[maskindex] = current_complement;
 
-        assert(UNIVERSE_SIZE == universe_bitvector.count() + counter);
+        assert(UNIVERSE_SIZE == universe_bitvector_array[maskindex].count() + counter);
 
     }
 
     return;
 }
 
+
+// ======================================================================
 
 
 // g is the array of hash functions, of size N_hash_fctns
@@ -311,19 +383,23 @@ void compute_templates(const uint64_t *g){
 
 
 
+// ==================================== CHANGED! ==================================
 void build_functions(uint64_t* g){
-    srand(SEED);
+    // srand(SEED);
+    srand(time(NULL));
 
-    bool all_covered = false; 
+    cout << "Inside build_funct" << endl << flush;
+
+    bool all_covered = false; // all_covered is now different: need end with last maxQ-Q pos
     while( !all_covered ){
-        // Create random functions
+        // Create random functions in first (most significant) 2*Q positions
         for(int i=0; i<N_hash_fctns; i++){
             int pos[target_size];
-            pos[0] = rand() % 32;
+            pos[0] = rand() % Q;
             int filled = 1;
             bool new_position = true;
             while(filled < target_size){
-                int candidate_pos = rand() % 32;
+                int candidate_pos = rand() % Q;
                 new_position = true;
                 for(int j=0; j<filled; j++){
                     if(pos[j] == candidate_pos)
@@ -359,22 +435,41 @@ void build_functions(uint64_t* g){
                 currg |= 0b11;
             }
 
-            currg <<= (2*Q - 2 - 2*pos[target_size-1]);
+            cout << "Before final shift: " << bitset<64>(currg) << endl << flush;
+
+            // final shift needs to be changed: we need to shift of the whole maxQ instead of Q
+            currg <<= (2*maxQ - 2 - 2*pos[target_size-1]);
             g[i] = currg;
+
+            // cout << "g[i] is " << bitset<64>(g[i]) << endl << flush;
 
             assert( __builtin_popcountll(g[i]) == MASK_WEIGHT );
         }
 
-        // cout << "Functions g: " << endl << flush;
-        // for(int i = 0; i< N_hash_fctns; i++)
-        //     cout << "g" << i+1 << ": " << bitset<64>(g[i]) << endl;
-        // cout << endl; 
+        cout << "Functions g: " << endl << flush;
+        for(int i = 0; i< N_hash_fctns; i++)
+            cout << "g" << i+1 << ": " << bitset<64>(g[i]) << endl;
+        cout << endl; 
 
         // compute the complementary to check if all positions are covered
+
+        // tail has the last 2(maxQ-Q) bits set to 1
+        uint64_t tail = 0;
+        for(int i=0; i < maxQ-Q; i++)
+        {
+            tail <<=2;
+            tail |= 0b11;
+        }
+            
+
+        // cout << "Tail is " << bitset<64>(tail) << endl;
+
         uint64_t cg = g[0];
         for(int i=1; i<N_hash_fctns; i++)
             cg |= g[i];
         
+        cg |= tail;
+
         // cout << "Complementary is " << bitset<64>(~cg) << endl;
 
         if( ~cg == 0)
@@ -383,94 +478,99 @@ void build_functions(uint64_t* g){
 }
 
 
-void check ()
-{
+// ======================================================================
 
-    uint64_t templ_size = global_outcome.size();
-    cout << "Candidates are " << global_outcome.size() << ": " << endl << flush;
-    for(uint64_t i = 0; i < global_outcome.size(); i++){
-        uint64_t templ = global_outcome[i];
-        cout << bitset<64>(templ) << endl; //print_Q_gram(templ);
-    }
-    cout << endl << flush;
 
-    // initialize distances' vector
-    // int mindist[templ_size];
-    vector<int> mindist;
-    for(uint64_t templindex = 0; templindex < templ_size; templindex++)
-        mindist.push_back(Q+1);
-        // mindist[templindex] = Q+1; //Hamming_distance(completions[templindex], key); 
+// CHECK NEEDS TO BE CHANGED
+// void check ()
+// {
 
-    cout << endl << "Printing min distances before starting: " << flush;
-    for(uint64_t dd = 0; dd< templ_size; dd++)
-        cout << mindist[dd] << " " << flush;
+//     uint64_t templ_size = global_outcome.size();
+//     cout << "Candidates are " << global_outcome.size() << ": " << endl << flush;
+//     for(uint64_t i = 0; i < global_outcome.size(); i++){
+//         uint64_t templ = global_outcome[i];
+//         cout << bitset<64>(templ) << endl; //print_Q_gram(templ);
+//     }
+//     cout << endl << flush;
 
-    // scan all files and sets the bits corresponding to each masked q-gram
-    for (auto i = 0; i < N_CLASSES; i++){
-        uint32_t suffix = Parikh_class_partition[i];
-        string name = "../data/FILES/file_Parikh_" + to_string(suffix);
-        // open name as a sequence of uint64_t
-        ifstream fin;
-        fin.open(name, ios::binary | ios::in);
-        uint64_t gram;
-        while (true){
-            fin.read(reinterpret_cast<char *>(&gram), sizeof(uint64_t)); 
-            if (!fin) break;
-            // compute distance for each Qgram of the file 
-            for(uint64_t j=0; j<templ_size; j++){
-                int dist = Hamming_distance(gram, global_outcome[j]);
+//     // initialize distances' vector
+//     // int mindist[templ_size];
+//     vector<int> mindist;
+//     for(uint64_t templindex = 0; templindex < templ_size; templindex++)
+//         mindist.push_back(Q+1);
+//         // mindist[templindex] = Q+1; //Hamming_distance(completions[templindex], key); 
 
-                if(dist < mindist[j])
-                    mindist[j] = dist;
-            }
-        }
-        fin.close();
-        cout << "*" << flush;
-    }
+//     cout << endl << "Printing min distances before starting: " << flush;
+//     for(uint64_t dd = 0; dd< templ_size; dd++)
+//         cout << mindist[dd] << " " << flush;
 
-    ofstream outputfile; 
-    outputfile.open("../exp_results/" +to_string(N_hash_fctns) +"MultFunctSeed" + to_string(SEED), ios::app);
+//     // scan all files and sets the bits corresponding to each masked q-gram // NEED TO SCAN TEXT
+//     for (auto i = 0; i < N_CLASSES; i++){
+//         uint32_t suffix = Parikh_class_partition[i];
+//         string name = "../data/FILES/file_Parikh_" + to_string(suffix);
+//         // open name as a sequence of uint64_t
+//         ifstream fin;
+//         fin.open(name, ios::binary | ios::in);
+//         uint64_t gram;
+//         while (true){
+//             fin.read(reinterpret_cast<char *>(&gram), sizeof(uint64_t)); 
+//             if (!fin) break;
+//             // compute distance for each Qgram of the file 
+//             for(uint64_t j=0; j<templ_size; j++){
+//                 int dist = Hamming_distance(gram, global_outcome[j]);
 
-    cout << endl << "Printing min distances for the " << templ_size << " templates: " << flush;
-    for(uint64_t dd = 0; dd< templ_size; dd++)
-        cout << mindist[dd] << " " << flush;
+//                 if(dist < mindist[j])
+//                     mindist[j] = dist;
+//             }
+//         }
+//         fin.close();
+//         cout << "*" << flush;
+//     }
 
-    outputfile << endl << "Printing min distances for the " << templ_size << " templates: " << flush;
-    for(uint64_t dd = 0; dd< templ_size; dd++)
-        outputfile << mindist[dd] << " " << flush;
-    outputfile << endl;
+//     ofstream outputfile; 
+//     outputfile.open("../exp_results/" +to_string(N_hash_fctns) +"MultFunctSeed" + to_string(SEED), ios::app);
 
-    uint64_t max_dist_index = 0;
-    for(uint64_t i=0; i<global_outcome.size(); i++){
-        if(mindist[i] > mindist[max_dist_index])
-            max_dist_index = i;
-    }
+//     cout << endl << "Printing min distances for the " << templ_size << " templates: " << flush;
+//     for(uint64_t dd = 0; dd< templ_size; dd++)
+//         cout << mindist[dd] << " " << flush;
 
-    outputfile << "Max minimum distance of " << mindist[max_dist_index] << " reached by gram " << bitset<64>(global_outcome[max_dist_index]) << endl;
+//     outputfile << endl << "Printing min distances for the " << templ_size << " templates: " << flush;
+//     for(uint64_t dd = 0; dd< templ_size; dd++)
+//         outputfile << mindist[dd] << " " << flush;
+//     outputfile << endl;
 
-    outputfile << endl << endl << flush;
+//     uint64_t max_dist_index = 0;
+//     for(uint64_t i=0; i<global_outcome.size(); i++){
+//         if(mindist[i] > mindist[max_dist_index])
+//             max_dist_index = i;
+//     }
 
-    outputfile.close();
+//     outputfile << "Max minimum distance of " << mindist[max_dist_index] << " reached by gram " << bitset<64>(global_outcome[max_dist_index]) << endl;
 
-    if(mindist[max_dist_index] >= MIN_DIST){
-        // create a file containing all the far Qgrams
-        ofstream goodgrams;
-        goodgrams.open("../exp_results/QgramsDist" + to_string(MIN_DIST), ios::binary | ios::out | ios::app );
+//     outputfile << endl << endl << flush;
 
-        for(uint64_t i = 0; i < global_outcome.size(); i++){
-            if(mindist[i] == mindist[max_dist_index])
-                goodgrams.write(reinterpret_cast<char *>(&(global_outcome[i])), sizeof(uint64_t)); 
-        }
-        goodgrams.close();
-    }
+//     outputfile.close();
+
+//     if(mindist[max_dist_index] >= MIN_DIST){
+//         // create a file containing all the far Qgrams
+//         ofstream goodgrams;
+//         goodgrams.open("../exp_results/QgramsDist" + to_string(MIN_DIST), ios::binary | ios::out | ios::app );
+
+//         for(uint64_t i = 0; i < global_outcome.size(); i++){
+//             if(mindist[i] == mindist[max_dist_index])
+//                 goodgrams.write(reinterpret_cast<char *>(&(global_outcome[i])), sizeof(uint64_t)); 
+//         }
+//         goodgrams.close();
+//     }
     
-    return;
-}
+//     return;
+// }
 
 
 
 int main()
 {
+    cout << "About to initialize functions" << endl;
     uint64_t g[N_hash_fctns];
     clock_t begin = clock();
     build_functions(g);
@@ -492,36 +592,36 @@ int main()
     g5: 0000001100001100110000001100000011111111000000111100001100111111
     */
 
-    begin = clock();
-    process_multiple_masks(g); // ABOUT 20 MINS WITH 6 MASKS
-    end = clock();
-    elapsed_secs = double(end - begin) / CLOCKS_PER_SEC;
+    // begin = clock();
+    // process_multiple_masks(g); // ABOUT 20 MINS WITH 6 MASKS
+    // end = clock();
+    // elapsed_secs = double(end - begin) / CLOCKS_PER_SEC;
 
-    cout << "Masks processed in "<< elapsed_secs <<" time; complementary sets have sizes: " << flush; // Masks processed; complementary sets have sizes: |C0|= 38831      |C1|= 164169    |C2|= 86982   |C3|= 212690     |C4|= 114491    |C5|= 126248
-    for(int i = 0; i< N_hash_fctns; i++)
-        cout << "|C" << i << "|= " << compl_array[i].size() << "\t " << flush;
-    cout << endl<< flush; 
+    // cout << "Masks processed in "<< elapsed_secs <<" time; complementary sets have sizes: " << flush; // Masks processed; complementary sets have sizes: |C0|= 38831      |C1|= 164169    |C2|= 86982   |C3|= 212690     |C4|= 114491    |C5|= 126248
+    // for(int i = 0; i< N_hash_fctns; i++)
+    //     cout << "|C" << i << "|= " << compl_array[i].size() << "\t " << flush;
+    // cout << endl<< flush; 
 
-    sort_according_to_masks(g); // couple of minutes
+    // sort_according_to_masks(g); // couple of minutes
 
-    cout << "Masks have been sorted" << endl << flush;
+    // cout << "Masks have been sorted" << endl << flush;
 
-    begin = clock();
-    compute_templates(g);
-    end = clock();
-    elapsed_secs = double(end - begin) / CLOCKS_PER_SEC;
+    // begin = clock();
+    // compute_templates(g);
+    // end = clock();
+    // elapsed_secs = double(end - begin) / CLOCKS_PER_SEC;
 
-    cout << "End of template computation, which took " << elapsed_secs << " seconds. " << endl << flush;
+    // cout << "End of template computation, which took " << elapsed_secs << " seconds. " << endl << flush;
 
-    if(global_outcome.size() == 0)
-        return 0;
+    // if(global_outcome.size() == 0)
+    //     return 0;
 
-    begin = clock();
-    check();
-    end = clock();
-    elapsed_secs = double(end - begin) / CLOCKS_PER_SEC;
+    // begin = clock();
+    // check();
+    // end = clock();
+    // elapsed_secs = double(end - begin) / CLOCKS_PER_SEC;
 
-    cout << "End of check, which took " << elapsed_secs << " seconds. " << endl << flush;
+    // cout << "End of check, which took " << elapsed_secs << " seconds. " << endl << flush;
 
     return 0;
 }
