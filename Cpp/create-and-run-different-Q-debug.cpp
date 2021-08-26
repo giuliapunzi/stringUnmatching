@@ -83,16 +83,18 @@ inline uint64_t index_to_qgram(uint64_t index, uint64_t mask){
 }
  
 
-// given two uint64_t, compute their Hamming distance
-__attribute__((always_inline)) int Hamming_distance(uint64_t x, uint64_t y) 
+// given two uint64_t, compute their Hamming distance ============= CHANGED ===============
+__attribute__((always_inline)) int Hamming_distance(uint64_t x, uint64_t y) // DEBUGGED 
 {
-    uint64_t diff = ~(x^y); // no not
-    diff &= (diff << 1); // or
+    uint64_t diff = (x^y); // no not
+    diff |= (diff << 1); // or
     diff &= 0xAAAAAAAAAAAAAAAA;
 
-    // & for maxQ-Q posizioni 
+    // & for maxQ-Q posizioni ?
 
-    return Q - (popcount(diff) - (maxQ - Q) ); // need to subtract the ones coming from the common maxQ-Q trailing zeros
+
+    // last maxQ-Q positions are ensured to be equal, all equal to zero.
+    return popcount(diff); 
 }
 
 
@@ -384,7 +386,7 @@ void compute_templates(const uint64_t *g){
 
 
 // ==================================== CHANGED! ==================================
-void build_functions(uint64_t* g){
+void build_functions(uint64_t* g){ // DEBUGGED
     // srand(SEED);
     srand(time(NULL));
 
@@ -463,6 +465,10 @@ void build_functions(uint64_t* g){
             
 
         // cout << "Tail is " << bitset<64>(tail) << endl;
+
+        // check whether any g has positions in the tail, that is, the and is 0
+        for(int i=0; i< N_hash_fctns; i++)
+            assert(tail & g[i] == 0);
 
         uint64_t cg = g[0];
         for(int i=1; i<N_hash_fctns; i++)
@@ -577,10 +583,18 @@ int main()
     clock_t end = clock();
     double elapsed_secs = double(end - begin) / CLOCKS_PER_SEC;
 
-    cout << "Functions found in " << elapsed_secs << " seconds are: " << endl << flush;
-    for(int i = 0; i< N_hash_fctns; i++)
-        cout << "g" << i << ": " << bitset<64>(g[i]) << endl;
-    cout << endl; 
+    // cout << "Functions found in " << elapsed_secs << " seconds are: " << endl << flush;
+    // for(int i = 0; i< N_hash_fctns; i++)
+    //     cout << "g" << i << ": " << bitset<64>(g[i]) << endl;
+    // cout << endl; 
+
+    // cout << "Computing distance between 0101011011011000001011100100001011111001 and 0101011010011001001010100100011011101000" << endl;
+    // uint64_t x = 0b0101011011011000001011100100001011111001000000000000000000000000;
+    // uint64_t y = 0b0001001010011001001010100100011011101000000000000000000000000000;
+
+    // cout << "x = " << bitset<64>(x) << endl << "y = " << bitset<64>(y) << endl;
+    // cout << Hamming_distance( x,y )  << endl;
+    
 
     /*
     Functions g:
