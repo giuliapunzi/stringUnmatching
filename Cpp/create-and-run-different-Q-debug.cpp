@@ -386,11 +386,13 @@ void compute_templates(const uint64_t *g){
 
 
 // ==================================== CHANGED! ==================================
+// FUNCTIONS WILL HAVE THE FIRST (LEFTMOST, MOST SIGNIFICANT) POSITIONS EQUAL TO ZERO
+// this is because when filling the keys for the text, we fill them inserting from the right.
 void build_functions(uint64_t* g){ // DEBUGGED
     // srand(SEED);
     srand(time(NULL));
 
-    cout << "Inside build_funct" << endl << flush;
+    // cout << "Inside build_funct" << endl << flush;
 
     bool all_covered = false; // all_covered is now different: need end with last maxQ-Q pos
     while( !all_covered ){
@@ -437,38 +439,41 @@ void build_functions(uint64_t* g){ // DEBUGGED
                 currg |= 0b11;
             }
 
-            cout << "Before final shift: " << bitset<64>(currg) << endl << flush;
+            // cout << "Before final shift: " << bitset<64>(currg) << endl << flush;
 
-            // final shift needs to be changed: we need to shift of the whole maxQ instead of Q
-            currg <<= (2*maxQ - 2 - 2*pos[target_size-1]);
+            // final shift needs to be changed: still shifting by Q allows us to have the most significant bits set to 0
+            currg <<= (2*Q - 2 - 2*pos[target_size-1]);
             g[i] = currg;
 
-            // cout << "g[i] is " << bitset<64>(g[i]) << endl << flush;
+            // cout << "After final shift: " << bitset<64>(g[i]) << endl << flush;
 
             assert( __builtin_popcountll(g[i]) == MASK_WEIGHT );
         }
 
-        cout << "Functions g: " << endl << flush;
-        for(int i = 0; i< N_hash_fctns; i++)
-            cout << "g" << i+1 << ": " << bitset<64>(g[i]) << endl;
-        cout << endl; 
+        // cout << "Functions g: " << endl << flush;
+        // for(int i = 0; i< N_hash_fctns; i++)
+        //     cout << "g" << i+1 << ": " << bitset<64>(g[i]) << endl;
+        // cout << endl; 
 
         // compute the complementary to check if all positions are covered
 
-        // tail has the last 2(maxQ-Q) bits set to 1
+        // tail has the first 2(maxQ-Q) bits set to 0
         uint64_t tail = 0;
         for(int i=0; i < maxQ-Q; i++)
         {
             tail <<=2;
             tail |= 0b11;
         }
+        tail <<= 2*Q;
             
 
         // cout << "Tail is " << bitset<64>(tail) << endl;
 
         // check whether any g has positions in the tail, that is, the and is 0
         for(int i=0; i< N_hash_fctns; i++)
-            assert(tail & g[i] == 0);
+            assert((tail & g[i]) == 0);
+        
+            
 
         uint64_t cg = g[0];
         for(int i=1; i<N_hash_fctns; i++)
@@ -510,28 +515,68 @@ void build_functions(uint64_t* g){ // DEBUGGED
 //     for(uint64_t dd = 0; dd< templ_size; dd++)
 //         cout << mindist[dd] << " " << flush;
 
-//     // scan all files and sets the bits corresponding to each masked q-gram // NEED TO SCAN TEXT
-//     for (auto i = 0; i < N_CLASSES; i++){
-//         uint32_t suffix = Parikh_class_partition[i];
-//         string name = "../data/FILES/file_Parikh_" + to_string(suffix);
-//         // open name as a sequence of uint64_t
-//         ifstream fin;
-//         fin.open(name, ios::binary | ios::in);
-//         uint64_t gram;
-//         while (true){
-//             fin.read(reinterpret_cast<char *>(&gram), sizeof(uint64_t)); 
-//             if (!fin) break;
-//             // compute distance for each Qgram of the file 
+//     // scan the text and compute the distances
+//     // open filename as an array text of textlen characters
+//     size_t textlen = 0;   
+//     const char * text = map_file(filename, textlen);      
+
+//     uint64_t key = 0;  // 32 chars from { A, C, G, T } packed as a 64-bit unsigned integer
+//     auto key_len = 0;
+//     uint64_t i = 0;  // bug if we use auto :(
+//     auto skip = false;
+
+//     while(i < textlen){
+//         switch (toupper(text[i]))
+//         {
+//         case 'A':
+//             // key |= 0x0;
+//             break;
+//         case 'C':
+//             key |= 0x1;
+//             break;
+//         case 'G':
+//             key |= 0x2;
+//             break;
+//         case 'T':
+//             key |= 0x3;
+//             break;
+//         case '\n':
+//             skip = true;
+//             break;
+//         case '>':
+//         case ';':
+//             while( i < textlen && text[i] != '\n') i++;
+//             key = 0;
+//             key_len = 0;
+//             skip = true;
+//             break;
+//         default:
+//             key = 0;
+//             key_len = 0;
+//             skip = true;
+//             break;
+//         }
+//         i++;
+//         if (skip){ 
+//             skip = false; 
+//             continue;
+//         }
+//         // here only if the current char is A, C, G, T
+//         if (++key_len == Q){
+//             key_len = Q-1;        // for the next iteration
+            
+//             // compute the distance!
 //             for(uint64_t j=0; j<templ_size; j++){
-//                 int dist = Hamming_distance(gram, global_outcome[j]);
+//                 int dist = Hamming_distance(key, global_outcome[j]);
 
 //                 if(dist < mindist[j])
 //                     mindist[j] = dist;
 //             }
 //         }
-//         fin.close();
-//         cout << "*" << flush;
+//         key <<= 2;            // shift two bits to the left
 //     }
+//     unmap_file(text, textlen);
+
 
 //     ofstream outputfile; 
 //     outputfile.open("../exp_results/" +to_string(N_hash_fctns) +"MultFunctSeed" + to_string(SEED), ios::app);
@@ -560,7 +605,7 @@ void build_functions(uint64_t* g){ // DEBUGGED
 //     if(mindist[max_dist_index] >= MIN_DIST){
 //         // create a file containing all the far Qgrams
 //         ofstream goodgrams;
-//         goodgrams.open("../exp_results/QgramsDist" + to_string(MIN_DIST), ios::binary | ios::out | ios::app );
+//         goodgrams.open("../exp_results/" + to_string(Q) + "gramsDist" + to_string(MIN_DIST), ios::binary | ios::out | ios::app );
 
 //         for(uint64_t i = 0; i < global_outcome.size(); i++){
 //             if(mindist[i] == mindist[max_dist_index])
@@ -576,7 +621,6 @@ void build_functions(uint64_t* g){ // DEBUGGED
 
 int main()
 {
-    cout << "About to initialize functions" << endl;
     uint64_t g[N_hash_fctns];
     clock_t begin = clock();
     build_functions(g);
