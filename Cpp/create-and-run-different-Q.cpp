@@ -12,8 +12,8 @@
 #include <unordered_map>
 
 
-// for mmap:
-#include "../script/mapfile.hpp"
+// for mmap: DOES NOT WORK ON PC 
+// #include "../script/mapfile.hpp"
 
 // for Parikh classes Parikh_class_partition[N_CLASSES] where N_CLASSES = 6545 = (35 choose 3)
 // #include "../script/class_partitions_6545.h" // "../script/class_partitions_6545.h"
@@ -99,7 +99,7 @@ __attribute__((always_inline)) int Hamming_distance(uint64_t x, uint64_t y, uint
 // directly from main file instead of through parikh classes
 // need to open main file and fill the bitvector when parsing it
 void process_multiple_masks(uint64_t* mask_array){
-    bitset<UNIVERSE_SIZE>[N_hash_fctns] universe_bitvector_array;  // 33 554 432 bytes * N_hash_fctns
+    bitset<UNIVERSE_SIZE> universe_bitvector_array[N_hash_fctns];  // 33 554 432 bytes * N_hash_fctns
 
     // TODO we can later remove this loop
     // uint64_t mask = mask_array[maskindex]; // current mask

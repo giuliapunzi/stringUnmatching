@@ -9,44 +9,32 @@
 #include <immintrin.h> // to use pdep, pext
 #include <ctime> // for elapsed time
 
+#include <string.h>
+
 #include <unordered_map>
-
-
-// for mmap:
-// #include "../script/mapfile.hpp"
-#include "../Q-grams/mapfile.hpp"
-
-// for Parikh classes Parikh_class_partition[N_CLASSES] where N_CLASSES = 6545 = (35 choose 3)
-// #include "../script/class_partitions_6545.h" // "../script/class_partitions_6545.h"
 
 using namespace std;
 
 constexpr auto maxQ = 32; // max value of Q as we use 64 bit integers
-constexpr auto Q = 20; // strings will be represented as 64 bit integers, stored in the first (most significative) 2*Q positions
+constexpr auto Q = 20; // strings will be represented as 64 bit integers, stored in the last (least significative) 2*Q positions
 
 constexpr int N_hash_fctns = 6;  // number of hash functions 
 constexpr int target_size = 14; // target space size of hash functions
-
-// maschere con prima-ultima pos dist 20
-
-// constexpr int MAX_complement_size = 150000;
-vector<uint64_t> compl_array[N_hash_fctns]; // array of vectors for complementary sets
-vector<uint64_t> global_outcome;
-
-constexpr int SEED = 13; //19; //227; // 87; // 111
-
-constexpr int MIN_DIST = 9;
-
-uint8_t char_counter[4] __attribute__ ((aligned (4)));  // invariant: char_counter[i] <= Q < 256, and sum_ i char_counter[i] = Q. char_counter[] is seen as uint32_t
-
-constexpr auto MASK_WEIGHT = 28;  // number of 1s, twice the number of selected chars (as the alphabet is 4)
+constexpr auto MASK_WEIGHT = 2*target_size;  // number of 1s, twice the number of selected chars (as the alphabet is 4)
 
 constexpr auto UNIVERSE_SIZE = 268435456;    // 4^14 = 268435456
 
+bitset<UNIVERSE_SIZE> universe_bitvector_array[N_hash_fctns];
+
+vector<uint64_t> compl_array[N_hash_fctns]; // array of vectors for complementary sets
+vector<uint64_t> global_outcome; // global outcome will be the final 
+
+constexpr int SEED = 13; //19; //227; // 87; // 11
+
+constexpr int MIN_DIST = 9;
 
 
-
-// given an uint64_t, print it in A,C,G,T alphabet
+// given an uint64_t, print it in A,C,G,T alphabet its last Q characters
 void print_Q_gram(uint64_t gram){
     char s[Q+1];
     s[Q] = '\0';
@@ -85,16 +73,13 @@ inline uint64_t index_to_qgram(uint64_t index, uint64_t mask){
  
 
 // given two uint64_t, compute their Hamming distance ============= CHANGED ===============
-__attribute__((always_inline)) int Hamming_distance(uint64_t x, uint64_t y) // DEBUGGED 
+__attribute__((always_inline)) int Hamming_distance(uint64_t x, uint64_t y, uint64_t Qmask) // DEBUGGED 
 {
-    uint64_t diff = (x^y); // no not
-    diff |= (diff << 1); // or
+    uint64_t diff = (x^y); 
+    diff &= Qmask;
+    diff |= (diff << 1); 
     diff &= 0xAAAAAAAAAAAAAAAA;
 
-    // & for maxQ-Q posizioni ?
-
-
-    // last maxQ-Q positions are ensured to be equal, all equal to zero.
     return popcount(diff); 
 }
 
@@ -103,23 +88,24 @@ __attribute__((always_inline)) int Hamming_distance(uint64_t x, uint64_t y) // D
 // directly from main file instead of through parikh classes
 // need to open main file and fill the bitvector when parsing it
 void process_multiple_masks(uint64_t* mask_array){
-    bitset<UNIVERSE_SIZE> universe_bitvector_array[N_hash_fctns];  // 33 554 432 bytes * N_hash_fctns
+    // bitset<UNIVERSE_SIZE> universe_bitvector_array[N_hash_fctns] = {};  // 33 554 432 bytes * N_hash_fctns, about 200MB for 6 hash fctns
+    // vector<bitset<UNIVERSE_SIZE>> universe_bitvector_array;
 
     // TODO we can later remove this loop
-    // uint64_t mask = mask_array[maskindex]; // current mask
     for(int maskindex=0; maskindex < N_hash_fctns; maskindex++) {
-        assert( __builtin_popcountll(mask_array[maskindex]) == MASK_WEIGHT );
         // initialize bit vector
         universe_bitvector_array[maskindex].reset();
     }
 
     cout << "Bitvector initialized!" << endl << flush;
     
-    // map file
+    // map file (for debug, use a string)
     size_t textlen = 0;   
-    const char * text = map_file("./halfY.txt", textlen); //= map_file("./data/all_seqs.fa", textlen);   
+    const char * text = "ACGATATATGCTACGACTGCGCGCGGCGCGCGATCGATGCTAGCGCTATAGCTAGTCGCGCGCGCGGCGCGGGGGGGGGGGGGGGGGGGGGGATTATATATAGTCGATCGATGCTAGCATGCTCGTGCGGATATTATATATCGTCGTACGTAGCTACGTAGCTAGCTGATCGATGCTAGTCGCGGCGCGCGATCGATCGATCGATCGATCGATCGTACGTAGTGCATGCTAGTTTAATATCGTACGTCTCTCTGCAGGAGAGTCGATCGTGCATTGTACGTAGCCCCCCCCCCCCCCCCAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAATATCGTAGCTACGTACTGGCGCGCGCGCGGCTATTATCGATCTACTACGTCGGCGCATAGCGTAGCTAGGCGATCGAGGCGGCTAGCTAGCTACTAGTTAGCGGCGAGTAGTCGATCGACGTAGGCGATGCTAGCATCGGCGGGGGGGCGATCGTATATTTATATACCCCGGCAGGAGAGGGGAGAGAAAAAAATATTATATATTATCGATCGTACGTAGCTACGTAGCGCGCGCGATCTAGCATCTCGCGGCGCG"; //= map_file("./halfY.txt", textlen); //= map_file("./data/all_seqs.fa", textlen);   
 
+    textlen = strlen(text);
     cout << "text has been mapped" << endl << flush;   
+    cout << "It is " << text << endl << flush;
 
     // for (auto i =0; i < 4; i++) char_counter[i] = 0;
     uint64_t key = 0;  // 32 chars from { A, C, G, T } packed as a 64-bit unsigned integer
@@ -227,7 +213,7 @@ void process_multiple_masks(uint64_t* mask_array){
 // g is the array of hash functions, of size N_hash_fctns
 // csets is an array of arrays of complementary sets, of size N_hash_fctns * 
 // compl_sizes is an array of ints, with the sizes of the corresponding complementary sets
-void sort_according_to_masks(const uint64_t* g) // DEBUGGED
+void sort_according_to_masks(const uint64_t* g) 
 {
     // for each function, find the overlap with the previous and sort its corresponding array
     for(int i = 1; i< N_hash_fctns; i++)
@@ -396,11 +382,9 @@ void build_functions(uint64_t* g){ // DEBUGGED
     srand(SEED);
     // srand(time(NULL));
 
-    // cout << "Inside build_funct" << endl << flush;
-
-    bool all_covered = false; // all_covered is now different: need end with last maxQ-Q pos
+    bool all_covered = false; // all_covered is now different: need and with last maxQ-Q pos
     while( !all_covered ){
-        // Create random functions in first (most significant) 2*Q positions
+        // Create random functions in last (least significant) 2*Q positions
         for(int i=0; i<N_hash_fctns; i++){
             int pos[target_size];
             pos[0] = rand() % Q;
@@ -438,7 +422,7 @@ void build_functions(uint64_t* g){ // DEBUGGED
             // build the correspondin uint64 number and assign it to g[i]
             uint64_t currg = 0b11;
             for(int j=1; j< target_size; j++){
-                // cout << "g1 is " << bitset<64>(g1) << endl << flush;
+                // cout << "g1 is " << bitset<64>(currg) << endl << flush;
                 currg <<= (2*pos[j] - 2*pos[j-1]);
                 currg |= 0b11;
             }
@@ -477,7 +461,6 @@ void build_functions(uint64_t* g){ // DEBUGGED
         for(int i=0; i< N_hash_fctns; i++)
             assert((tail & g[i]) == 0);
         
-            
 
         uint64_t cg = g[0];
         for(int i=1; i<N_hash_fctns; i++)
@@ -631,17 +614,27 @@ int main()
     clock_t end = clock();
     double elapsed_secs = double(end - begin) / CLOCKS_PER_SEC;
 
+    // Qmask has the first 2(maxQ-Q) bits set to 0, the last 2Q set to 1
+    uint64_t Qmask = 0b11;
+    for(int i=0; i < Q-1; i++)
+    {
+        Qmask <<=2;
+        Qmask |= 0b11;
+    }
+    cout << "Mask Qmask is " << bitset<64>(Qmask) << endl << flush;
+
     cout << "Functions found in " << elapsed_secs << " seconds are: " << endl << flush;
     for(int i = 0; i< N_hash_fctns; i++)
         cout << "g" << i << ": " << bitset<64>(g[i]) << endl;
     cout << endl; 
 
-    // cout << "Computing distance between 0101011011011000001011100100001011111001 and 0101011010011001001010100100011011101000" << endl;
-    // uint64_t x = 0b0101011011011000001011100100001011111001000000000000000000000000;
-    // uint64_t y = 0b0001001010011001001010100100011011101000000000000000000000000000;
+    // cout << "Computing distance between 0000000000000000000000000101011011011000001011100100001011111001 and 0000000000000000000000000001001010011001001010100100011011101000" << endl;
+    // // x = 0b0000000000000000000000000101011011011000001011100100001011111001
+    // uint64_t x = 0b1000001110000000000000000101011011011000001011100100001011111001;
+    // uint64_t y = 0b0000100000000111100000000001001010011001001010100100011011101000;
 
     // cout << "x = " << bitset<64>(x) << endl << "y = " << bitset<64>(y) << endl;
-    // cout << Hamming_distance( x,y )  << endl;
+    // cout << Hamming_distance( x,y,Qmask )  << endl;
     
     
     /*
@@ -654,15 +647,18 @@ int main()
     g5: 0000001100001100110000001100000011111111000000111100001100111111
     */
 
+    // test bitset
+    // bitset<100000000> bittest[N_hash_fctns]; // CANNOT MAKE IT OF UNIVERSE_SIZE: problem at 100 000 000. 
+    
     begin = clock();
     process_multiple_masks(g); // ABOUT 20 MINS WITH 6 MASKS
     end = clock();
-    elapsed_secs = double(end - begin) / CLOCKS_PER_SEC;
+    // elapsed_secs = double(end - begin) / CLOCKS_PER_SEC;
 
-    // cout << "Masks processed in "<< elapsed_secs <<" time; complementary sets have sizes: " << flush; // Masks processed; complementary sets have sizes: |C0|= 38831      |C1|= 164169    |C2|= 86982   |C3|= 212690     |C4|= 114491    |C5|= 126248
-    // for(int i = 0; i< N_hash_fctns; i++)
-    //     cout << "|C" << i << "|= " << compl_array[i].size() << "\t " << flush;
-    // cout << endl<< flush; 
+    cout << "Masks processed in "<< elapsed_secs <<" time; complementary sets have sizes: " << flush; // Masks processed; complementary sets have sizes: |C0|= 38831      |C1|= 164169    |C2|= 86982   |C3|= 212690     |C4|= 114491    |C5|= 126248
+    for(int i = 0; i< N_hash_fctns; i++)
+        cout << "|C" << i << "|= " << compl_array[i].size() << "\t " << flush;
+    cout << endl<< flush; 
 
     // sort_according_to_masks(g); // couple of minutes
 
