@@ -14,6 +14,7 @@
 
 // for mmap:
 // #include "../script/mapfile.hpp"
+#include "../Q-grams/mapfile.hpp"
 
 // for Parikh classes Parikh_class_partition[N_CLASSES] where N_CLASSES = 6545 = (35 choose 3)
 // #include "../script/class_partitions_6545.h" // "../script/class_partitions_6545.h"
@@ -112,10 +113,13 @@ void process_multiple_masks(uint64_t* mask_array){
         universe_bitvector_array[maskindex].reset();
     }
 
+    cout << "Bitvector initialized!" << endl << flush;
     
     // map file
     size_t textlen = 0;   
-    const char * text; //= map_file("./data/all_seqs.fa", textlen);      
+    const char * text = map_file("./halfY.txt", textlen); //= map_file("./data/all_seqs.fa", textlen);   
+
+    cout << "text has been mapped" << endl << flush;   
 
     // for (auto i =0; i < 4; i++) char_counter[i] = 0;
     uint64_t key = 0;  // 32 chars from { A, C, G, T } packed as a 64-bit unsigned integer
@@ -389,8 +393,8 @@ void compute_templates(const uint64_t *g){
 // FUNCTIONS WILL HAVE THE FIRST (LEFTMOST, MOST SIGNIFICANT) POSITIONS EQUAL TO ZERO
 // this is because when filling the keys for the text, we fill them inserting from the right.
 void build_functions(uint64_t* g){ // DEBUGGED
-    // srand(SEED);
-    srand(time(NULL));
+    srand(SEED);
+    // srand(time(NULL));
 
     // cout << "Inside build_funct" << endl << flush;
 
@@ -627,10 +631,10 @@ int main()
     clock_t end = clock();
     double elapsed_secs = double(end - begin) / CLOCKS_PER_SEC;
 
-    // cout << "Functions found in " << elapsed_secs << " seconds are: " << endl << flush;
-    // for(int i = 0; i< N_hash_fctns; i++)
-    //     cout << "g" << i << ": " << bitset<64>(g[i]) << endl;
-    // cout << endl; 
+    cout << "Functions found in " << elapsed_secs << " seconds are: " << endl << flush;
+    for(int i = 0; i< N_hash_fctns; i++)
+        cout << "g" << i << ": " << bitset<64>(g[i]) << endl;
+    cout << endl; 
 
     // cout << "Computing distance between 0101011011011000001011100100001011111001 and 0101011010011001001010100100011011101000" << endl;
     // uint64_t x = 0b0101011011011000001011100100001011111001000000000000000000000000;
@@ -639,7 +643,7 @@ int main()
     // cout << "x = " << bitset<64>(x) << endl << "y = " << bitset<64>(y) << endl;
     // cout << Hamming_distance( x,y )  << endl;
     
-
+    
     /*
     Functions g:
     g0: 0011000000110000001111001100111100111100110000110000001100110011
@@ -650,10 +654,10 @@ int main()
     g5: 0000001100001100110000001100000011111111000000111100001100111111
     */
 
-    // begin = clock();
-    // process_multiple_masks(g); // ABOUT 20 MINS WITH 6 MASKS
-    // end = clock();
-    // elapsed_secs = double(end - begin) / CLOCKS_PER_SEC;
+    begin = clock();
+    process_multiple_masks(g); // ABOUT 20 MINS WITH 6 MASKS
+    end = clock();
+    elapsed_secs = double(end - begin) / CLOCKS_PER_SEC;
 
     // cout << "Masks processed in "<< elapsed_secs <<" time; complementary sets have sizes: " << flush; // Masks processed; complementary sets have sizes: |C0|= 38831      |C1|= 164169    |C2|= 86982   |C3|= 212690     |C4|= 114491    |C5|= 126248
     // for(int i = 0; i< N_hash_fctns; i++)

@@ -38,10 +38,10 @@ constexpr int MIN_DIST = 9;
 
 uint8_t char_counter[4] __attribute__ ((aligned (4)));  // invariant: char_counter[i] <= Q < 256, and sum_ i char_counter[i] = Q. char_counter[] is seen as uint32_t
 
-constexpr auto MASK_WEIGHT = 28;  // number of 1s, twice the number of selected chars (as the alphabet is 4)
+constexpr auto MASK_WEIGHT = 2*target_size;  // number of 1s, twice the number of selected chars (as the alphabet is 4)
 
-constexpr auto UNIVERSE_SIZE = 268435456;    // 4^14 = 268435456
-
+constexpr auto UNIVERSE_SIZE = 268435456;    // 4^target_size = 268435456
+// conto esplicito??
 
 
 
@@ -82,17 +82,16 @@ inline uint64_t index_to_qgram(uint64_t index, uint64_t mask){
     return _pdep_u64(index, mask);
 }
  
-
+// counts different 
 // given two uint64_t, compute their Hamming distance
-__attribute__((always_inline)) int Hamming_distance(uint64_t x, uint64_t y) 
+__attribute__((always_inline)) int Hamming_distance(uint64_t x, uint64_t y, uint64_t Qmask) 
 {
-    uint64_t diff = ~(x^y); // no not
-    diff &= (diff << 1); // or
+    uint64_t diff = x^y;
+    diff &= Qmask; // con 14 uno alla fine
+    diff |= (diff << 1); 
     diff &= 0xAAAAAAAAAAAAAAAA;
 
-    // & for maxQ-Q posizioni 
-
-    return Q - (popcount(diff) - ( (maxQ - Q) ); // need to subtract the ones coming from the common maxQ-Q trailing zeros
+    return popcount(diff); // maybe _builtin_popcountll?
 }
 
 
