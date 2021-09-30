@@ -9,8 +9,7 @@
 #include <immintrin.h> // to use pdep, pext
 #include <ctime> // for elapsed time
 #include <algorithm>
-
-#include <string.h>
+#include <cstring>
 
 #include <unordered_map>
 
@@ -33,6 +32,8 @@ vector<uint64_t> global_outcome; // global outcome will be the final
 constexpr int SEED = 13; //19; //227; // 87; // 11
 
 constexpr int MIN_DIST = 9;
+
+const char * text = "ACGATATATGCTACGACTGCGCGCGGCGCGCGATCGATGCTAGCGCTATAGCTAGTCGCGCGCGCGGCGCGGGGGGGGGGGGGGGGGGGGGGATTATATATAGTCGATCGATGCTAGCATGCTCGTGCGGATATTATATATCGTCGTACGTAGCTACGTAGCTAGCTGATCGATGCTAGTCGCGGCGCGCGATCGATCGATCGATCGATCGATCGTACGTAGTGCATGCTAGTTTAATATCGTACGTCTCTCTGCAGGAGAGTCGATCGTGCATTGTACGTAGCCCCCCCCCCCCCCCCAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAATATCGTAGCTACGTACTGGCGCGCGCGCGGCTATTATCGATCTACTACGTCGGCGCATAGCGTAGCTAGGCGATCGAGGCGGCTAGCTAGCTACTAGTTAGCGGCGAGTAGTCGATCGACGTAGGCGATGCTAGCATCGGCGGGGGGGCGATCGTATATTTATATACCCCGGCAGGAGAGGGGAGAGAAAAAAATATTATATATTATCGATCGTACGTAGCTACGTAGCGCGCGCGATCTAGCATCTCGCGGCGCG"; //= map_file("./halfY.txt", textlen); //= map_file("./data/all_seqs.fa", textlen);   
 
 
 // given an uint64_t, print it in A,C,G,T alphabet its last Q characters
@@ -86,6 +87,107 @@ int Hamming_distance(uint64_t x, uint64_t y, uint64_t Qmask) // DEBUGGED
 }
 
 
+
+// extracts Qgrams from text, inserts them in a binary file 
+void extract_Q_grams(){
+    // map file
+    size_t textlen = strlen(text);   
+    // const char * text = map_file("./data/all_seqs.fa", textlen); 
+    
+    ofstream fout, foutACGT;
+    fout.open("./DEBUGall" + to_string(Q) + "grams_repetitions", ios::binary | ios::out);
+    foutACGT.open("./DEBUG" + to_string(Q) + "grams_ACGT", ios::out);
+
+    uint64_t key = 0;  // 32 chars from { A, C, G, T } packed as a 64-bit unsigned integer
+    auto key_len = 0;
+    uint64_t i = 0;  // bug if we use auto :(
+    auto skip = false;
+    auto count_situation = 0;
+
+    while(i < textlen){
+        switch (toupper(text[i]))
+        {
+        case 'A':
+            // key |= 0x0;
+            break;
+        case 'C':
+            key |= 0x1;
+            break;
+        case 'G':
+            key |= 0x2;
+            break;
+        case 'T':
+            key |= 0x3;
+            break;
+        case '\n':
+            skip = true;
+            break;
+        case '>':
+        case ';':
+            while( i < textlen && text[i] != '\n') i++;
+            key = 0;
+            key_len = 0;
+            skip = true;
+            break;
+        default:
+            key = 0;
+            key_len = 0;
+            skip = true;
+            break;
+        }
+        i++;
+        if (skip){ 
+            skip = false; 
+            continue;
+        }
+        // here only if the current char is A, C, G, T
+        if (++key_len == Q){
+            key_len = Q-1;        // for the next iteration
+            
+            // push out to output
+            fout.write(reinterpret_cast<char *>(& key), sizeof(uint64_t)); 
+            count_situation++;
+
+            uint64_t gram = key;
+
+            // write to ACGT output
+            char s[Q+1];
+            s[Q] = '\0';
+            for (auto i=Q-1; i >= 0; i--, gram >>= 2){
+                switch (gram & 0x3)
+                {
+                case 0:
+                    s[i] = 'A';
+                    break;
+                case 1:
+                    s[i] = 'C';
+                    break;
+                case 2:
+                    s[i] = 'G';
+                    break;
+                case 3:
+                    s[i] = 'T';
+                    break;
+                default:
+                    break;
+                }
+            }
+            foutACGT << string(s) << endl << flush;
+
+        }
+        key <<= 2;            // shift two bits to the left
+
+        if(count_situation == 10000000) 
+            cout << "*" << flush;
+    }
+
+    fout.close();
+    // unmap_file(text, textlen);
+    cout << "Total count: " << count_situation << endl;
+}
+
+
+
 // ==================================== CHANGED! ==================================
 // directly from main file instead of through parikh classes
 // need to open main file and fill the bitvector when parsing it
@@ -103,10 +205,7 @@ void process_multiple_masks(uint64_t* mask_array){
     
     // map file (for debug, use a string)
     size_t textlen = 0;   
-    const char * text = "ACGATATATGCTACGACTGCGCGCGGCGCGCGATCGATGCTAGCGCTATAGCTAGTCGCGCGCGCGGCGCGGGGGGGGGGGGGGGGGGGGGGATTATATATAGTCGATCGATGCTAGCATGCTCGTGCGGATATTATATATCGTCGTACGTAGCTACGTAGCTAGCTGATCGATGCTAGTCGCGGCGCGCGATCGATCGATCGATCGATCGATCGTACGTAGTGCATGCTAGTTTAATATCGTACGTCTCTCTGCAGGAGAGTCGATCGTGCATTGTACGTAGCCCCCCCCCCCCCCCCAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAATATCGTAGCTACGTACTGGCGCGCGCGCGGCTATTATCGATCTACTACGTCGGCGCATAGCGTAGCTAGGCGATCGAGGCGGCTAGCTAGCTACTAGTTAGCGGCGAGTAGTCGATCGACGTAGGCGATGCTAGCATCGGCGGGGGGGCGATCGTATATTTATATACCCCGGCAGGAGAGGGGAGAGAAAAAAATATTATATATTATCGATCGTACGTAGCTACGTAGCGCGCGCGATCTAGCATCTCGCGGCGCG"; //= map_file("./halfY.txt", textlen); //= map_file("./data/all_seqs.fa", textlen);   
-
     textlen = strlen(text);
-    cout << "text has been mapped" << endl << flush;   
     // cout << "It is " << text << endl << flush;
 
     // for (auto i =0; i < 4; i++) char_counter[i] = 0;
@@ -179,6 +278,41 @@ void process_multiple_masks(uint64_t* mask_array){
         if(count_situation == 10000000) 
             cout << "*" << flush;
     }
+
+    cout << "found " << universe_bitvector_array[0].count() << " qgrams for first function " << endl << flush;
+    cout << "found " << universe_bitvector_array[1].count() << " qgrams for second function " << endl << flush;
+
+    // TODO we can later remove this loop
+    for(int maskindex=0; maskindex < N_hash_fctns; maskindex++) {
+        // initialize bit vector
+        universe_bitvector_array[maskindex].reset();
+    }
+
+    // instead of scanning the text, let us go through the binary file of Qgrams (with repetitions)
+    ifstream inputQgrams;
+    inputQgrams.open("./DEBUGall" + to_string(Q) + "grams_repetitions", ios::binary | ios::in);
+    uint64_t gram;
+    while (true){
+        inputQgrams.read(reinterpret_cast<char *>(&gram), sizeof(uint64_t)); 
+        if (!inputQgrams) break;
+
+        // insert into all mask arrays
+        for(int maskindex=0; maskindex < N_hash_fctns; maskindex++) {
+            if(!universe_bitvector_array[maskindex][qgram_to_index(gram, mask_array[maskindex])])
+                universe_bitvector_array[maskindex][qgram_to_index(gram, mask_array[maskindex])] = true;
+        }
+
+        count_situation++;
+
+        if(count_situation == 10000000) 
+            cout << "*" << flush;
+    }
+    inputQgrams.close();
+
+    cout << endl;
+    cout << "From file, found " << universe_bitvector_array[0].count() << " qgrams for first function " << endl << flush;
+    cout << "From file, found " << universe_bitvector_array[1].count() << " qgrams for second function " << endl << flush;
+
 
     // unmap_file(text, textlen);
     cout << endl << flush;
@@ -367,10 +501,10 @@ void compute_templates(const uint64_t *g){
     }
 
     // start a recursive computation for every element of the first complementary set
-    // for(auto &x : compl_array[0])
-        // rec_compute_templates(x, 1, g, redmasks);
+    for(auto &x : compl_array[0])
+        rec_compute_templates(x, 1, g, redmasks);
 
-    // cout << endl << flush;
+    cout << endl << flush;
 
     // File dump of results
     // ofstream outputfile, binaryout; 
@@ -383,13 +517,16 @@ void compute_templates(const uint64_t *g){
     // outputfile << endl << endl;
 
     // outputfile << "Templates to check are " << global_outcome.size() << ": " << endl;
-    // cout << "Templates found are " << global_outcome.size() <<  endl << flush;
+    cout << "Templates found are " << global_outcome.size() <<  endl << flush;
 
-    // for(uint64_t i = 0; i < global_outcome.size(); i++){
-    //     uint64_t templ = global_outcome[i];
+    for(uint64_t i = 0; i < global_outcome.size(); i++){
+        uint64_t templ = global_outcome[i];
+        cout << bitset<64>(templ) << " = "; 
+        print_Q_gram(templ);
     //     binaryout.write(reinterpret_cast<char *>(&templ), sizeof(uint64_t)); 
     //     outputfile << bitset<64>(templ) << ", "; //print_Q_gram(templ);
-    // }
+    }
+    cout << endl;
     // outputfile << endl << endl;
 
     // binaryout.close();
@@ -503,139 +640,114 @@ void build_functions(uint64_t* g){ // DEBUGGED
 
 
 // CHECK NEEDS TO BE CHANGED
-// void check ()
-// {
+void check (uint64_t Qmask)
+{
+    uint64_t templ_size = global_outcome.size();
+    cout << "Candidates are " << global_outcome.size() << ": " << endl << flush;
+    for(uint64_t i = 0; i < global_outcome.size(); i++){
+        uint64_t templ = global_outcome[i];
+        cout << bitset<64>(templ) << " = "; 
+        print_Q_gram(templ);
+    }
+    cout << endl << endl << flush;
 
-//     uint64_t templ_size = global_outcome.size();
-//     cout << "Candidates are " << global_outcome.size() << ": " << endl << flush;
-//     for(uint64_t i = 0; i < global_outcome.size(); i++){
-//         uint64_t templ = global_outcome[i];
-//         cout << bitset<64>(templ) << endl; //print_Q_gram(templ);
-//     }
-//     cout << endl << flush;
+    if(global_outcome.size() == 0)
+        return;
 
-//     // initialize distances' vector
-//     // int mindist[templ_size];
-//     vector<int> mindist;
-//     for(uint64_t templindex = 0; templindex < templ_size; templindex++)
-//         mindist.push_back(Q+1);
-//         // mindist[templindex] = Q+1; //Hamming_distance(completions[templindex], key); 
+    // initialize distances' vector
+    // int mindist[templ_size];
+    vector<int> mindist;
+    for(uint64_t templindex = 0; templindex < templ_size; templindex++)
+        mindist.push_back(Q+1);
+        // mindist[templindex] = Q+1; //Hamming_distance(completions[templindex], key); 
 
-//     cout << endl << "Printing min distances before starting: " << flush;
-//     for(uint64_t dd = 0; dd< templ_size; dd++)
-//         cout << mindist[dd] << " " << flush;
+    cout << endl << "Printing min distances before starting: " << flush;
+    for(uint64_t dd = 0; dd< templ_size; dd++)
+        cout << mindist[dd] << " " << flush;
+    cout << endl;
 
-//     // scan the text and compute the distances
-//     // open filename as an array text of textlen characters
-//     size_t textlen = 0;   
-//     const char * text = map_file(filename, textlen);      
+    // instead of scanning the text, let us go through the binary file of Qgrams (with repetitions)
+    ifstream inputQgrams;
+    inputQgrams.open("./DEBUGall" + to_string(Q) + "grams_repetitions", ios::binary | ios::in);
+    uint64_t gram;
+    while (true){
+        inputQgrams.read(reinterpret_cast<char *>(&gram), sizeof(uint64_t)); 
+        if (!inputQgrams) break;
 
-//     uint64_t key = 0;  // 32 chars from { A, C, G, T } packed as a 64-bit unsigned integer
-//     auto key_len = 0;
-//     uint64_t i = 0;  // bug if we use auto :(
-//     auto skip = false;
-
-//     while(i < textlen){
-//         switch (toupper(text[i]))
-//         {
-//         case 'A':
-//             // key |= 0x0;
-//             break;
-//         case 'C':
-//             key |= 0x1;
-//             break;
-//         case 'G':
-//             key |= 0x2;
-//             break;
-//         case 'T':
-//             key |= 0x3;
-//             break;
-//         case '\n':
-//             skip = true;
-//             break;
-//         case '>':
-//         case ';':
-//             while( i < textlen && text[i] != '\n') i++;
-//             key = 0;
-//             key_len = 0;
-//             skip = true;
-//             break;
-//         default:
-//             key = 0;
-//             key_len = 0;
-//             skip = true;
-//             break;
-//         }
-//         i++;
-//         if (skip){ 
-//             skip = false; 
-//             continue;
-//         }
-//         // here only if the current char is A, C, G, T
-//         if (++key_len == Q){
-//             key_len = Q-1;        // for the next iteration
-            
-//             // compute the distance!
-//             for(uint64_t j=0; j<templ_size; j++){
-//                 int dist = Hamming_distance(key, global_outcome[j]);
-
-//                 if(dist < mindist[j])
-//                     mindist[j] = dist;
-//             }
-//         }
-//         key <<= 2;            // shift two bits to the left
-//     }
-//     unmap_file(text, textlen);
+        // update distances
+        for(uint64_t j=0; j<templ_size; j++){
+            int dist = Hamming_distance(gram, global_outcome[j], Qmask);
+            if(dist < mindist[j])
+                mindist[j] = dist;
+        }
+    }
+    inputQgrams.close();
 
 
-//     ofstream outputfile; 
-//     outputfile.open("../exp_results/" +to_string(N_hash_fctns) +"MultFunctSeed" + to_string(SEED), ios::app);
+    // ofstream outputfile; 
+    // outputfile.open("../exp_results/" +to_string(N_hash_fctns) +"MultFunctSeed" + to_string(SEED), ios::app);
 
-//     cout << endl << "Printing min distances for the " << templ_size << " templates: " << flush;
-//     for(uint64_t dd = 0; dd< templ_size; dd++)
-//         cout << mindist[dd] << " " << flush;
+    // cout << endl << "Printing min distances for the " << templ_size << " templates: " << flush;
+    // for(uint64_t dd = 0; dd< templ_size; dd++)
+    //     cout << mindist[dd] << " " << flush;
 
-//     outputfile << endl << "Printing min distances for the " << templ_size << " templates: " << flush;
-//     for(uint64_t dd = 0; dd< templ_size; dd++)
-//         outputfile << mindist[dd] << " " << flush;
-//     outputfile << endl;
+    // outputfile << endl << "Printing min distances for the " << templ_size << " templates: " << flush;
+    // for(uint64_t dd = 0; dd< templ_size; dd++)
+    //     outputfile << mindist[dd] << " " << flush;
+    // outputfile << endl;
 
-//     uint64_t max_dist_index = 0;
-//     for(uint64_t i=0; i<global_outcome.size(); i++){
-//         if(mindist[i] > mindist[max_dist_index])
-//             max_dist_index = i;
-//     }
+    uint64_t max_dist_index = 0;
+    for(uint64_t i=0; i<global_outcome.size(); i++){
+        if(mindist[i] > mindist[max_dist_index])
+            max_dist_index = i;
+    }
+    cout << "Max minimum distance of " << mindist[max_dist_index] << " reached by gram " << bitset<64>(global_outcome[max_dist_index]) << endl;
 
-//     outputfile << "Max minimum distance of " << mindist[max_dist_index] << " reached by gram " << bitset<64>(global_outcome[max_dist_index]) << endl;
 
-//     outputfile << endl << endl << flush;
+    // outputfile << "Max minimum distance of " << mindist[max_dist_index] << " reached by gram " << bitset<64>(global_outcome[max_dist_index]) << endl;
 
-//     outputfile.close();
+    // outputfile << endl << endl << flush;
 
-//     if(mindist[max_dist_index] >= MIN_DIST){
-//         // create a file containing all the far Qgrams
-//         ofstream goodgrams;
-//         goodgrams.open("../exp_results/" + to_string(Q) + "gramsDist" + to_string(MIN_DIST), ios::binary | ios::out | ios::app );
+    // outputfile.close();
 
-//         for(uint64_t i = 0; i < global_outcome.size(); i++){
-//             if(mindist[i] == mindist[max_dist_index])
-//                 goodgrams.write(reinterpret_cast<char *>(&(global_outcome[i])), sizeof(uint64_t)); 
-//         }
-//         goodgrams.close();
-//     }
+    // if(mindist[max_dist_index] >= MIN_DIST){
+    //     // create a file containing all the far Qgrams
+    //     ofstream goodgrams;
+    //     goodgrams.open("../exp_results/" + to_string(Q) + "gramsDist" + to_string(MIN_DIST), ios::binary | ios::out | ios::app );
+
+    //     for(uint64_t i = 0; i < global_outcome.size(); i++){
+    //         if(mindist[i] == mindist[max_dist_index])
+    //             goodgrams.write(reinterpret_cast<char *>(&(global_outcome[i])), sizeof(uint64_t)); 
+    //     }
+    //     goodgrams.close();
+    // }
     
-//     return;
-// }
+    return;
+}
 
 
 
-int main()
+int main() // NEED TO MAKE SURE THAT THE CORRESPONDING QGRAM FILE EXISTS!
 {
     uint64_t g[N_hash_fctns];
     clock_t begin = clock();
     build_functions(g);
     clock_t end = clock();
     double elapsed_secs = double(end - begin) / CLOCKS_PER_SEC;
+    
+    fstream checkfile;
+    checkfile.open("./DEBUGall" + to_string(Q) + "grams_repetitions", ios::binary | ios::in);
+    if(!checkfile.is_open())
+    {
+        throw logic_error("Preprocessing not done correctly!");
+        return 0;
+    }
+    checkfile.close();
+
+    
+    extract_Q_grams();
+
+    
 
     // Qmask has the first 2(maxQ-Q) bits set to 0, the last 2Q set to 1
     uint64_t Qmask = 0b11;
@@ -702,7 +814,7 @@ int main()
     //     return 0;
 
     // begin = clock();
-    // check();
+    check(Qmask);
     // end = clock();
     // elapsed_secs = double(end - begin) / CLOCKS_PER_SEC;
 
