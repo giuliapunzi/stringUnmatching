@@ -8,6 +8,7 @@
 #include <vector>
 #include <immintrin.h> // to use pdep, pext
 #include <ctime> // for elapsed time
+#include <algorithm>
 
 #include <string.h>
 
@@ -16,13 +17,13 @@
 using namespace std;
 
 constexpr auto maxQ = 32; // max value of Q as we use 64 bit integers
-constexpr auto Q = 20; // strings will be represented as 64 bit integers, stored in the last (least significative) 2*Q positions
+constexpr auto Q = 5; // strings will be represented as 64 bit integers, stored in the last (least significative) 2*Q positions
 
-constexpr int N_hash_fctns = 6;  // number of hash functions 
-constexpr int target_size = 14; // target space size of hash functions
+constexpr int N_hash_fctns = 2;  // number of hash functions 
+constexpr int target_size = 3; // target space size of hash functions
 constexpr auto MASK_WEIGHT = 2*target_size;  // number of 1s, twice the number of selected chars (as the alphabet is 4)
 
-constexpr auto UNIVERSE_SIZE = 268435456;    // 4^14 = 268435456
+constexpr auto UNIVERSE_SIZE = 64; // NO: 4^target_size! 1024; //268435456;    // 4^14 = 268435456
 
 bitset<UNIVERSE_SIZE> universe_bitvector_array[N_hash_fctns];
 
@@ -73,14 +74,15 @@ inline uint64_t index_to_qgram(uint64_t index, uint64_t mask){
  
 
 // given two uint64_t, compute their Hamming distance ============= CHANGED ===============
-__attribute__((always_inline)) int Hamming_distance(uint64_t x, uint64_t y, uint64_t Qmask) // DEBUGGED 
+// __attribute__((always_inline)) 
+int Hamming_distance(uint64_t x, uint64_t y, uint64_t Qmask) // DEBUGGED 
 {
     uint64_t diff = (x^y); 
     diff &= Qmask;
     diff |= (diff << 1); 
     diff &= 0xAAAAAAAAAAAAAAAA;
 
-    return popcount(diff); 
+    return __builtin_popcountll(diff); 
 }
 
 
@@ -105,7 +107,7 @@ void process_multiple_masks(uint64_t* mask_array){
 
     textlen = strlen(text);
     cout << "text has been mapped" << endl << flush;   
-    cout << "It is " << text << endl << flush;
+    // cout << "It is " << text << endl << flush;
 
     // for (auto i =0; i < 4; i++) char_counter[i] = 0;
     uint64_t key = 0;  // 32 chars from { A, C, G, T } packed as a 64-bit unsigned integer
@@ -164,7 +166,9 @@ void process_multiple_masks(uint64_t* mask_array){
             
             // insert into all mask arrays
             for(int maskindex=0; maskindex < N_hash_fctns; maskindex++) {
-                universe_bitvector_array[maskindex][qgram_to_index(key, mask_array[maskindex])] = true;
+                if(!universe_bitvector_array[maskindex][qgram_to_index(key, mask_array[maskindex])])
+                    universe_bitvector_array[maskindex][qgram_to_index(key, mask_array[maskindex])] = true;
+            
             }
 
             count_situation++;
@@ -189,7 +193,8 @@ void process_multiple_masks(uint64_t* mask_array){
         uint64_t counter = 0;
         for (uint64_t i = 0; i < UNIVERSE_SIZE; i++){
             if (!(universe_bitvector_array[maskindex][i])){
-                uint64_t t = index_to_qgram( i, mask_array[maskindex]);
+                uint64_t t = index_to_qgram( i, mask_array[maskindex]); // PROBLEM HERE
+                cout << "Adding index i=" << i << ", corresponding to qgram " << bitset<64>(t) << endl << flush;
                 // current_complement[counter] = t;
                 compl_array[maskindex].push_back(t);
                 counter++;
@@ -327,7 +332,16 @@ void compute_templates(const uint64_t *g){
     // for the first function, no overlap
     redmasks[0] = 0;
     uint64_t overlapmask = g[0];
-    
+
+
+    for(auto x : compl_array[1])
+    {
+        // print_Q_gram(x);
+        // cout << bitset<64>(x) << endl;
+    }
+
+        
+
     // for each function, find the overlap with the previous and sort its corresponding array
     for(int i = 1; i< N_hash_fctns; i++)
     {
@@ -336,41 +350,50 @@ void compute_templates(const uint64_t *g){
         redmasks[i] = overlapmask & currentfctn;
         overlapmask |= currentfctn;
 
+        auto currentred = redmasks[i];
+
         // sort the corresponding vector of complementaries according to the masks
-        sort(compl_array[i].begin(), compl_array[i].end(), [=](uint64_t x, uint64_t y) {
-		    return (x & redmasks[i]) < (y & redmasks[i]);
+        sort(compl_array[i].begin(), compl_array[i].end(), [&](uint64_t &x, uint64_t &y) {
+		    return (x & currentred) < (y & currentred);
         });
 
     }
 
-    // start a recursive computation for every element of the first complementary set
-    for(auto &x : compl_array[0])
-        rec_compute_templates(x, 1, g, redmasks);
+    cout << "=======================================" << endl << flush;
 
-    cout << endl << flush;
+    for(auto x : compl_array[1]){
+        // cout << bitset<64>(x) << endl;
+        // print_Q_gram(x);
+    }
+
+    // start a recursive computation for every element of the first complementary set
+    // for(auto &x : compl_array[0])
+        // rec_compute_templates(x, 1, g, redmasks);
+
+    // cout << endl << flush;
 
     // File dump of results
-    ofstream outputfile, binaryout; 
-    outputfile.open("../exp_results/" +to_string(N_hash_fctns) + "MultFunctSeed" + to_string(SEED), ios::app);
-    binaryout.open("../exp_results/" +to_string(N_hash_fctns) + "MultFunctBinarySeed"  + to_string(SEED), ios::binary | ios::app);
-    outputfile << "Test with " << N_hash_fctns << " functions: " << endl;
-    outputfile << "Functions g: " << endl << flush;
-    for(int i = 0; i< N_hash_fctns; i++)
-        outputfile << "g_" << i << ": " << bitset<64>(g[i]) << endl;
-    outputfile << endl << endl;
+    // ofstream outputfile, binaryout; 
+    // outputfile.open("../exp_results/" +to_string(N_hash_fctns) + "MultFunctSeed" + to_string(SEED), ios::app);
+    // binaryout.open("../exp_results/" +to_string(N_hash_fctns) + "MultFunctBinarySeed"  + to_string(SEED), ios::binary | ios::app);
+    // outputfile << "Test with " << N_hash_fctns << " functions: " << endl;
+    // outputfile << "Functions g: " << endl << flush;
+    // for(int i = 0; i< N_hash_fctns; i++)
+    //     outputfile << "g_" << i << ": " << bitset<64>(g[i]) << endl;
+    // outputfile << endl << endl;
 
-    outputfile << "Templates to check are " << global_outcome.size() << ": " << endl;
-    cout << "Templates found are " << global_outcome.size() <<  endl << flush;
+    // outputfile << "Templates to check are " << global_outcome.size() << ": " << endl;
+    // cout << "Templates found are " << global_outcome.size() <<  endl << flush;
 
-    for(uint64_t i = 0; i < global_outcome.size(); i++){
-        uint64_t templ = global_outcome[i];
-        binaryout.write(reinterpret_cast<char *>(&templ), sizeof(uint64_t)); 
-        outputfile << bitset<64>(templ) << ", "; //print_Q_gram(templ);
-    }
-    outputfile << endl << endl;
+    // for(uint64_t i = 0; i < global_outcome.size(); i++){
+    //     uint64_t templ = global_outcome[i];
+    //     binaryout.write(reinterpret_cast<char *>(&templ), sizeof(uint64_t)); 
+    //     outputfile << bitset<64>(templ) << ", "; //print_Q_gram(templ);
+    // }
+    // outputfile << endl << endl;
 
-    binaryout.close();
-    outputfile.close();
+    // binaryout.close();
+    // outputfile.close();
 }
 
 
@@ -379,8 +402,8 @@ void compute_templates(const uint64_t *g){
 // FUNCTIONS WILL HAVE THE FIRST (LEFTMOST, MOST SIGNIFICANT) POSITIONS EQUAL TO ZERO
 // this is because when filling the keys for the text, we fill them inserting from the right.
 void build_functions(uint64_t* g){ // DEBUGGED
-    srand(SEED);
-    // srand(time(NULL));
+    // srand(SEED);
+    srand(time(NULL));
 
     bool all_covered = false; // all_covered is now different: need and with last maxQ-Q pos
     while( !all_covered ){
@@ -470,8 +493,8 @@ void build_functions(uint64_t* g){ // DEBUGGED
 
         // cout << "Complementary is " << bitset<64>(~cg) << endl;
 
-        if( ~cg == 0)
-            all_covered = true;
+        // if( ~cg == 0)
+            all_covered = true; // for now uncovered positions
     }
 }
 
@@ -662,14 +685,18 @@ int main()
 
     // sort_according_to_masks(g); // couple of minutes
 
+
     // cout << "Masks have been sorted" << endl << flush;
 
     // begin = clock();
-    // compute_templates(g);
+    compute_templates(g);
     // end = clock();
     // elapsed_secs = double(end - begin) / CLOCKS_PER_SEC;
+    // for(auto x : compl_array[0])
+    //     print_Q_gram(x);
 
-    // cout << "End of template computation, which took " << elapsed_secs << " seconds. " << endl << flush;
+
+    cout << "End of template computation, which took " << elapsed_secs << " seconds. " << endl << flush;
 
     // if(global_outcome.size() == 0)
     //     return 0;
