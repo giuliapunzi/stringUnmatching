@@ -102,20 +102,24 @@ void process_multiple_masks(uint64_t* mask_array){
     ifstream inputQgrams;
     inputQgrams.open("../data/all" + to_string(Q) + "grams_repetitions", ios::binary | ios::in);
     uint64_t gram;
+    uint64_t count_situation = 0;
     while (true){
         inputQgrams.read(reinterpret_cast<char *>(&gram), sizeof(uint64_t)); 
         if (!inputQgrams) break;
 
         // insert into all mask arrays
         for(int maskindex=0; maskindex < N_hash_fctns; maskindex++) {
-            if(!universe_bitvector_array[maskindex][qgram_to_index(gram, mask_array[maskindex])])
-                universe_bitvector_array[maskindex][qgram_to_index(gram, mask_array[maskindex])] = true;
+            // if(!universe_bitvector_array[maskindex][qgram_to_index(gram, mask_array[maskindex])])
+            universe_bitvector_array[maskindex][qgram_to_index(gram, mask_array[maskindex])] = true;
         }
 
         count_situation++;
 
-        if(count_situation == 10000000) 
+        if(count_situation == 10000000){
             cout << "*" << flush;
+            count_situation = 0;
+        }
+            
     }
     inputQgrams.close();
     cout << endl<<flush;
@@ -231,8 +235,8 @@ void compute_templates(const uint64_t *g){
 // FUNCTIONS WILL HAVE THE FIRST (LEFTMOST, MOST SIGNIFICANT) POSITIONS EQUAL TO ZERO
 // this is because when filling the keys for the text, we fill them inserting from the right.
 void build_functions(uint64_t* g){ 
-    // srand(SEED);
-    srand(time(NULL));
+    srand(SEED);
+    // srand(time(NULL));
 
     bool all_covered = false; // all_covered is now different: need and with last maxQ-Q pos
     while( !all_covered ){
