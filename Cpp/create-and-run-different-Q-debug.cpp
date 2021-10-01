@@ -21,6 +21,7 @@ constexpr auto Q = 5; // strings will be represented as 64 bit integers, stored 
 constexpr int N_hash_fctns = 4;  // number of hash functions 
 constexpr int target_size = 3; // target space size of hash functions
 constexpr auto MASK_WEIGHT = 2*target_size;  // number of 1s, twice the number of selected chars (as the alphabet is 4)
+constexpr int N_rand_tests = 100;
 
 constexpr auto UNIVERSE_SIZE = 64; // NO: 4^target_size! 1024; //268435456;    // 4^14 = 268435456
 
@@ -724,6 +725,78 @@ void check (uint64_t Qmask)
 
 
 
+void rand_check(uint64_t Qmask)
+{
+    srand(time(NULL));
+    ofstream outputfile;
+    outputfile.open("../exp_results/Q=" + to_string(Q) + "/" +to_string(N_hash_fctns) +"FunctSeed" + to_string(SEED), ios::out | ios::app);
+    outputfile << endl << N_rand_tests << " random tests " << endl;
+
+    vector<int> rand_mindist;
+    for(uint64_t templindex = 0; templindex < N_rand_tests; templindex++)
+        rand_mindist.push_back(Q+1);
+
+    uint64_t rand_tests[N_rand_tests];
+    for(int r=0; r<N_rand_tests; r++){
+        uint64_t rand_gram = 0;
+        for(int i = 0; i < Q; i++, rand_gram <<= 2)
+        {
+            int rand_char = rand()%4;
+            switch (rand_char)
+            {
+            case 0:
+                break;
+            case 1:
+                rand_gram |= 0b01;
+                break;
+            case 2:
+                rand_gram |= 0b10;
+                break;
+            case 3:
+                rand_gram |= 0b11;
+                break;
+            default:
+                break;
+            }
+        }
+        // cout << "Random string " << bitset<64>(rand_gram) << "\t";
+        rand_tests[r] = rand_gram;
+    }
+    cout << endl;
+
+    // instead of scanning the text, let us go through the binary file of Qgrams (with repetitions)
+    ifstream inputQgrams;
+    inputQgrams.open("./DEBUGall" + to_string(Q) + "grams_repetitions", ios::binary | ios::in);
+    uint64_t gram;
+    while (true){
+        inputQgrams.read(reinterpret_cast<char *>(&gram), sizeof(uint64_t)); 
+        if (!inputQgrams) break;
+
+        // compute distance for each Qgram of the file 
+        for(int j=0; j<N_rand_tests;j++){
+            int dist = Hamming_distance(gram, rand_tests[j], Qmask);
+            if(dist < rand_mindist[j])
+                rand_mindist[j] = dist;
+        }
+    }
+    inputQgrams.close();
+
+    cout << endl << "Printing min distances for the random tests: " << flush;
+        for(int dd = 0; dd< N_rand_tests; dd++)
+            cout << rand_mindist[dd] << " " << flush;
+
+    outputfile << "Printing min distances for the " << N_rand_tests << " random tests: " << flush;
+        for(int dd = 0; dd< N_rand_tests; dd++)
+            outputfile << rand_mindist[dd] << " ";
+
+    outputfile << endl << endl;
+    outputfile.close();
+    return;
+}
+
+
+
+
 int main() // NEED TO MAKE SURE THAT THE CORRESPONDING QGRAM FILE EXISTS!
 {
     uint64_t g[N_hash_fctns];
@@ -821,6 +894,8 @@ int main() // NEED TO MAKE SURE THAT THE CORRESPONDING QGRAM FILE EXISTS!
     // elapsed_secs = double(end - begin) / CLOCKS_PER_SEC;
 
     // cout << "End of check, which took " << elapsed_secs << " seconds. " << endl << flush;
+
+    rand_check(Qmask);
 
     return 0;
 }
