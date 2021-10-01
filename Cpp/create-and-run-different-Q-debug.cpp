@@ -9,7 +9,7 @@
 #include <immintrin.h> // to use pdep, pext
 #include <ctime> // for elapsed time
 #include <algorithm>
-#include <cstring>
+#include <string>
 
 #include <unordered_map>
 
@@ -18,7 +18,7 @@ using namespace std;
 constexpr auto maxQ = 32; // max value of Q as we use 64 bit integers
 constexpr auto Q = 5; // strings will be represented as 64 bit integers, stored in the last (least significative) 2*Q positions
 
-constexpr int N_hash_fctns = 2;  // number of hash functions 
+constexpr int N_hash_fctns = 4;  // number of hash functions 
 constexpr int target_size = 3; // target space size of hash functions
 constexpr auto MASK_WEIGHT = 2*target_size;  // number of 1s, twice the number of selected chars (as the alphabet is 4)
 
@@ -29,7 +29,7 @@ bitset<UNIVERSE_SIZE> universe_bitvector_array[N_hash_fctns];
 vector<uint64_t> compl_array[N_hash_fctns]; // array of vectors for complementary sets
 vector<uint64_t> global_outcome; // global outcome will be the final 
 
-constexpr int SEED = 13; //19; //227; // 87; // 11
+constexpr int SEED = 227; // 87; // 11
 
 constexpr int MIN_DIST = 9;
 
@@ -91,7 +91,8 @@ int Hamming_distance(uint64_t x, uint64_t y, uint64_t Qmask) // DEBUGGED
 // extracts Qgrams from text, inserts them in a binary file 
 void extract_Q_grams(){
     // map file
-    size_t textlen = strlen(text);   
+    string textstr = text;
+    size_t textlen = textstr.size();   
     // const char * text = map_file("./data/all_seqs.fa", textlen); 
     
     ofstream fout, foutACGT;
@@ -204,8 +205,9 @@ void process_multiple_masks(uint64_t* mask_array){
     cout << "Bitvector initialized!" << endl << flush;
     
     // map file (for debug, use a string)
-    size_t textlen = 0;   
-    textlen = strlen(text);
+    // size_t textlen = 0;   
+    string textstr = text;
+    size_t textlen = textstr.size();
     // cout << "It is " << text << endl << flush;
 
     // for (auto i =0; i < 4; i++) char_counter[i] = 0;
@@ -468,14 +470,7 @@ void compute_templates(const uint64_t *g){
     uint64_t overlapmask = g[0];
 
 
-    for(auto x : compl_array[1])
-    {
-        // print_Q_gram(x);
-        // cout << bitset<64>(x) << endl;
-    }
-
-        
-
+    
     // for each function, find the overlap with the previous and sort its corresponding array
     for(int i = 1; i< N_hash_fctns; i++)
     {
@@ -493,11 +488,13 @@ void compute_templates(const uint64_t *g){
 
     }
 
-    cout << "=======================================" << endl << flush;
 
-    for(auto x : compl_array[1]){
-        // cout << bitset<64>(x) << endl;
-        // print_Q_gram(x);
+    cout << "Printing sorted masks: " << endl;
+    for(int i=0; i< N_hash_fctns; i++){
+        cout << "Mask " << i << endl;
+        for(auto x : compl_array[i])
+            print_Q_gram(x);
+        cout << endl << endl;
     }
 
     // start a recursive computation for every element of the first complementary set
@@ -539,8 +536,8 @@ void compute_templates(const uint64_t *g){
 // FUNCTIONS WILL HAVE THE FIRST (LEFTMOST, MOST SIGNIFICANT) POSITIONS EQUAL TO ZERO
 // this is because when filling the keys for the text, we fill them inserting from the right.
 void build_functions(uint64_t* g){ // DEBUGGED
-    // srand(SEED);
-    srand(time(NULL));
+    srand(SEED);
+    // srand(time(NULL));
 
     bool all_covered = false; // all_covered is now different: need and with last maxQ-Q pos
     while( !all_covered ){
@@ -735,6 +732,9 @@ int main() // NEED TO MAKE SURE THAT THE CORRESPONDING QGRAM FILE EXISTS!
     clock_t end = clock();
     double elapsed_secs = double(end - begin) / CLOCKS_PER_SEC;
     
+
+    extract_Q_grams();
+
     fstream checkfile;
     checkfile.open("./DEBUGall" + to_string(Q) + "grams_repetitions", ios::binary | ios::in);
     if(!checkfile.is_open())
@@ -743,11 +743,6 @@ int main() // NEED TO MAKE SURE THAT THE CORRESPONDING QGRAM FILE EXISTS!
         return 0;
     }
     checkfile.close();
-
-    
-    extract_Q_grams();
-
-    
 
     // Qmask has the first 2(maxQ-Q) bits set to 0, the last 2Q set to 1
     uint64_t Qmask = 0b11;
@@ -796,6 +791,13 @@ int main() // NEED TO MAKE SURE THAT THE CORRESPONDING QGRAM FILE EXISTS!
     cout << endl<< flush; 
 
     // sort_according_to_masks(g); // couple of minutes
+    cout << "Printing sorted masks: " << endl;
+    for(int i=0; i< N_hash_fctns; i++){
+        cout << "Mask " << i << endl;
+        for(auto x : compl_array[i])
+            print_Q_gram(x);
+        cout << endl << endl;
+    }
 
 
     // cout << "Masks have been sorted" << endl << flush;

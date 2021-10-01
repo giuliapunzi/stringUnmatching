@@ -10,25 +10,21 @@ using namespace std;
 constexpr auto Q = 20;   
 constexpr auto maxQ = 32;
 
-// vector<uint64_t> all_Qgrams;
-
-// for mmap:
-#include "../script/mapfile.hpp"
-
 void extract_Q_grams(){
     // map file
     size_t textlen = 0;   
-    const char * text = map_file("./data/all_seqs.fa", textlen); 
+    const char * text = map_file("../data/all_seqs.fa", textlen); 
 
     ofstream fout;
-    fout.open("./data/all" + to_string(Q) + "grams_repetitions", ios::binary | ios::out);
+    fout.open("../data/all" + to_string(Q) + "grams_repetitions", ios::binary | ios::out);
      
 
     uint64_t key = 0;  // 32 chars from { A, C, G, T } packed as a 64-bit unsigned integer
     auto key_len = 0;
     uint64_t i = 0;  // bug if we use auto :(
     auto skip = false;
-    auto count_situation = 0;
+    uint64_t count_situation = 0; // same as for i?
+    uint64_t total_count = 0;
 
     while(i < textlen){
         switch (toupper(text[i]))
@@ -73,18 +69,21 @@ void extract_Q_grams(){
             // push out to output
             fout.write(reinterpret_cast<char *>(& key), sizeof(uint64_t)); 
             count_situation++;
+            total_count++;
 
         }
         key <<= 2;            // shift two bits to the left
 
-        if(count_situation == 10000000) 
+        if(count_situation == 10000000){
             cout << "*" << flush;
+            count_situation = 0;
+        } 
     }
 
     fout.close();
     unmap_file(text, textlen);
 
-    cout << "Total count: " << count_situation << endl;
+    cout << "Total count: " << total_count << endl;
 }
 
 
