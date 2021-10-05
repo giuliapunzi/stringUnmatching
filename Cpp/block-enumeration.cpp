@@ -27,6 +27,7 @@ constexpr int target_size = 14; // target space size of hash functions
 
 vector<uint64_t> compl_array[N_hash_fctns]; // array of vectors for complementary sets
 vector<uint64_t> global_outcome;
+constexpr int N_templates = 200;
 
 constexpr int SEED = 13; //19; //227; // 87; // 111
 
@@ -148,89 +149,6 @@ void process_multiple_masks(uint64_t* mask_array){
 
 
 
-// g is the array of hash functions, of size N_hash_fctns
-// csets is an array of arrays of complementary sets, of size N_hash_fctns * 
-// compl_sizes is an array of ints, with the sizes of the corresponding complementary sets
-void sort_according_to_masks(const uint64_t* g) // DEBUGGED
-{
-    // for each function, find the overlap with the previous and sort its corresponding array
-    for(int i = 1; i< N_hash_fctns; i++)
-    {
-        // cout << "Considering function " << i+1 << " given by " << bitset<64>(g[i]) << endl << flush;
-
-        uint64_t currentfctn = g[i];
-        uint64_t overlapmask = 0;
-        uint64_t truemask = 0;
-
-        for(int j = 0; j<i ; j++)
-            overlapmask |= (g[i] & g[j]);
-
-        
-        // when overlapmask, currentfctn are differ, it is because the former is 0 and the latter is 1
-        // performing xor finds the truemask of currentfctn positions which are not in overlap
-        truemask = currentfctn^overlapmask;
-
-        // cout << "Overlapmask is " << bitset<64>(overlapmask) << endl << flush;
-        // cout << "True mask is " << bitset<64>(truemask) << endl << flush;
-
-        // sort the corresponding vector according to the masks
-        sort(compl_array[i].begin(), compl_array[i].end(), [&](uint64_t x, uint64_t y) {
-            if((x & overlapmask) > (y&overlapmask)) // order according to the overlapping positions first
-		        return false;
-
-	        if((x & overlapmask) < (y&overlapmask)) // order according to the overlapping positions first
-		        return true;
-	
-	        return (x & truemask) < (y&truemask); // if overlapping positions are equal, order according to the rest
-        });
-    }
-}
-
-
-
-// search in complementary set number compl_index for the interval with values equal to key over the mask overlapmask
-pair<int,int> complementary_search(uint64_t Qgram_template, int compl_index, uint64_t mask){
-    vector<uint64_t> &curr_vector = compl_array[compl_index];
-    int pos_of_equality = -1;
-
-    // vector<uint64_t>::iterator beg = curr_vector.begin();
-    // vector<uint64_t>::iterator end = curr_vector.end();
-    int beg_pos = 0;
-    int end_pos = curr_vector.size()-1;
-
-    while (beg_pos <= end_pos && pos_of_equality < 0) {
-        int mid = (beg_pos + end_pos)/2;
-        
-        if (((*(curr_vector.begin() + mid)) & mask) == (Qgram_template & mask))
-            pos_of_equality = mid;
-        else if (((*(curr_vector.begin() + mid)) & mask) > (Qgram_template & mask))
-            end_pos = mid - 1;
-        else
-            beg_pos = mid + 1;
-    }
-  
-    if(pos_of_equality == -1) // element does not occur
-        return make_pair(-1,-1);
-    
-    cout << "Found pos of equality " << pos_of_equality << endl << flush;
-
-    // now, we want to find the extremes of the interval
-    uint64_t beg_equality = pos_of_equality;
-    uint64_t end_equality = pos_of_equality;
-
-    while(beg_equality-1 >= 0 && ((*(curr_vector.begin() + beg_equality-1)) & mask) == (Qgram_template & mask)) // keep going unless we go past the beginning, or find a different value
-        beg_equality--;
-        
-
-    while(end_equality+1 < curr_vector.size() && ((*(curr_vector.begin() + end_equality+1)) & mask) == (Qgram_template & mask)) // keep going unless we go past the beginning, or find a different value
-        end_equality++;
-
-    return make_pair(beg_equality, end_equality);
-    
-}
-
-
-
 void rec_compute_templates(uint64_t candidate, int function_index, const uint64_t* g, uint64_t* redmasks){
     // for now, we use a std function: [interval.first, interval.second) is the interval
     pair<vector<uint64_t>::iterator,vector<uint64_t>::iterator> interval = equal_range(compl_array[function_index].begin(), compl_array[function_index].end(), candidate, [=](uint64_t x, uint64_t y) {
@@ -245,7 +163,7 @@ void rec_compute_templates(uint64_t candidate, int function_index, const uint64_
         for(vector<uint64_t>::iterator it = interval.first; it != interval.second; it++){ //vector<uint64_t>::iterator it = compl_array[function_index].begin() + interval.first; it!= compl_array[function_index].begin() + interval.second +1; it++){
             assert(((*it) & redmasks[function_index])==(candidate & redmasks[function_index]));
             global_outcome.push_back(((*it) & g[function_index]) | candidate);
-            cout << "Found a template \t" << flush;
+            // cout << "Found a template \t" << flush;
         }
     }
     else{
@@ -281,16 +199,20 @@ void compute_templates(const uint64_t *g){
 
     }
 
+    uint64_t size_c = compl_array[0].size();
+    int skip = size_c/N_templates;
+
     // start a recursive computation for every element of the first complementary set
-    for(auto &x : compl_array[0])
-        rec_compute_templates(x, 1, g, redmasks);
+    // for(auto &x : compl_array[0])
+    for(uint64_t i=0; i < size_c; i+= skip)
+        rec_compute_templates(compl_array[0][i], 1, g, redmasks);
 
     cout << endl << flush;
 
     // File dump of results
     ofstream outputfile, binaryout; 
-    outputfile.open("../exp_results/" +to_string(N_hash_fctns) + "MultFunctSeed" + to_string(SEED), ios::app);
-    binaryout.open("../exp_results/" +to_string(N_hash_fctns) + "MultFunctBinarySeed"  + to_string(SEED), ios::binary | ios::app);
+    outputfile.open("../exp_results/" +to_string(N_hash_fctns) +"BlockEnumeration", ios::app);
+    // binaryout.open("../exp_results/" +to_string(N_hash_fctns) + "MultFunctBinarySeed"  + to_string(SEED), ios::binary | ios::app);
     outputfile << "Test with " << N_hash_fctns << " functions: " << endl;
     outputfile << "Functions g: " << endl << flush;
     for(int i = 0; i< N_hash_fctns; i++)
@@ -302,12 +224,12 @@ void compute_templates(const uint64_t *g){
 
     for(uint64_t i = 0; i < global_outcome.size(); i++){
         uint64_t templ = global_outcome[i];
-        binaryout.write(reinterpret_cast<char *>(&templ), sizeof(uint64_t)); 
+        // binaryout.write(reinterpret_cast<char *>(&templ), sizeof(uint64_t)); 
         outputfile << bitset<64>(templ) << ", "; //print_Q_gram(templ);
     }
     outputfile << endl << endl;
 
-    binaryout.close();
+    // binaryout.close();
     outputfile.close();
 }
 
@@ -439,10 +361,10 @@ void build_block_functions(uint64_t* g, int* offset){
 
             sort(pos, pos + target_size);
 
-            cout << "Array of sorted offsetted random positions is: ";
-            for(int j=0; j<target_size; j++)
-                cout << pos[j] << ", ";
-            cout << endl;
+            // cout << "Array of sorted offsetted random positions is: ";
+            // for(int j=0; j<target_size; j++)
+            //     cout << pos[j] << ", ";
+            // cout << endl;
 
             // build the correspondin uint64 number and assign it to g[i]
             uint64_t currg = 0b11;
@@ -524,7 +446,7 @@ void check ()
     }
 
     ofstream outputfile; 
-    outputfile.open("../exp_results/" +to_string(N_hash_fctns) +"MultFunctSeed" + to_string(SEED), ios::app);
+    outputfile.open("../exp_results/" +to_string(N_hash_fctns) +"BlockEnumeration", ios::app);
 
     cout << endl << "Printing min distances for the " << templ_size << " templates: " << flush;
     for(uint64_t dd = 0; dd< templ_size; dd++)
@@ -603,9 +525,9 @@ int main()
         cout << "|C" << i << "|= " << compl_array[i].size() << "\t " << flush;
     cout << endl<< flush; 
 
-    sort_according_to_masks(g); // couple of minutes
+    // sort_according_to_masks(g); // couple of minutes
 
-    cout << "Masks have been sorted" << endl << flush;
+    // cout << "Masks have been sorted" << endl << flush;
 
     begin = clock();
     compute_templates(g);
