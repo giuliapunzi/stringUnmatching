@@ -23,17 +23,18 @@ constexpr auto maxQ = 32; // max value of Q as we use 64 bit integers
 constexpr auto Q = 20; // strings will be represented as 64 bit integers, stored in the first (most significative) 2*Q positions
 
 constexpr int N_hash_fctns = 4;  // number of hash functions 
-constexpr int target_size = 14; // target space size of hash functions
+constexpr int target_size = 9; // target space size of hash functions
 constexpr auto MASK_WEIGHT = 2*target_size;  // number of 1s, twice the number of selected chars (as the alphabet is 4)
-constexpr int N_rand_tests = 1000;
+constexpr int N_rand_tests = 100;
+constexpr int N_max_templ = 100;
 
 vector<uint64_t> compl_array[N_hash_fctns]; // array of vectors for complementary sets
 vector<uint64_t> global_outcome;
 
-constexpr int SEED = 13; //19; //227; // 87; // 111
+constexpr int SEED = 19; //13; //19; //227; // 87; // 111
 constexpr int MIN_DIST = 5;
 
-constexpr auto UNIVERSE_SIZE = 268435456;    // 4^target_size = 268435456
+constexpr auto UNIVERSE_SIZE = 262144; //268435456;    // 4^target_size = 268435456
 bitset<UNIVERSE_SIZE> universe_bitvector_array[N_hash_fctns];
 
 
@@ -164,7 +165,7 @@ void rec_compute_templates(uint64_t candidate, int function_index, const uint64_
         for(vector<uint64_t>::iterator it = interval.first; it != interval.second; it++){ 
             assert(((*it) & redmasks[function_index])==(candidate & redmasks[function_index]));
             global_outcome.push_back(((*it) & g[function_index]) | candidate);
-            cout << "Found a template \t" << flush;
+            // cout << "Found a template \t" << flush;
         }
     }
     else{
@@ -211,18 +212,19 @@ void compute_templates(const uint64_t *g){
     outputfile.open("../exp_results/Q=" + to_string(Q) + "/" + to_string(N_hash_fctns) + "FunctSeed" + to_string(SEED), ios::app);
     binaryout.open("../exp_results/Q=" + to_string(Q) + "/" + to_string(N_hash_fctns) + "FunctBinarySeed"  + to_string(SEED), ios::binary | ios::app);
     outputfile << "Test with " << N_hash_fctns << " functions: " << endl;
-    outputfile << "Functions g: " << endl << flush;
+    outputfile << "Functions g (with target size " << target_size << "): " << endl << flush;
     for(int i = 0; i< N_hash_fctns; i++)
         outputfile << "g_" << i << ": " << bitset<64>(g[i]) << endl;
     outputfile << endl << endl;
+
 
     outputfile << "Templates to check are " << global_outcome.size() << ": " << endl;
     cout << "Templates found are " << global_outcome.size() <<  endl << flush;
 
     for(uint64_t i = 0; i < global_outcome.size(); i++){
         uint64_t templ = global_outcome[i];
-        cout << bitset<64>(templ) << " = "; 
-        print_Q_gram(templ);
+        // cout << bitset<64>(templ) << " = "; 
+        // print_Q_gram(templ);
         binaryout.write(reinterpret_cast<char *>(&templ), sizeof(uint64_t)); 
         outputfile << bitset<64>(templ) << ", "; 
     }
@@ -314,16 +316,20 @@ void build_functions(uint64_t* g){
 void check (uint64_t Qmask)
 {
     uint64_t templ_size = global_outcome.size();
-    cout << "Candidates are " << global_outcome.size() << ": " << endl << flush;
-    for(uint64_t i = 0; i < global_outcome.size(); i++){
-        uint64_t templ = global_outcome[i];
-        cout << bitset<64>(templ) << " = "; 
-        print_Q_gram(templ);
-    }
-    cout << endl << endl << flush;
+    // cout << "Candidates are " << global_outcome.size() << ": " << endl << flush;
+    // for(uint64_t i = 0; i < global_outcome.size(); i++){
+    //     uint64_t templ = global_outcome[i];
+    //     cout << bitset<64>(templ) << " = "; 
+    //     print_Q_gram(templ);
+    // }
+    // cout << endl << endl << flush;
 
     if(global_outcome.size() == 0)
         return;
+
+    // take maximum N_max_templ templates for time reasons
+    if(templ_size > N_max_templ)
+        templ_size = N_max_templ;
 
     // initialize distances' vector
     vector<int> mindist;
@@ -339,6 +345,7 @@ void check (uint64_t Qmask)
     ifstream inputQgrams;
     inputQgrams.open("../data/all" + to_string(Q) + "grams_repetitions", ios::binary | ios::in);
     uint64_t gram;
+    uint64_t counter = 0;
     while (true){
         inputQgrams.read(reinterpret_cast<char *>(&gram), sizeof(uint64_t)); 
         if (!inputQgrams) break;
@@ -348,6 +355,11 @@ void check (uint64_t Qmask)
             int dist = Hamming_distance(gram, global_outcome[j], Qmask);
             if(dist < mindist[j])
                 mindist[j] = dist;
+        }
+
+        if(counter == 10000000){
+            cout << "*" << flush;
+            counter = 0;
         }
     }
     inputQgrams.close();
@@ -366,7 +378,7 @@ void check (uint64_t Qmask)
     outputfile << endl;
 
     uint64_t max_dist_index = 0;
-    for(uint64_t i=0; i<global_outcome.size(); i++){
+    for(uint64_t i=0; i<templ_size; i++){ // changed to templ_size otherwise max dist is not correct
         if(mindist[i] > mindist[max_dist_index])
             max_dist_index = i;
     }
@@ -383,7 +395,7 @@ void check (uint64_t Qmask)
         ofstream goodgrams;
         goodgrams.open("../exp_results/Q=" + to_string(Q) + "/" + to_string(Q) + "gramsDist" + to_string(MIN_DIST), ios::binary | ios::out | ios::app );
 
-        for(uint64_t i = 0; i < global_outcome.size(); i++){
+        for(uint64_t i = 0; i < templ_size; i++){
             if(mindist[i] == mindist[max_dist_index])
                 goodgrams.write(reinterpret_cast<char *>(&(global_outcome[i])), sizeof(uint64_t)); 
         }
@@ -519,8 +531,8 @@ int main()
 
     cout << "End of template computation, which took " << elapsed_secs << " seconds. " << endl << flush;
 
-    if(global_outcome.size() == 0)
-        return 0;
+    // if(global_outcome.size() == 0)
+    //     return 0;
 
     begin = clock();
     check(Qmask);
@@ -529,7 +541,12 @@ int main()
 
     cout << "End of check, which took " << elapsed_secs << " seconds. " << endl << flush;
 
+    begin = clock();
     rand_check(Qmask);
+    end = clock();
+    elapsed_secs = double(end - begin) / CLOCKS_PER_SEC;
+
+    cout << "End of random check, which took " << elapsed_secs << " seconds. " << endl << flush;
 
 
     return 0;
