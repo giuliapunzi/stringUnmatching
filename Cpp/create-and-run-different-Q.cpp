@@ -382,9 +382,9 @@ void check (uint64_t Qmask)
         if(mindist[i] > mindist[max_dist_index])
             max_dist_index = i;
     }
-    cout << "Max minimum distance of " << mindist[max_dist_index] << " reached by gram " << bitset<64>(global_outcome[max_dist_index]) << endl;
+    cout << endl << "Max minimum distance of " << mindist[max_dist_index] << " reached by gram " << bitset<64>(global_outcome[max_dist_index]) << endl;
 
-    outputfile << "Max minimum distance of " << mindist[max_dist_index] << " reached by gram " << bitset<64>(global_outcome[max_dist_index]) << endl;
+    outputfile << endl << "Max minimum distance of " << mindist[max_dist_index] << " reached by gram " << bitset<64>(global_outcome[max_dist_index]) << endl;
 
     outputfile << endl << endl << flush;
 
