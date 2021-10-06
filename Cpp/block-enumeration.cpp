@@ -27,7 +27,8 @@ constexpr int target_size = 14; // target space size of hash functions
 
 vector<uint64_t> compl_array[N_hash_fctns]; // array of vectors for complementary sets
 vector<uint64_t> global_outcome;
-constexpr int N_templates = 200;
+// constexpr int N_start_templates = 50;
+constexpr int N_max_templ = 100;
 
 constexpr int SEED = 13; //19; //227; // 87; // 111
 
@@ -118,11 +119,11 @@ void process_multiple_masks(uint64_t* mask_array){
                 universe_bitvector[ qgram_to_index(gram, mask)] = true;
             }
             fin.close();
-            cout << "*" << flush;
+            // cout << "*" << flush;
         }
         cout << endl << endl << flush;
 
-        cout << "found " << universe_bitvector.count() << " qgrams" << endl << flush;
+        cout << "found " << universe_bitvector.count() << " qgrams for the " << maskindex << "th function" << endl << flush;
 
         // vector<uint64_t> current_complement;
         compl_array[maskindex].clear();
@@ -159,6 +160,10 @@ void rec_compute_templates(uint64_t candidate, int function_index, const uint64_
     if(interval.first == interval.second) //-1 || interval.second == -1)
         return;
 
+    // again, we want to skip by N_start_templ
+    // uint64_t size_int = interval.second - interval.first;
+    // int skip = size_int/N_start_templates;
+
     if(function_index == N_hash_fctns -1){
         for(vector<uint64_t>::iterator it = interval.first; it != interval.second; it++){ //vector<uint64_t>::iterator it = compl_array[function_index].begin() + interval.first; it!= compl_array[function_index].begin() + interval.second +1; it++){
             assert(((*it) & redmasks[function_index])==(candidate & redmasks[function_index]));
@@ -167,7 +172,7 @@ void rec_compute_templates(uint64_t candidate, int function_index, const uint64_
         }
     }
     else{
-        for(vector<uint64_t>::iterator it = interval.first; it != interval.second; it++ ){ //compl_array[function_index].begin() + interval.first; it!= compl_array[function_index].begin() + interval.second +1; it++){
+        for(vector<uint64_t>::iterator it = interval.first; it != interval.second; it++){ //compl_array[function_index].begin() + interval.first; it!= compl_array[function_index].begin() + interval.second +1; it++){
             assert(((*it) & redmasks[function_index])==(candidate & redmasks[function_index]));
             rec_compute_templates(((*it) & g[function_index]) | candidate, function_index+1, g, redmasks);
         }
@@ -199,13 +204,16 @@ void compute_templates(const uint64_t *g){
 
     }
 
-    uint64_t size_c = compl_array[0].size();
-    int skip = size_c/N_templates;
+    // uint64_t size_c = compl_array[0].size();
+    // int skip = size_c/N_start_templates;
 
     // start a recursive computation for every element of the first complementary set
-    // for(auto &x : compl_array[0])
-    for(uint64_t i=0; i < size_c; i+= skip)
-        rec_compute_templates(compl_array[0][i], 1, g, redmasks);
+    for(auto &x : compl_array[0]){
+        rec_compute_templates(x, 1, g, redmasks);
+    }
+    
+    // for(uint64_t i=0; i < size_c; i+= skip)
+    //     rec_compute_templates(compl_array[0][i], 1, g, redmasks);
 
     cout << endl << flush;
 
@@ -222,12 +230,12 @@ void compute_templates(const uint64_t *g){
     outputfile << "Templates to check are " << global_outcome.size() << ": " << endl;
     cout << "Templates found are " << global_outcome.size() <<  endl << flush;
 
-    for(uint64_t i = 0; i < global_outcome.size(); i++){
-        uint64_t templ = global_outcome[i];
-        // binaryout.write(reinterpret_cast<char *>(&templ), sizeof(uint64_t)); 
-        outputfile << bitset<64>(templ) << ", "; //print_Q_gram(templ);
-    }
-    outputfile << endl << endl;
+    // for(uint64_t i = 0; i < global_outcome.size(); i++){
+    //     uint64_t templ = global_outcome[i];
+    //     // binaryout.write(reinterpret_cast<char *>(&templ), sizeof(uint64_t)); 
+    //     outputfile << bitset<64>(templ) << ", "; //print_Q_gram(templ);
+    // }
+    // outputfile << endl << endl;
 
     // binaryout.close();
     outputfile.close();
@@ -323,7 +331,7 @@ void build_block_functions(uint64_t* g, int* offset){
             );
             std::mt19937 gen(seed);
 
-            cout << seed << endl;
+            // cout << seed << endl;
 
             int pos[target_size];
             // pos[0] = rand() % B;
@@ -403,24 +411,29 @@ void build_block_functions(uint64_t* g, int* offset){
 void check ()
 {
 
-    uint64_t templ_size = global_outcome.size();
-    cout << "Candidates are " << global_outcome.size() << ": " << endl << flush;
-    for(uint64_t i = 0; i < global_outcome.size(); i++){
-        uint64_t templ = global_outcome[i];
-        cout << bitset<64>(templ) << endl; //print_Q_gram(templ);
-    }
-    cout << endl << flush;
+    // uint64_t templ_size = global_outcome.size();
+    cout << "Candidates are " << global_outcome.size() << endl << flush;
+    // for(uint64_t i = 0; i < global_outcome.size(); i++){
+    //     uint64_t templ = global_outcome[i];
+    //     cout << bitset<64>(templ) << endl; //print_Q_gram(templ);
+    // }
+    // cout << endl << flush;
+
+    
+    // take maximum N_max_templ templates for time reasons
+    // if(templ_size > N_max_templ)
+    //     templ_size = N_max_templ;
 
     // initialize distances' vector
     // int mindist[templ_size];
     vector<int> mindist;
-    for(uint64_t templindex = 0; templindex < templ_size; templindex++)
+    for(uint64_t templindex = 0; templindex < global_outcome.size(); templindex++)
         mindist.push_back(Q+1);
         // mindist[templindex] = Q+1; //Hamming_distance(completions[templindex], key); 
 
-    cout << endl << "Printing min distances before starting: " << flush;
-    for(uint64_t dd = 0; dd< templ_size; dd++)
-        cout << mindist[dd] << " " << flush;
+    // cout << endl << "Printing min distances before starting: " << flush;
+    // for(uint64_t dd = 0; dd< templ_size; dd++)
+    //     cout << mindist[dd] << " " << flush;
 
     // scan all files and sets the bits corresponding to each masked q-gram
     for (auto i = 0; i < N_CLASSES; i++){
@@ -430,30 +443,43 @@ void check ()
         ifstream fin;
         fin.open(name, ios::binary | ios::in);
         uint64_t gram;
-        while (true){
+        while (global_outcome.size() > 0){
             fin.read(reinterpret_cast<char *>(&gram), sizeof(uint64_t)); 
             if (!fin) break;
             // compute distance for each Qgram of the file 
-            for(uint64_t j=0; j<templ_size; j++){
+            for(uint64_t j=0; j<global_outcome.size(); ){
                 int dist = Hamming_distance(gram, global_outcome[j]);
 
-                if(dist < mindist[j])
-                    mindist[j] = dist;
+                if(dist < mindist[j]){
+                    if(dist >= MIN_DIST){
+                        mindist[j] = dist;
+                        j++;
+                    }
+                    else{
+                        mindist.erase(mindist.begin() + j);
+                        global_outcome.erase(global_outcome.begin() + j);
+                        cout << "Size of templates: " << global_outcome.size() << endl << flush;
+                    }
+                }
+                else{
+                    j++;
+                }
+                    
             }
         }
         fin.close();
-        cout << "*" << flush;
+        // cout << "*" << flush;
     }
 
     ofstream outputfile; 
     outputfile.open("../exp_results/" +to_string(N_hash_fctns) +"BlockEnumeration", ios::app);
 
-    cout << endl << "Printing min distances for the " << templ_size << " templates: " << flush;
-    for(uint64_t dd = 0; dd< templ_size; dd++)
+    cout << endl << "Printing min distances for the " << mindist.size() << " templates: " << flush;
+    for(uint64_t dd = 0; dd< mindist.size(); dd++)
         cout << mindist[dd] << " " << flush;
 
-    outputfile << endl << "Printing min distances for the " << templ_size << " templates: " << flush;
-    for(uint64_t dd = 0; dd< templ_size; dd++)
+    outputfile << endl << "Printing min distances for the " << mindist.size() << " templates: " << flush;
+    for(uint64_t dd = 0; dd< mindist.size(); dd++)
         outputfile << mindist[dd] << " " << flush;
     outputfile << endl;
 
