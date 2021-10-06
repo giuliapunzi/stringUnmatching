@@ -17,6 +17,17 @@ using namespace std;
 constexpr auto Q = 32;
 constexpr int MIN_DIST = 9;
 
+// given two uint64_t, compute their Hamming distance
+__attribute__((always_inline)) int Hamming_distance(uint64_t x, uint64_t y) // DEBUGGED
+{
+    uint64_t diff = ~(x^y);
+    diff &= (diff << 1);
+    diff &= 0xAAAAAAAAAAAAAAAA;
+
+    return Q - popcount(diff); // I counted where they are equal, subtract it from Q to find the difference
+}
+
+
 
 void check (uint64_t* templates_A, uint64_t* templates_B, int8_t* mindist_A, int8_t* mindist_B, int64_t length)
 {
@@ -123,7 +134,8 @@ int main(){
 
     uint64_t templates_A[length];
     uint64_t templates_B[length];
-    int8_t mindist[length] = {Q+1}; // negative for deleted elements
+    int8_t mindist_A[length] = {Q+1}; // negative for deleted elements
+    int8_t mindist_B[length];
 
     uint64_t gram;
     uint64_t counter = 0;
@@ -136,9 +148,14 @@ int main(){
     }
     length = l;
 
-    check(templates_A, templates_B, mindist, length);
-
     binaryin.close();
+
+    clock_t begin = clock();
+    check(templates_A, templates_B, mindist_A, mindist_B, length);
+    clock_t end = clock();
+    double elapsed_secs = double(end - begin) / CLOCKS_PER_SEC;
+
+    cout << "Check 2 performed in " << elapsed_secs << " seconds" << endl << flush;
 
     return 0;
 }

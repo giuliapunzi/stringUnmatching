@@ -10,12 +10,22 @@
 #include <ctime> // for elapsed time
 
 // for Parikh classes Parikh_class_partition[N_CLASSES] where N_CLASSES = 6545 = (35 choose 3)
-#include "../script/class_partitions_6545.h" // "../script/class_partitions_6545.h"
+// #include "../script/class_partitions_6545.h" // "../script/class_partitions_6545.h"
 
 using namespace std;
 
 constexpr auto Q = 32;
 constexpr int MIN_DIST = 9;
+
+// given two uint64_t, compute their Hamming distance
+__attribute__((always_inline)) int Hamming_distance(uint64_t x, uint64_t y) // DEBUGGED
+{
+    uint64_t diff = ~(x^y);
+    diff &= (diff << 1);
+    diff &= 0xAAAAAAAAAAAAAAAA;
+
+    return Q - popcount(diff); // I counted where they are equal, subtract it from Q to find the difference
+}
 
 
 void check (uint64_t* templates, int8_t* mindist, int64_t length)
@@ -119,7 +129,12 @@ int main(){
     }
     length = l;
 
+    clock_t begin = clock();
     check(templates, mindist, length);
+    clock_t end = clock();
+    double elapsed_secs = double(end - begin) / CLOCKS_PER_SEC;
+
+    cout << "Check 1 performed in " << elapsed_secs << " seconds" << endl << flush;
 
     binaryin.close();
 
