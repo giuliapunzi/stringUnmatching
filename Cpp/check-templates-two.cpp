@@ -83,7 +83,7 @@ void check (uint64_t* templates_A, uint64_t* templates_B, int8_t* mindist_A, int
 
 
     ofstream outputfile; 
-    outputfile.open("../exp_results/blocks/" + to_string(N_hash_fctns) +"BlockEnumeration", ios::app);
+    outputfile.open("../exp_results/blocks/BlockEnumerationCheck2", ios::app);
 
     cout << endl << "Printing min distances for the " << lenp << " templates: " << flush;
     for(uint64_t dd = 0; dd< lenp; dd++){

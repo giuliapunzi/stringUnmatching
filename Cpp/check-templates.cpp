@@ -64,7 +64,7 @@ void check (uint64_t* templates, int8_t* mindist, int64_t length)
 
 
     ofstream outputfile; 
-    outputfile.open("../exp_results/blocks/" + to_string(N_hash_fctns) +"BlockEnumeration", ios::app);
+    outputfile.open("../exp_results/blocks/BlockEnumerationCheck1", ios::app);
 
     cout << endl << "Printing min distances for the " << length << " templates: " << flush;
     for(uint64_t dd = 0; dd< length; dd++){
