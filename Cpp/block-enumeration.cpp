@@ -218,9 +218,8 @@ void compute_templates(const uint64_t *g){
     cout << endl << flush;
 
     // File dump of results
-    ofstream outputfile, binaryout; 
+    ofstream outputfile; 
     outputfile.open("../exp_results/" +to_string(N_hash_fctns) +"BlockEnumeration", ios::app);
-    // binaryout.open("../exp_results/" +to_string(N_hash_fctns) + "MultFunctBinarySeed"  + to_string(SEED), ios::binary | ios::app);
     outputfile << "Test with " << N_hash_fctns << " functions: " << endl;
     outputfile << "Functions g: " << endl << flush;
     for(int i = 0; i< N_hash_fctns; i++)
@@ -229,15 +228,20 @@ void compute_templates(const uint64_t *g){
 
     outputfile << "Templates to check are " << global_outcome.size() << ": " << endl;
     cout << "Templates found are " << global_outcome.size() <<  endl << flush;
-
-    // for(uint64_t i = 0; i < global_outcome.size(); i++){
-    //     uint64_t templ = global_outcome[i];
-    //     // binaryout.write(reinterpret_cast<char *>(&templ), sizeof(uint64_t)); 
-    //     outputfile << bitset<64>(templ) << ", "; //print_Q_gram(templ);
-    // }
+    
+    if(global_outcome.size() < 1000000 ){
+        ofstream binaryout;
+        binaryout.open("../exp_results/BinaryTest", ios::binary | ios::app);
+        for(uint64_t i = 0; i < global_outcome.size(); i++){
+            uint64_t templ = global_outcome[i];
+            binaryout.write(reinterpret_cast<char *>(&templ), sizeof(uint64_t)); 
+            // outputfile << bitset<64>(templ) << ", "; //print_Q_gram(templ);
+        }
+        
+        binaryout.close();
+    }
     // outputfile << endl << endl;
 
-    // binaryout.close();
     outputfile.close();
 }
 
@@ -468,7 +472,7 @@ void check ()
             }
         }
         fin.close();
-        // cout << "*" << flush;
+        // cout << "*" << flush; // ogni 10
     }
 
     ofstream outputfile; 
@@ -531,15 +535,6 @@ int main()
         cout << "g" << i << ": " << bitset<64>(g[i]) << endl;
     cout << endl; 
 
-    /*
-    Functions g:
-    g0: 0011000000110000001111001100111100111100110000110000001100110011
-    g1: 0011111111001111110000110000110000001100000011000000000011111100
-    g2: 0011001100111100000000001111110000001111000000001111001100111100
-    g3: 0000001100110000000000111100111111111111001100001111000000000011
-    g4: 1100000011001111001100000000001100000011001111001111111100001100
-    g5: 0000001100001100110000001100000011111111000000111100001100111111
-    */
 
     begin = clock();
     process_multiple_masks(g); // ABOUT 20 MINS WITH 6 MASKS
@@ -564,13 +559,6 @@ int main()
 
     if(global_outcome.size() == 0)
         return 0;
-
-    begin = clock();
-    check();
-    end = clock();
-    elapsed_secs = double(end - begin) / CLOCKS_PER_SEC;
-
-    cout << "End of check, which took " << elapsed_secs << " seconds. " << endl << flush;
 
     return 0;
 }
