@@ -29,13 +29,14 @@ __attribute__((always_inline)) int Hamming_distance(uint64_t x, uint64_t y) // D
 }
 
 
-void check (uint64_t* templates, int* mindist, int64_t length)
+void check (uint64_t* templates, uint8_t* mindist, int64_t length)
 {
     ifstream inputQgrams;
     inputQgrams.open("../data/all" + to_string(Q) + "grams_repetitions", ios::binary | ios::in);
     uint64_t gram;
     int64_t N_deleted = 0;
     int64_t counter = 0;
+    int64_t total_count = 0;
     
     while (N_deleted < length){
         inputQgrams.read(reinterpret_cast<char *>(&gram), sizeof(uint64_t)); 
@@ -43,7 +44,7 @@ void check (uint64_t* templates, int* mindist, int64_t length)
 
         // compute distance for each Qgram of the file 
         for(int64_t j=0; j<length; j++){
-            if(mindist[j] >= 0){ // template has not been deleted yet 
+            if(mindist[j] > 0){ // template has not been deleted yet 
                 int dist = Hamming_distance(gram, templates[j]);
 
                 if(dist < mindist[j]){
@@ -52,19 +53,23 @@ void check (uint64_t* templates, int* mindist, int64_t length)
                     }
                     else{
                         mindist[j] = -mindist[j];
-                        N_deleted++;
+                        ++N_deleted;
                         cout << "Size of templates: " << length - N_deleted << endl << flush;
                     }
                 }
 
             }
 
-            // every 100 million, print some output
-            if(counter == 100000000){
-                cout << "Parsed 100 million" << endl << flush;
-                counter = 0;
-            }
                 
+        }
+
+        counter++;
+        total_count++;
+
+        // every 100 million, print some output
+        if(counter == 100000000){
+            cout << "Parsed " << total_count << endl << flush;
+            counter = 0;
         }
         
     }
@@ -148,7 +153,7 @@ int main(){
     // length = l;
 
     clock_t begin = clock();
-    // check(templates, mindist, length);
+    check(templates, mindist, length);
     clock_t end = clock();
     double elapsed_secs = double(end - begin) / CLOCKS_PER_SEC;
 
