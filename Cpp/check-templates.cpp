@@ -16,6 +16,7 @@ using namespace std;
 
 constexpr auto Q = 32;
 constexpr int MIN_DIST = 9;
+// constexpr int64_t length = 52122;
 
 // given two uint64_t, compute their Hamming distance
 __attribute__((always_inline)) int Hamming_distance(uint64_t x, uint64_t y) // DEBUGGED
@@ -28,19 +29,20 @@ __attribute__((always_inline)) int Hamming_distance(uint64_t x, uint64_t y) // D
 }
 
 
-void check (uint64_t* templates, int8_t* mindist, int64_t length)
+void check (uint64_t* templates, int* mindist, int64_t length)
 {
     ifstream inputQgrams;
     inputQgrams.open("../data/all" + to_string(Q) + "grams_repetitions", ios::binary | ios::in);
     uint64_t gram;
     int64_t N_deleted = 0;
+    int64_t counter = 0;
     
     while (N_deleted < length){
         inputQgrams.read(reinterpret_cast<char *>(&gram), sizeof(uint64_t)); 
         if (!inputQgrams) break;
 
         // compute distance for each Qgram of the file 
-        for(uint64_t j=0; j<length; j++){
+        for(int64_t j=0; j<length; j++){
             if(mindist[j] >= 0){ // template has not been deleted yet 
                 int dist = Hamming_distance(gram, templates[j]);
 
@@ -56,6 +58,12 @@ void check (uint64_t* templates, int8_t* mindist, int64_t length)
                 }
 
             }
+
+            // every 100 million, print some output
+            if(counter == 100000000){
+                cout << "Parsed 100 million" << endl << flush;
+                counter = 0;
+            }
                 
         }
         
@@ -67,25 +75,25 @@ void check (uint64_t* templates, int8_t* mindist, int64_t length)
     outputfile.open("../exp_results/blocks/BlockEnumerationCheck1", ios::app);
 
     cout << endl << "Printing min distances for the " << length << " templates: " << flush;
-    for(uint64_t dd = 0; dd< length; dd++){
+    for(int64_t dd = 0; dd< length; dd++){
         if(mindist[dd] > 0 )
-            cout << mindist[dd] << " " << flush;
+            cout << (int)(mindist[dd]) << " " << flush;
     }
 
     outputfile << endl << "Printing min distances for the " << length << " templates: " << flush;
-    for(uint64_t dd = 0; dd< length; dd++){
+    for(int64_t dd = 0; dd< length; dd++){
         if(mindist[dd] > 0 )
-            outputfile << mindist[dd] << " " << flush;
+            outputfile << (int)(mindist[dd]) << " " << flush;
     }
     outputfile << endl;
 
     uint64_t max_dist_index = 0;
-    for(uint64_t i=0; i<length; i++){
+    for(int64_t i=0; i<length; i++){
         if(mindist[i] > mindist[max_dist_index])
             max_dist_index = i;
     }
 
-    outputfile << "Max minimum distance of " << mindist[max_dist_index] << " reached by gram " << bitset<64>(templates[max_dist_index]) << endl;
+    outputfile << "Max minimum distance of " << (int)(mindist[max_dist_index]) << " reached by gram " << bitset<64>(templates[max_dist_index]) << endl;
     outputfile << endl << endl << flush;
 
     outputfile.close();
@@ -95,7 +103,7 @@ void check (uint64_t* templates, int8_t* mindist, int64_t length)
         ofstream goodgrams;
         goodgrams.open("../exp_results/blocks/QgramsDist" + to_string(MIN_DIST), ios::binary | ios::out | ios::app );
 
-        for(uint64_t i = 0; i < length; i++){
+        for(int64_t i = 0; i < length; i++){
             if(mindist[i] >0)
                 goodgrams.write(reinterpret_cast<char *>(&(templates[i])), sizeof(uint64_t)); 
         }
@@ -115,28 +123,42 @@ int main(){
 
     binaryin.seekg (0, binaryin.beg);
 
-    uint64_t templates[length];
-    int8_t mindist[length] = {Q+1}; // negative for deleted elements
+    // uint64_t templates[length];
+    // int mindist[length]; // NOT WORKING = {Q+1}; // negative for deleted elements
+
+    uint64_t* templates = new uint64_t[length];
+    uint8_t* mindist = new uint8_t[length];
+
+    for (int64_t i = 0; i < length; i++)
+    {
+        mindist[i] = Q+1;
+        // if(i % 10000 == 0)
+            // cout << "Mindist for i=" << i << " is " << (int)(mindist[i]) << endl << flush;
+    }
+    
 
     uint64_t gram;
-    uint64_t counter = 0;
     int l = 0;
     while (l< length){
         binaryin.read(reinterpret_cast<char *>(&gram), sizeof(uint64_t)); 
         if (!binaryin) break;
 
-        template[l++] = gram;
+        templates[l++] = gram;
     }
-    length = l;
+    // length = l;
 
     clock_t begin = clock();
-    check(templates, mindist, length);
+    // check(templates, mindist, length);
     clock_t end = clock();
     double elapsed_secs = double(end - begin) / CLOCKS_PER_SEC;
 
     cout << "Check 1 performed in " << elapsed_secs << " seconds" << endl << flush;
 
     binaryin.close();
+
+
+    delete[] templates;
+    delete[] mindist;
 
     return 0;
 }
