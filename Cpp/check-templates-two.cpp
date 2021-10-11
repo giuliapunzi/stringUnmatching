@@ -134,7 +134,7 @@ int main(){
 
     uint64_t templates_A[length];
     uint64_t templates_B[length];
-    int8_t mindist_A[length] = {Q+1}; // negative for deleted elements
+    int8_t mindist_A[length]; // negative for deleted elements
     int8_t mindist_B[length];
 
     uint64_t gram;
@@ -144,7 +144,8 @@ int main(){
         binaryin.read(reinterpret_cast<char *>(&gram), sizeof(uint64_t)); 
         if (!binaryin) break;
 
-        templates_A[l++] = gram;
+        templates_A[l] = gram;
+        mindist_A[l++] = Q+1;
     }
     length = l;
 

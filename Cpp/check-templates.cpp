@@ -43,6 +43,7 @@ void check (uint64_t* templates, uint8_t* mindist, int64_t length)
         if (!inputQgrams) break;
 
         // compute distance for each Qgram of the file 
+        // #pragma omp parallel for 
         for(int64_t j=0; j<length; j++){
             if(mindist[j] > 0){ // template has not been deleted yet 
                 int dist = Hamming_distance(gram, templates[j]);
@@ -51,10 +52,14 @@ void check (uint64_t* templates, uint8_t* mindist, int64_t length)
                     if(dist >= MIN_DIST){
                         mindist[j] = dist;
                     }
+                    // add pragma critical
                     else{
                         mindist[j] = -mindist[j];
+                        // #pragma omp critical
+                        // {
                         ++N_deleted;
                         cout << "Size of templates: " << length - N_deleted << endl << flush;
+                        // }
                     }
                 }
 

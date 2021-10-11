@@ -228,10 +228,10 @@ void compute_templates(const uint64_t *g){
 
     outputfile << "Templates to check are " << global_outcome.size() << ": " << endl;
     cout << "Templates found are " << global_outcome.size() <<  endl << flush;
-    
+
     if(global_outcome.size() < 1000000 ){
         ofstream binaryout;
-        binaryout.open("../exp_results/BinaryTest", ios::binary | ios::app);
+        binaryout.open("../data/BinaryTemplatesNew", ios::binary | ios::app);
         for(uint64_t i = 0; i < global_outcome.size(); i++){
             uint64_t templ = global_outcome[i];
             binaryout.write(reinterpret_cast<char *>(&templ), sizeof(uint64_t)); 
