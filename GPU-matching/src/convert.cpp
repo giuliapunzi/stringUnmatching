@@ -24,7 +24,7 @@ int main(int argc, char *argv[]){
     auto excess = (char) (result["excess"].as<int>());
 
     std::function<char(std::istream&, std::ostream&)>
-            inverse_map = [excess](std::istream &input, std::ostream &output) -> char {
+    inverse_map = [excess](std::istream &input, std::ostream &output) -> char {
         io::bytes_to_fasta(input, output, excess);
         return 0;
     };
