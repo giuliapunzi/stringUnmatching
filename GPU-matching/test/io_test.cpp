@@ -1,4 +1,4 @@
-#include "catch.hpp"
+#include "catch2/catch.hpp"
 #include "io.hpp"
 #include <sstream>
 #include <unordered_set>

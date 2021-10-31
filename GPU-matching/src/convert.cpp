@@ -1,6 +1,6 @@
 #include <fstream>
 #include "io.hpp"
-#include "cxxopts.hpp"
+#include "cxxopts/cxxopts.hpp"
 
 using namespace strum;
 
@@ -42,16 +42,10 @@ int main(int argc, char *argv[]){
         return stream_map(std::cin, std::cout);
     }
 
-    if (result.unmatched().size() > 1) {
-        for (const std::string& arg: result.unmatched()) {
-            std::istringstream iss(arg);
-            excess = stream_map(iss, std::cout);
-            std::cout << "\t" << excess << std::endl;
-        }
+    std::ostringstream oss;
+    std::copy(result.unmatched().begin(), result.unmatched().end(),
+              std::ostream_iterator<std::string>(oss));
 
-        return 0;
-    }
-
-    std::istringstream iss(result.unmatched().back());
+    std::istringstream iss(oss.str());
     return stream_map(iss, std::cout);
 }
