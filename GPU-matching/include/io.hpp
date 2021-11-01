@@ -1,10 +1,11 @@
+#pragma once
+
 #include <iostream>
+#include <climits>
 
-#ifndef STRUM_IO_HPP
-#define STRUM_IO_HPP
-
-namespace strum::io {
-    constexpr char Q = 4;
+namespace strum {
+namespace io {
+    constexpr char Q = CHAR_BIT >> 1;
 
     enum Nucleotide : char {
         A = 0x0,
@@ -13,8 +14,7 @@ namespace strum::io {
         T = 0x3
     };
 
-    char fasta_to_bytes(std::istream& input, std::ostream& output, bool drop_last = false);
-    void bytes_to_fasta(std::istream& input, std::ostream& output, char excess = 0);
+    char fasta_to_bytes(std::istream &input, std::ostream &output, bool drop_last = false);
+    void bytes_to_fasta(std::istream &input, std::ostream &output, char excess = 0);
 }
-
-#endif //STRUM_IO_HPP
+}
