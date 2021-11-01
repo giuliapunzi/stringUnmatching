@@ -1,14 +1,25 @@
-cmake_minimum_required(VERSION 3.16 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.8)
 project(StringUnMatching LANGUAGES CXX)
 
-set(CMAKE_CXX_COMPILER g++)
-set(CMAKE_CXX_FLAGS "-mbmi2")
+
+include(CheckCXXCompilerFlag)
+check_cxx_compiler_flag("-march=native" COMPILER_SUPPORTS_MARCH_NATIVE)
+if (COMPILER_SUPPORTS_MARCH_NATIVE)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -march=native")
+endif ()
+
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS} -fdiagnostics-color -Wall -Wextra -O0 -g")
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS} -O3")
 set(CMAKE_CXX_STANDARD 17)
 
-set(CMAKE_CUDA_COMPILER nvcc)
-set(CMAKE_CUDA_FLAGS_DEBUG "-G")
+include(CheckLanguage)
+check_language(CUDA)
+if(CMAKE_CUDA_COMPILER)
+    enable_language(CUDA)
+    set(CMAKE_CUDA_FLAGS_DEBUG "-G")
+else()
+    message(STATUS "CUDA not found, skipping targets")
+endif()
 
 include_directories(libs)
 
