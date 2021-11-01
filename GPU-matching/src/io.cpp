@@ -32,7 +32,7 @@ char io::fasta_to_bytes(std::istream& input, std::ostream& output, bool drop_las
 
         // here only if the current char is A, C, G, T
         if (++key_len == io::Q){    // we have 4 chars packed in a byte
-            output.put(key).flush();
+            output.put(key);
             key = 0;
             key_len = 0;            // for the next iteration
         } else {
@@ -48,6 +48,7 @@ char io::fasta_to_bytes(std::istream& input, std::ostream& output, bool drop_las
         return excess;
     }
 
+    output.flush();
     return 0;
 }
 
@@ -74,7 +75,7 @@ void io::bytes_to_fasta(std::istream &input, std::ostream &output, char excess) 
                     break;
             }
         }
-
-        output.flush();
     }
+
+    output.flush();
 }
