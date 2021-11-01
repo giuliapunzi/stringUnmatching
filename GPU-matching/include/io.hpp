@@ -13,7 +13,7 @@ namespace strum::io {
         T = 0x3
     };
 
-    char fasta_to_bytes(std::istream& input, std::ostream& output);
+    char fasta_to_bytes(std::istream& input, std::ostream& output, bool drop_last = false);
     void bytes_to_fasta(std::istream& input, std::ostream& output, char excess = 0);
 }
 

@@ -3,13 +3,12 @@
 using namespace strum;
 
 
-char io::fasta_to_bytes(std::istream& input, std::ostream& output) {
-    //uint8_t key = 0;  // 4 chars from { A, C, G, T } packed as a 8-bit unsigned integer
-    char key = 0;  // 4 chars from { A, C, G, T } packed as a 8-bit unsigned integer
+char io::fasta_to_bytes(std::istream& input, std::ostream& output, bool drop_last) {
+    char key = 0;
     char key_len = 0;
     char code;
 
-    while(!input.get(code).eof()) {              // shift two bits to the left
+    while(!input.get(code).eof()) {
         switch (std::toupper(code))
         {
             case 'A':
@@ -24,6 +23,9 @@ char io::fasta_to_bytes(std::istream& input, std::ostream& output) {
             case 'T':
                 key |= io::Nucleotide::T;
                 break;
+            case ';':   // headers and/or comments
+            case '>':
+                while(!input.get(code).eof() && code != '\n');
             default:
                 continue;
         }
@@ -38,7 +40,7 @@ char io::fasta_to_bytes(std::istream& input, std::ostream& output) {
         }
     }
 
-    if (key_len > 0) {                      // put remaining characters
+    if (!drop_last && key_len > 0) {        // put remaining characters
         char excess = io::Q - key_len;
         key <<= 2*excess - 2;               // "left align" key
         output.put(key).flush();

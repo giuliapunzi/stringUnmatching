@@ -11,6 +11,7 @@ int main(int argc, char *argv[]){
     options.add_options()
             ("f,file", "File name", cxxopts::value<std::string>())
             ("i,inverse", "Convert bytes to FASTA")
+            ("d,drop_last", "Drop last un-filled byte")
             ("e,excess", "Drop last <E> nucleotides", cxxopts::value<int>()->default_value("0"))
             ("h,help", "Print usage");
 
@@ -22,14 +23,18 @@ int main(int argc, char *argv[]){
     }
 
     auto excess = (char) (result["excess"].as<int>());
+    bool drop_last = result["drop_last"].count();
 
     std::function<char(std::istream&, std::ostream&)>
-    inverse_map = [excess](std::istream &input, std::ostream &output) -> char {
-        io::bytes_to_fasta(input, output, excess);
-        return 0;
-    };
+        forward_map = [drop_last](std::istream &input, std::ostream &output) -> char {
+            return io::fasta_to_bytes(input, output, drop_last);
+        },
+        inverse_map = [excess](std::istream &input, std::ostream &output) -> char {
+            io::bytes_to_fasta(input, output, excess);
+            return 0;
+        };
 
-    auto stream_map = result.count("inverse") ? inverse_map : &io::fasta_to_bytes;
+    auto stream_map = result.count("inverse") ? inverse_map : forward_map;
 
     if (result.count("file")) {
         auto filename = result["file"].as<std::string>();
