@@ -6,7 +6,7 @@
 using namespace strum;
 
 
-TEST_CASE( "Test FASTA -> BYTE -> FASTA conversions", "[convert]" ) {
+TEST_CASE( "Test Conversions", "[convert]" ) {
     SECTION( "Even Strings" ) {
         std::vector<std::string> test_strings = {
                 "acgt", "aaaa",

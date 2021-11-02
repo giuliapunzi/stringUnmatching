@@ -41,7 +41,7 @@ char io::fasta_to_bytes(std::istream& input, std::ostream& output, bool drop_las
     }
 
     if (!drop_last && key_len > 0) {        // put remaining characters
-        char excess = io::Q - key_len;
+        auto excess = (char) (io::Q - key_len);
         key <<= 2*excess - 2;               // "left align" key
         output.put(key).flush();
 
@@ -53,14 +53,14 @@ char io::fasta_to_bytes(std::istream& input, std::ostream& output, bool drop_las
 }
 
 void io::bytes_to_fasta(std::istream &input, std::ostream &output, char excess) {
-    char key;
+    char key;  // Notice: shifts on signed chars may have signed results!
 
     while(!input.get(key).eof()) {
         bool is_last = input.peek() == std::char_traits<char>::eof();
         auto num_shifts = is_last && excess? io::Q - excess : io::Q;
 
         for (auto shift = 0; shift < num_shifts; ++shift, key <<= 2) {
-            switch ((key & 0xC0) >> 6) {        // leftmost two bits
+            switch ((unsigned char) key >> (CHAR_BIT - 2)) {  // leftmost two bits
                 case io::Nucleotide::A:
                     output.put('A');
                     break;

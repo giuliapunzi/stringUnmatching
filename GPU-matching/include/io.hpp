@@ -5,9 +5,9 @@
 
 namespace strum {
 namespace io {
-    constexpr char Q = CHAR_BIT >> 1;
+    constexpr unsigned char Q = CHAR_BIT >> 1;
 
-    enum Nucleotide : char {
+    enum Nucleotide : unsigned char {
         A = 0x0,
         C = 0x1,
         G = 0x2,
