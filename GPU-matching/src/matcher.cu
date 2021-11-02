@@ -94,5 +94,4 @@ char Matcher::min_hamming_distance(chunk_t sample) {
 
 Matcher::~Matcher() {
     CUDA_CHECK(cudaFree(d_bytes))
-    free((void*) h_bytes);
 }

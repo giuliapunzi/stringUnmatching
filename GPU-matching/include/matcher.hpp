@@ -9,7 +9,7 @@ using length_t = unsigned long long int;
 
 class Matcher {
 private:
-    const byte_t* h_bytes{};
+    const std::string& h_bytes;
     byte_t* d_bytes;
     length_t length;
     char excess = 0;

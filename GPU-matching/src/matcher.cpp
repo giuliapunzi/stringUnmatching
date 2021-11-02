@@ -7,8 +7,8 @@ using namespace strum;
 
 
 Matcher::Matcher(const std::string& bytes, char excess)
-        : h_bytes((byte_t *) bytes.c_str()), d_bytes(), length(bytes.length()), excess(excess) {
-    copy_and_expand(h_bytes, d_bytes, length);
+        : h_bytes(bytes), d_bytes(), length(bytes.length()), excess(excess) {
+    copy_and_expand(reinterpret_cast<const byte_t *>(h_bytes.c_str()), d_bytes, length);
 }
 
 Matcher Matcher::from_fasta(const std::string &sequence) {
