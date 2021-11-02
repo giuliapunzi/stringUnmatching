@@ -6,8 +6,8 @@
 using namespace strum;
 
 
-Matcher::Matcher(const std::string& bytes, char excess)
-        : h_bytes(bytes), d_bytes(), length(bytes.length()), excess(excess) {
+Matcher::Matcher(std::string &&bytes, char excess)
+        : h_bytes(std::move(bytes)), d_bytes(), length(bytes.length()), excess(excess) {
     copy_and_expand(reinterpret_cast<const byte_t *>(h_bytes.c_str()), d_bytes, length);
 }
 
