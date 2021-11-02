@@ -17,10 +17,12 @@ private:
 public:
     static Matcher from_fasta(const std::string& sequence);
     static Matcher from_fasta_file(const std::string& filename);
-    Matcher(const std::string& bytes, char excess = 0) = delete;
+
+    Matcher(const Matcher&) = delete;
+    Matcher(Matcher&&) = default;
     explicit Matcher(std::string&& bytes, char excess = 0);
-    ~Matcher();
     char min_hamming_distance(chunk_t sample);
+    ~Matcher();
 };
 
 void copy_and_expand(const byte_t* bytes, byte_t* output, length_t length);
