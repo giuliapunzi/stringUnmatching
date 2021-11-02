@@ -1,16 +1,13 @@
 #include "matcher.hpp"
-#include "io.hpp"
 #include "cuda_helper.cuh"
 #include <cuda_runtime.h>
 #include <cmath>
 
+#ifndef BLOCK_DIM
 #define BLOCK_DIM 256
+#endif
 
 using namespace strum;
-
-constexpr char CHUNK_SIZE = sizeof(chunk_t);
-constexpr char NUM_NUCLEOTIDES = CHUNK_SIZE * io::Q;
-
 
 __global__
 void expand_kernel(byte_t* matrix, length_t length) {
@@ -26,13 +23,15 @@ void expand_kernel(byte_t* matrix, length_t length) {
     }
 }
 
-void strum::copy_and_expand(const byte_t* bytes, byte_t* output, length_t length) {
-    CUDA_CHECK(cudaMalloc((void **) &output, length*io::Q))
-    CUDA_CHECK(cudaMemcpy(output, bytes, length, cudaMemcpyHostToDevice))
+Matcher::Matcher(std::string &&bytes, char excess)
+        : h_bytes(std::move(bytes)), d_bytes(), length(h_bytes.length()), excess(excess) {
+    CUDA_CHECK(cudaMalloc((void **) &d_bytes, length*io::Q))
+    CUDA_CHECK(cudaMemcpy(d_bytes, reinterpret_cast<const byte_t *>(h_bytes.c_str()),
+                          length, cudaMemcpyHostToDevice))
 
     auto block_dim = BLOCK_DIM;
     auto grid_dim = length/block_dim + !!(length % block_dim);
-    expand_kernel<<<grid_dim, block_dim>>>(output, length);
+    expand_kernel<<<grid_dim, block_dim>>>(d_bytes, length);
 }
 
 __device__ __forceinline__

@@ -49,6 +49,9 @@ if (CMAKE_CUDA_COMPILER)
             src/matcher.cu)
     set_target_properties(strum_match
             PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
+
+    add_executable(hamming src/hamming.cpp)
+    target_link_libraries(hamming strum_match strum_io cxxopts)
 else()
     message(STATUS "CUDA not found, skipping targets")
 endif()
