@@ -17,8 +17,8 @@ void expand_kernel(byte_t* matrix, length_t length) {
         auto current = matrix[idx];
         auto next = idx == length - 1? (byte_t) 0 : matrix[idx + 1];
 
-        for (auto i = 2; i < CHAR_BIT; i += 2) {  // io::Q shifts of 2 bits each
-            matrix[idx + i*length] = (byte_t) ((current << i) | (next >> (CHAR_BIT - i)));
+        for (auto i = 1; i < io::Q; ++i) { 
+            matrix[idx + i*length] = (byte_t) ((current << 2*i) | (next >> 2*(io::Q - i)));
         }
     }
 }
@@ -34,6 +34,7 @@ Matcher::Matcher(std::string &&bytes, char excess)
     expand_kernel<<<grid_dim, block_dim>>>(d_bytes, length);
 }
 
+// By Bob Gross
 __device__ __forceinline__
 byte_t hamming_distance(chunk_t x, chunk_t y) {
     auto diff = ~(x^y);
