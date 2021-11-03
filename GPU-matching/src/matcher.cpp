@@ -23,11 +23,12 @@ Matcher Matcher::from_fasta_file(const std::string &filename) {
 }
 
 char Matcher::min_hamming_distance(const std::string &fasta) {
-    std::istringstream iss(fasta.substr(0, CHUNK_SIZE));
+    std::istringstream iss(fasta.substr(0, NUM_NUCLEOTIDES));
     std::ostringstream oss;
 
     io::fasta_to_bytes(iss, oss);
+    auto bytes = oss.str();
 
-    return min_hamming_distance(static_cast<chunk_t>(*oss.str().c_str()));
+    return min_hamming_distance(*((const chunk_t*) bytes.c_str()));
 }
 
