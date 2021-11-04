@@ -19,6 +19,7 @@ check_language(CUDA)
 
 if(CMAKE_CUDA_COMPILER)
     enable_language(CUDA)
+    set(CUDA_FOUND TRUE)
 
     if(NOT DEFINED CMAKE_CUDA_ARCHITECTURES)
         set(CMAKE_CUDA_ARCHITECTURES "60")
@@ -43,7 +44,7 @@ add_library(strum_io include/io.hpp src/io.cpp)
 add_executable(convert src/convert.cpp)
 target_link_libraries(convert strum_io cxxopts)
 
-if (CMAKE_CUDA_COMPILER)
+if (CUDA_FOUND)
     add_library(strum_match
             include/matcher.hpp
             include/cuda_helper.cuh
@@ -57,10 +58,5 @@ if (CMAKE_CUDA_COMPILER)
 else()
     message(STATUS "CUDA not found, skipping targets")
 endif()
-
-enable_testing()
-
-add_library(catch2 INTERFACE)
-target_include_directories(catch2 INTERFACE libs/catch2)
 
 add_subdirectory(test)
