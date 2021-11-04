@@ -28,8 +28,8 @@ public:
     Matcher(Matcher&&) = default;
     explicit Matcher(std::string&& bytes, char excess = 0);
 
-    char min_hamming_distance(chunk_t chunk);
-    char min_hamming_distance(const std::string& fasta);
+    byte_t min_hamming_distance(chunk_t chunk);
+    byte_t min_hamming_distance(const std::string& fasta);
 
     ~Matcher();
 };
