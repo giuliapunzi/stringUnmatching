@@ -11,4 +11,8 @@ if (CUDA_FOUND)
     add_executable(matcher_test common.cpp matcher_test.cpp)
     target_link_libraries(matcher_test strum_match strum_io catch2)
     add_test(NAME Matcher-Test COMMAND matcher_test)
+
+    add_executable(stress_test common.cpp stress_test.cpp)
+    target_link_libraries(stress_test strum_match strum_io catch2)
+    add_test(NAME Stress-Test COMMAND stress_test)
 endif()
