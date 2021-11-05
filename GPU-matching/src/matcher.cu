@@ -12,6 +12,7 @@
 
 using namespace strum;
 
+
 __global__
 void expand_kernel(byte_t* matrix, length_t length) {
     auto idx = threadIdx.x + blockIdx.x * blockDim.x;
@@ -27,8 +28,7 @@ void expand_kernel(byte_t* matrix, length_t length) {
     }
 }
 
-Matcher::Matcher(std::string &&bytes, char excess)
-        : h_bytes(std::move(bytes)), d_bytes(), length(h_bytes.length()), excess(excess) {
+void Matcher::init()  {
     CUDA_CHECK(cudaMalloc((void **) &d_bytes, length*io::Q))
     CUDA_CHECK(cudaMemcpy(d_bytes, reinterpret_cast<const byte_t *>(h_bytes.c_str()),
                           length, cudaMemcpyHostToDevice))
@@ -49,12 +49,12 @@ byte_t hamming_distance(chunk_t x, chunk_t y) {
 }
 
 __device__ 
-void min_reduce_kernel(byte_t* data, length_t length, unsigned int num_blocks) {
+void min_reduce_kernel(byte_t* data, length_t length) {
     auto idx = threadIdx.x + blockIdx.x * blockDim.x;
     
-    auto stride = num_blocks/2;
+    auto stride = gridDim.x/2;
     auto next_idx = idx + stride*blockDim.x;
-    num_blocks = max(stride, num_blocks - stride);
+    auto num_blocks = max(stride, gridDim.x - stride);
 
     while (stride && blockIdx.x < num_blocks && next_idx < length) {
         data[idx] = min(data[idx], data[next_idx]);
@@ -78,20 +78,23 @@ void min_hamming_distance_kernel(chunk_t sample, const byte_t* bytes, byte_t* re
 
     __syncthreads();
 
-    auto limit = length - CHUNK_SIZE + 1;
+    chunk_t chunk = 0;
+    byte_t* chunk_bytes = (byte_t*) &chunk;
 
     for (auto i = 0; i < io::Q; ++i) {
-        if (idx*io::Q + excess + i < limit) {
-            auto chunk = *((chunk_t*) (bytes + idx + i*length));
-            auto dist = hamming_distance(sample, chunk);
+        if (idx*io::Q + excess + i + CHUNK_SIZE <= length) {  // limit*io::Q/io::Q
+            #pragma unroll
+            for (auto c = 0; c < CHUNK_SIZE; ++c)
+                chunk_bytes[c] = bytes[idx + i*length + c];
 
+            auto dist = hamming_distance(sample, chunk);
             result[idx] = min(dist, result[idx]);
         }
     }
 
     __syncthreads();
 
-    min_reduce_kernel(result, limit, gridDim.x);
+    min_reduce_kernel(result, length);
 }
 
 byte_t Matcher::min_hamming_distance(chunk_t sample) {

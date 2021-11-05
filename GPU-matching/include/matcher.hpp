@@ -20,6 +20,8 @@ private:
     length_t length;
     char excess = 0;
 
+    void init();
+
 public:
     static Matcher from_fasta(const std::string& sequence);
     static Matcher from_fasta_file(const std::string& filename);
@@ -27,6 +29,7 @@ public:
     Matcher(const Matcher&) = delete;
     Matcher(Matcher&&) = default;
     explicit Matcher(std::string&& bytes, char excess = 0);
+    explicit Matcher(const std::string& bytes, char excess = 0);
 
     byte_t min_hamming_distance(chunk_t chunk);
     byte_t min_hamming_distance(const std::string& fasta);

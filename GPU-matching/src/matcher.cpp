@@ -6,6 +6,16 @@
 using namespace strum;
 
 
+Matcher::Matcher(std::string &&bytes, char excess)
+        : h_bytes(std::move(bytes)), d_bytes(), length(h_bytes.length()), excess(excess) {
+    init();
+}
+
+Matcher::Matcher(const std::string& bytes, char excess)
+        : h_bytes(bytes), d_bytes(), length(h_bytes.length()), excess(excess) {
+    init();
+}
+
 Matcher Matcher::from_fasta(const std::string &sequence) {
     std::istringstream iss(sequence);
     std::ostringstream oss;
@@ -31,4 +41,3 @@ byte_t Matcher::min_hamming_distance(const std::string &fasta) {
 
     return min_hamming_distance(*((const chunk_t*) bytes.c_str()));
 }
-
