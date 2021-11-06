@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.16)
+cmake_minimum_required(VERSION 3.18)
 project(StringUnMatching LANGUAGES CXX)
 
 
@@ -15,12 +15,11 @@ set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-O3 -DDEBUG")
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED TRUE)
 
-include(CheckLanguage)
-check_language(CUDA)
+include(FindCUDAToolkit)
+find_package(CUDAToolkit)
 
-if(CMAKE_CUDA_COMPILER)
+if(CUDAToolkit_FOUND)
     enable_language(CUDA)
-    set(CUDA_FOUND TRUE)
 
     if(NOT DEFINED CMAKE_CUDA_ARCHITECTURES)
         set(CMAKE_CUDA_ARCHITECTURES "60")
@@ -46,7 +45,7 @@ add_library(strum_io include/io.hpp src/io.cpp)
 add_executable(convert src/convert.cpp)
 target_link_libraries(convert strum_io cxxopts)
 
-if (CUDA_FOUND)
+if (CUDAToolkit_FOUND)
     add_library(strum_match
             include/matcher.hpp
             include/cuda_helper.cuh
