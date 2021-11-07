@@ -42,18 +42,16 @@ int main(int argc, char *argv[]){
         exit(-1);
     }
 
-    Matcher matcher = result.count("fasta")?
+    const Matcher& matcher = result.count("fasta")?
             Matcher::from_fasta(sequence) : Matcher(std::move(sequence));
 
     auto args = result.unmatched();
     bool binary = result.count("binary") && args.empty();
 
     if (binary) {
-        chunk_t chunk;
-
-        while (!std::cin.read((char*) &chunk, CHUNK_SIZE).eof()) {
-            auto dist = matcher.min_hamming_distance(chunk);
-            std::cout << static_cast<unsigned>(dist) << std::endl;
+        for (chunk_t chunk; !std::cin.read((char*) &chunk, CHUNK_SIZE).eof(); ) {
+            unsigned int dist = matcher.min_hamming_distance(chunk);
+            std::cout << dist << std::endl;
         }
 
         return 0;
@@ -61,16 +59,16 @@ int main(int argc, char *argv[]){
 
     if (args.empty()) {
         for (std::string line; !std::getline(std::cin, line).eof(); ) {
-            auto dist = matcher.min_hamming_distance(line);
-            std::cout << static_cast<unsigned>(dist) << std::endl;
+            unsigned int dist = matcher.min_hamming_distance(line);
+            std::cout << dist << std::endl;
         }
 
         return 0;
     }
     
     for (auto& arg: args) {
-        auto dist = matcher.min_hamming_distance(arg);
-        std::cout << static_cast<unsigned>(dist) << std::endl;
+        unsigned int dist = matcher.min_hamming_distance(arg);
+        std::cout << dist << std::endl;
     }
 
     return 0;

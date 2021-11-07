@@ -32,7 +32,7 @@ Matcher Matcher::from_fasta_file(const std::string &filename) {
     return Matcher(oss.str(), excess);
 }
 
-byte_t Matcher::min_hamming_distance(const std::string &fasta) {
+byte_t Matcher::min_hamming_distance(const std::string &fasta) const {
     std::istringstream iss(fasta.substr(0, NUM_NUCLEOTIDES));
     std::ostringstream oss;
 

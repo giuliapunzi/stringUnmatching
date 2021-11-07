@@ -31,8 +31,8 @@ public:
     explicit Matcher(std::string&& bytes, char excess = 0);
     explicit Matcher(const std::string& bytes, char excess = 0);
 
-    byte_t min_hamming_distance(chunk_t chunk);
-    byte_t min_hamming_distance(const std::string& fasta);
+    byte_t min_hamming_distance(chunk_t chunk) const;
+    byte_t min_hamming_distance(const std::string& fasta) const;
 
     ~Matcher();
 };

@@ -97,7 +97,7 @@ void min_hamming_distance_kernel(chunk_t sample, const byte_t* bytes, byte_t* re
     min_reduce_kernel(result, length);
 }
 
-byte_t Matcher::min_hamming_distance(chunk_t sample) {
+byte_t Matcher::min_hamming_distance(chunk_t sample) const {
     byte_t* distances;
 
     CUDA_CHECK(cudaMalloc((void**) &distances, length))
