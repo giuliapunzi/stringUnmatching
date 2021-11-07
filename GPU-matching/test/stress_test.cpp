@@ -3,7 +3,7 @@
 
 #define GOOD_CHAR 'A'
 #define BAD_CHAR 'T'
-#define LENGTH 1000
+#define LENGTH 499
 
 using namespace strum;
 
