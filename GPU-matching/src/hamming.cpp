@@ -14,6 +14,8 @@ int main(int argc, char *argv[]){
             ("s,sequence", "Sequence file name", cxxopts::value<std::string>())
             ("f,fasta", "Read sequence file in FASTA format")
             ("b,binary", "Binary templates")
+            ("t,tsv", "For every template print its FASTA representation and"
+                      " the minimum Hamming distance separated by a tab.")
             ("h,help", "Print usage");
 
     options.parse_positional({"sequence"});
@@ -47,28 +49,39 @@ int main(int argc, char *argv[]){
 
     auto args = result.unmatched();
     bool binary = result.count("binary") && args.empty();
+    bool tsv = result.count("tsv");
 
     if (binary) {
         for (chunk_t chunk; !std::cin.read((char*) &chunk, CHUNK_SIZE).eof(); ) {
             unsigned int dist = matcher.min_hamming_distance(chunk);
+
+            if (tsv) {
+                std::istringstream iss(std::string((char*) &chunk, CHUNK_SIZE));
+                io::bytes_to_fasta(iss, std::cout);
+                std::cout << '\t';
+            }
+
             std::cout << dist << std::endl;
         }
 
         return 0;
     } 
 
-    if (args.empty()) {
-        for (std::string line; !std::getline(std::cin, line).eof(); ) {
-            unsigned int dist = matcher.min_hamming_distance(line);
-            std::cout << dist << std::endl;
-        }
+    auto log = [tsv, &matcher](std::string line) {
+        unsigned int dist = matcher.min_hamming_distance(line);
 
-        return 0;
-    }
-    
-    for (auto& arg: args) {
-        unsigned int dist = matcher.min_hamming_distance(arg);
+        if (tsv)
+            std::cout << line << '\t';
+
         std::cout << dist << std::endl;
+    };
+
+    if (args.empty()) {
+        for (std::string line; !std::getline(std::cin, line).eof(); ) 
+            log(line);
+    } else {
+        for (auto& arg: args) 
+            log(arg);
     }
 
     return 0;
