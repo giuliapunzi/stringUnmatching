@@ -6,7 +6,6 @@
 
 namespace strum {
 
-using byte_t = unsigned char;
 using chunk_t = unsigned long long int;
 using length_t = unsigned long long int;
 
@@ -15,10 +14,10 @@ constexpr char NUM_NUCLEOTIDES = CHUNK_SIZE * io::Q;
 
 class Matcher {
 private:
-    std::string h_bytes;
+    const std::string h_bytes;
     byte_t* d_bytes;
-    length_t length;
-    char excess = 0;
+    const length_t length;
+    const byte_t excess;
 
     void init();
 
@@ -28,8 +27,8 @@ public:
 
     Matcher(const Matcher&) = delete;
     Matcher(Matcher&&) = default;
-    explicit Matcher(std::string&& bytes, char excess = 0);
-    explicit Matcher(const std::string& bytes, char excess = 0);
+    explicit Matcher(std::string&& bytes, byte_t excess = 0);
+    explicit Matcher(const std::string& bytes, byte_t excess = 0);
 
     byte_t min_hamming_distance(chunk_t chunk) const;
     byte_t min_hamming_distance(const std::string& fasta) const;

@@ -4,17 +4,19 @@
 #include <climits>
 
 namespace strum {
-namespace io {
-    constexpr unsigned char Q = CHAR_BIT >> 1;
+    using byte_t = unsigned char;
 
-    enum Nucleotide : unsigned char {
-        A = 0x0,
-        C = 0x1,
-        G = 0x2,
-        T = 0x3
-    };
+    namespace io {
+        constexpr byte_t Q = CHAR_BIT >> 1;
 
-    char fasta_to_bytes(std::istream &input, std::ostream &output, bool drop_last = false);
-    void bytes_to_fasta(std::istream &input, std::ostream &output, char excess = 0);
-}
+        enum Nucleotide : byte_t {
+            A = 0x00,
+            C = 0x01,
+            G = 0x02,
+            T = 0x03
+        };
+
+        byte_t fasta_to_bytes(std::istream &input, std::ostream &output, bool drop_last = false);
+        void bytes_to_fasta(std::istream &input, std::ostream &output, byte_t excess = 0);
+    }
 }

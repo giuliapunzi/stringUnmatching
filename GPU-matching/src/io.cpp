@@ -3,9 +3,9 @@
 using namespace strum;
 
 
-char io::fasta_to_bytes(std::istream& input, std::ostream& output, bool drop_last) {
-    char key = 0;
-    char key_len = 0;
+byte_t io::fasta_to_bytes(std::istream& input, std::ostream& output, bool drop_last) {
+    byte_t key = 0;
+    byte_t key_len = 0;
     char code;
 
     while(!input.get(code).eof()) {
@@ -41,7 +41,7 @@ char io::fasta_to_bytes(std::istream& input, std::ostream& output, bool drop_las
     }
 
     if (!drop_last && key_len > 0) {        // put remaining characters
-        auto excess = (char) (io::Q - key_len);
+        auto excess = (byte_t) (io::Q - key_len);
         key <<= 2*excess - 2;               // "left align" key
         output.put(key).flush();
 
@@ -52,7 +52,7 @@ char io::fasta_to_bytes(std::istream& input, std::ostream& output, bool drop_las
     return 0;
 }
 
-void io::bytes_to_fasta(std::istream &input, std::ostream &output, char excess) {
+void io::bytes_to_fasta(std::istream &input, std::ostream &output, byte_t excess) {
     char key;  // Notice: shifts on signed chars may have signed results!
 
     while(!input.get(key).eof()) {
@@ -60,7 +60,7 @@ void io::bytes_to_fasta(std::istream &input, std::ostream &output, char excess) 
         auto num_shifts = is_last && excess? io::Q - excess : io::Q;
 
         for (auto shift = 0; shift < num_shifts; ++shift, key <<= 2) {
-            switch ((unsigned char) key >> (CHAR_BIT - 2)) {  // leftmost two bits
+            switch ((byte_t) key >> (CHAR_BIT - 2)) {  // leftmost two bits
                 case io::Nucleotide::A:
                     output.put('A');
                     break;

@@ -69,7 +69,7 @@ void min_reduce_kernel(byte_t* data, length_t length) {
 
 __global__
 void min_hamming_distance_kernel(chunk_t sample, const byte_t* bytes, byte_t* result,
-                                 length_t length, char excess = 0) {
+                                 const length_t length, const unsigned int excess) {
     auto idx = threadIdx.x + blockIdx.x * blockDim.x;
     
     if (idx < length) {
@@ -105,7 +105,8 @@ byte_t Matcher::min_hamming_distance(chunk_t sample) const {
     auto block_dim = BLOCK_DIM;
     auto grid_dim = length/block_dim + !!(length % block_dim);
 
-    min_hamming_distance_kernel<<<grid_dim, block_dim>>>(sample, d_bytes, distances, length, excess);
+    min_hamming_distance_kernel<<<grid_dim, block_dim>>>(sample, d_bytes, 
+        distances, length, (unsigned int) excess);  // It seems CUDA does not like single chars
 
     byte_t result[BLOCK_DIM];
     auto limit = std::min<length_t>(BLOCK_DIM, length - CHUNK_SIZE + 1);
