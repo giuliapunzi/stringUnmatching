@@ -21,11 +21,7 @@ find_package(CUDAToolkit)
 if(CUDAToolkit_FOUND)
     enable_language(CUDA)
 
-    if(NOT DEFINED CMAKE_CUDA_ARCHITECTURES)
-        set(CMAKE_CUDA_ARCHITECTURES "60")
-    endif()
-
-    set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} -gencode arch=compute_60,code=sm_60")
+    set(CMAKE_CUDA_ARCHITECTURES "60")
     set(CMAKE_CUDA_FLAGS_DEBUG "-O0 -g -G -DDEBUG")
     set(CMAKE_CUDA_FLAGS_RELEASE "-O3")
     set(CMAKE_CUDA_FLAGS_RELWITHDEBINFO "-O3 -DDEBUG")
