@@ -82,7 +82,8 @@ void min_hamming_distance_kernel(chunk_t sample, const byte_t* bytes, byte_t* re
     byte_t* chunk_bytes = (byte_t*) &chunk;
 
     for (auto i = 0; i < io::Q; ++i) {
-        if (idx*io::Q + excess + i + CHUNK_SIZE <= length) {  // limit*io::Q/io::Q
+        // We compare the positions in terms of nucleotides, not bytes
+        if (idx*io::Q + excess + i + NUM_NUCLEOTIDES <= length*io::Q) {
             #pragma unroll
             for (auto c = 0; c < CHUNK_SIZE; ++c)
                 chunk_bytes[c] = bytes[idx + i*length + c];
