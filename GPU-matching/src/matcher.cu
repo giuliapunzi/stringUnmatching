@@ -48,35 +48,58 @@ byte_t hamming_distance(chunk_t x, chunk_t y) {
     return (byte_t) (NUM_NUCLEOTIDES - __popcll(diff));
 }
 
-__device__ 
+__global__ 
 void min_reduce_kernel(byte_t* data, length_t length) {
-    auto idx = threadIdx.x + blockIdx.x * blockDim.x;
+    auto tid = threadIdx.x;
+    auto idx = tid + blockIdx.x * blockDim.x;
+    auto block = data + blockIdx.x * blockDim.x;
     
-    auto stride = gridDim.x/2;
-    auto next_idx = idx + stride*blockDim.x;
-    auto num_blocks = max(stride, gridDim.x - stride);
+    for (auto stride = blockDim.x/2; stride > 0; stride /= 2) {
+        if (tid < stride && idx + stride < length)
+            block[tid] = min(block[tid], block[tid + stride]);
+        
+        __syncthreads(); 
+    }
 
-    while (stride && blockIdx.x < num_blocks && next_idx < length) {
-        data[idx] = min(data[idx], data[next_idx]);
-    
-        __syncthreads();
+    if (!tid)
+        data[blockIdx.x] = block[tid];
+}
+ 
+byte_t min_reduce(byte_t* data, length_t length, 
+        bool inplace = true, unsigned int max_blocks = 1) {
+    auto grid_dim = length/BLOCK_DIM + !!(length % BLOCK_DIM);
 
-        stride = num_blocks/2;
-        next_idx = idx + stride*blockDim.x;
-        num_blocks = max(stride, num_blocks - stride);
-    }    
+    if (!inplace) {
+        byte_t* copy;
+        CUDA_CHECK(cudaMalloc((void**) &copy, length))
+        CUDA_CHECK(cudaMemcpy(copy, data, length, cudaMemcpyDeviceToDevice))
+        data = copy;
+    }
+
+    while (grid_dim > max_blocks) {
+        min_reduce_kernel<<<grid_dim, BLOCK_DIM>>>(data, length);
+        CUDA_CHECK(cudaDeviceSynchronize())
+
+        grid_dim = grid_dim/BLOCK_DIM + !!(grid_dim % BLOCK_DIM);
+    }
+
+    byte_t result[BLOCK_DIM*max_blocks];
+    auto limit = std::min<length_t>(BLOCK_DIM, length);
+
+    CUDA_CHECK(cudaMemcpy(result, data, limit, cudaMemcpyDeviceToHost))
+    CUDA_CHECK(cudaFree(data))
+
+    return *std::min_element(result, result + limit);
 }
 
 __global__
 void min_hamming_distance_kernel(chunk_t sample, const byte_t* bytes, byte_t* result,
-                                 const length_t length, const unsigned int excess) {
+                                 const length_t length, const byte_t excess) {
     auto idx = threadIdx.x + blockIdx.x * blockDim.x;
     
     if (idx < length) {
         result[idx] = UCHAR_MAX;
     }
-
-    __syncthreads();
 
     chunk_t chunk = 0;
     byte_t* chunk_bytes = (byte_t*) &chunk;
@@ -92,10 +115,6 @@ void min_hamming_distance_kernel(chunk_t sample, const byte_t* bytes, byte_t* re
             result[idx] = min(dist, result[idx]);
         }
     }
-
-    __syncthreads();
-
-    min_reduce_kernel(result, length);
 }
 
 byte_t Matcher::min_hamming_distance(chunk_t sample) const {
@@ -107,15 +126,9 @@ byte_t Matcher::min_hamming_distance(chunk_t sample) const {
     auto grid_dim = length/block_dim + !!(length % block_dim);
 
     min_hamming_distance_kernel<<<grid_dim, block_dim>>>(sample, d_bytes, 
-        distances, length, (unsigned int) excess);  // It seems CUDA does not like single chars
+        distances, length, excess);
 
-    byte_t result[BLOCK_DIM];
-    auto limit = std::min<length_t>(BLOCK_DIM, length - CHUNK_SIZE + 1);
-
-    CUDA_CHECK(cudaMemcpy(result, distances, limit*sizeof(byte_t), cudaMemcpyDeviceToHost))
-    CUDA_CHECK(cudaFree(distances))
-
-    return *std::min_element(result, result + limit);
+    return min_reduce(distances, length, true);
 }
 
 Matcher::~Matcher() {
