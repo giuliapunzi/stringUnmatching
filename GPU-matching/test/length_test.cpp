@@ -16,7 +16,7 @@ TEST_CASE( "Length Test", "[length]" ) {
     auto length = 1;
 
     for (auto exp = 0; exp < MIN_EXP; ++exp, length *= BASE);
-    for (auto exp = MIN_EXP; exp < MAX_EXP; ++exp, length *= BASE) {
+    for (auto exp = MIN_EXP; exp <= MAX_EXP; ++exp, length *= BASE) {
         SECTION( "Length:\t10^" + std::to_string(exp) ) {
             std::string sequence(length, BAD_CHAR);
 
