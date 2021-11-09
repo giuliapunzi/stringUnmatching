@@ -5,9 +5,9 @@ project(StringUnMatching LANGUAGES CXX)
 include(CheckCXXCompilerFlag)
 check_cxx_compiler_flag("-march=native" COMPILER_SUPPORTS_MARCH_NATIVE)
 
-if (COMPILER_SUPPORTS_MARCH_NATIVE)
+if(COMPILER_SUPPORTS_MARCH_NATIVE)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -march=native")
-endif ()
+endif()
 
 set(CMAKE_CXX_FLAGS_DEBUG "-fdiagnostics-color -Wall -Wextra -O0 -g -DDEBUG")
 set(CMAKE_CXX_FLAGS_RELEASE "-O3")
@@ -41,7 +41,7 @@ add_library(strum_io include/io.hpp src/io.cpp)
 add_executable(convert src/convert.cpp)
 target_link_libraries(convert strum_io cxxopts)
 
-if (CUDAToolkit_FOUND)
+if(CUDAToolkit_FOUND)
     add_library(strum_match
             include/matcher.hpp
             include/cuda_helper.cuh
