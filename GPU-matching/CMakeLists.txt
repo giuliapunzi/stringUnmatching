@@ -21,7 +21,7 @@ find_package(CUDAToolkit)
 if(CUDAToolkit_FOUND)
     enable_language(CUDA)
 
-    set(CMAKE_CUDA_ARCHITECTURES "60")
+    set(CMAKE_CUDA_ARCHITECTURES "60;61;70;75")
     set(CMAKE_CUDA_FLAGS_DEBUG "-O0 -g -G -DDEBUG")
     set(CMAKE_CUDA_FLAGS_RELEASE "-O3")
     set(CMAKE_CUDA_FLAGS_RELWITHDEBINFO "-O3 -DDEBUG")
