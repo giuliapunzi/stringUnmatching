@@ -6,8 +6,6 @@
 #include <climits>
 #include <cmath>
 
-#define WARP_SIZE 32
-
 #ifndef BLOCK_DIM
 #define BLOCK_DIM 256
 #endif
@@ -54,20 +52,13 @@ __global__
 void min_reduce_kernel(byte_t* data, length_t length) {
     auto tid = threadIdx.x;
     auto idx = tid + blockIdx.x * blockDim.x;
-    volatile byte_t* block = data + blockIdx.x * blockDim.x;
+    auto block = data + blockIdx.x * blockDim.x;
     
-    for (auto stride = blockDim.x/2; stride > WARP_SIZE; stride >>= 1) {
+    for (auto stride = blockDim.x/2; stride > 0; stride /= 2) {
         if (tid < stride && idx + stride < length)
             block[tid] = min(block[tid], block[tid + stride]);
         
         __syncthreads(); 
-    }
-
-    // No synchronization needed within warps
-    if (tid < WARP_SIZE) {
-        #pragma unroll
-        for (auto stride = WARP_SIZE; stride > 0; stride >>= 1)
-            block[tid] = min(block[tid], block[tid + stride]);
     }
 
     if (!tid)
