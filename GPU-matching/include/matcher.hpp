@@ -22,17 +22,50 @@ private:
     void init();
 
 public:
+    /**
+     * Create a @c Matcher from a FASTA sequence.
+     *
+     * @param sequence FASTA sequence
+     * @return @c Matcher object
+     */
     static Matcher from_fasta(const std::string& sequence);
+
+    /**
+     * Create a @c Matcher from a FASTA file.
+     *
+     * @param filename Path to the FASTA file
+     * @return @c Matcher object
+     */
     static Matcher from_fasta_file(const std::string& filename);
+
+    /**
+     * Create a new @c Matcher from a @a binarized FASTA sequence.
+     *
+     * @param bytes Binary sequence
+     * @param excess Number of trailing nucleotides to ignore
+     */
+    explicit Matcher(std::string&& bytes, byte_t excess = 0);
 
     Matcher(const Matcher&) = delete;
     Matcher(Matcher&&) = default;
-    explicit Matcher(std::string&& bytes, byte_t excess = 0);
-    explicit Matcher(const std::string& bytes, byte_t excess = 0);
-
-    byte_t min_hamming_distance(chunk_t chunk) const;
-    byte_t min_hamming_distance(const std::string& fasta) const;
-
     ~Matcher();
+
+    /**
+     * Compute the minimum Hamming distance of the template @p chunk.
+     *
+     * @param chunk Binary template
+     * @return Minimum Hamming distance
+     */
+    byte_t min_hamming_distance(chunk_t chunk) const;
+
+
+    /**
+     * Compute the minimum Hamming distance of the template @p fasta in FASTA
+     * format. @p fasta must be of length 32.
+     *
+     * @param fasta FASTA template
+     * @return Minimum Hamming distance
+     */
+    byte_t min_hamming_distance(const std::string& fasta) const;
 };
 }

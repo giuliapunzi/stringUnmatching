@@ -2,17 +2,13 @@
 #include "io.hpp"
 #include <sstream>
 #include <fstream>
+#include <utility>
 
 using namespace strum;
 
 
 Matcher::Matcher(std::string &&bytes, byte_t excess)
         : h_bytes(std::move(bytes)), d_bytes(), length(h_bytes.length()), excess(excess) {
-    init();
-}
-
-Matcher::Matcher(const std::string& bytes, byte_t excess)
-        : h_bytes(bytes), d_bytes(), length(h_bytes.length()), excess(excess) {
     init();
 }
 
