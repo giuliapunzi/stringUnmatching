@@ -4,7 +4,6 @@
 #include <cuda_runtime.h>
 #include <algorithm>
 #include <climits>
-#include <cmath>
 
 #ifndef BLOCK_DIM
 #define BLOCK_DIM 256
@@ -12,7 +11,23 @@
 
 using namespace strum;
 
-
+/*
+ * Copy and shift the whole sequence 4 times.
+ * For example, given the sequence GATTACAGATTACA, the final memory will be
+ *
+ *     byte   0    1    2    3
+ *    shift
+ *        0   GATT ACAG ATTA CA**
+ *        1   ATTA CAGA TTAC A***
+ *        2   TTAC AGAT TACA ****
+ *        3   TACA GATT ACA* ****
+ *
+ * The actual memory is 1-dimensional, thus we have
+ *
+ *     byte   0    1    2    3    4    5    6    7    8    ...
+ *    shift   0    0    0    0    1    1    1    1    2    ...
+ *            GATT ACAG ATTA CA** ATTA CAGA TTAC A*** TTAC ...
+ */
 __global__
 void expand_kernel(byte_t* matrix, length_t length) {
     auto idx = threadIdx.x + blockIdx.x * blockDim.x;
@@ -48,6 +63,7 @@ byte_t hamming_distance(chunk_t x, chunk_t y) {
     return (byte_t) (NUM_NUCLEOTIDES - __popcll(diff));
 }
 
+// Textbook min-reduce on GPU (there is room for improvement)
 __global__ 
 void min_reduce_kernel(byte_t* data, length_t length) {
     auto tid = threadIdx.x;
@@ -64,7 +80,12 @@ void min_reduce_kernel(byte_t* data, length_t length) {
     if (!tid)
         data[blockIdx.x] = block[tid];
 }
- 
+
+/*
+ * Min-reduce every block in the grid, then copy the result of every block
+ * in the first elements of the array of index `blockIdx.x`. Repeat this
+ * procedure until there is only one block, which is then reduced in CPU.
+ */
 byte_t min_reduce(byte_t* data, length_t length, 
         bool inplace = true, unsigned int max_blocks = 1) {
     auto grid_dim = length/BLOCK_DIM + !!(length % BLOCK_DIM);
@@ -92,24 +113,30 @@ byte_t min_reduce(byte_t* data, length_t length,
     return *std::min_element(result, result + limit);
 }
 
+/*
+ * Given a (8-byte) template, for every shift in [0, 3] compare every 8 bytes
+ * in the shifted-sequence and store the result in `result` if the distance is
+ * lower than the on already computed in the previous shift.
+ */
 __global__
 void min_hamming_distance_kernel(chunk_t sample, const byte_t* bytes, byte_t* result,
                                  const length_t length, const byte_t excess) {
     auto idx = threadIdx.x + blockIdx.x * blockDim.x;
-    
+
+    // Initialize the distances to 255 (any Hamming distance can be at most 32)
     if (idx < length) {
         result[idx] = UCHAR_MAX;
     }
 
     chunk_t chunk = 0;
-    byte_t* chunk_bytes = (byte_t*) &chunk;
+    auto* chunk_bytes = (byte_t*) &chunk;
 
-    for (auto i = 0; i < io::Q; ++i) {
+    for (auto shift = 0; shift < io::Q; ++shift) {
         // We compare the positions in terms of nucleotides, not bytes
-        if (idx*io::Q + excess + i + NUM_NUCLEOTIDES <= length*io::Q) {
+        if (idx*io::Q + excess + shift + NUM_NUCLEOTIDES <= length*io::Q) {
             #pragma unroll
             for (auto c = 0; c < CHUNK_SIZE; ++c)
-                chunk_bytes[c] = bytes[idx + i*length + c];
+                chunk_bytes[c] = bytes[idx + shift*length + c];
 
             auto dist = hamming_distance(sample, chunk);
             result[idx] = min(dist, result[idx]);
