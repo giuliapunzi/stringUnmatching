@@ -1,0 +1,10 @@
+name: strum
+channels:
+  - conda-forge
+dependencies:
+  - cudatoolkit=10.1
+  - cudatoolkit-dev=10.1
+  - cxx-compiler=1.0.4
+  - c-compiler=1.0.4
+  - cmake>=3.18
+  - tqdm
