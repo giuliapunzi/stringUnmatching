@@ -67,7 +67,7 @@ int main(int argc, char *argv[]){
         return 0;
     } 
 
-    auto log = [tsv, &matcher](std::string line) {
+    auto log = [tsv, &matcher](const std::string& line) {
         unsigned int dist = matcher.min_hamming_distance(line);
 
         if (tsv)

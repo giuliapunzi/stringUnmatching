@@ -25,11 +25,11 @@ int main(int argc, char *argv[]){
     auto excess = (char) (result["excess"].as<int>());
     bool drop_last = result["drop_last"].count();
 
-    std::function<char(std::istream&, std::ostream&)>
-        forward_map = [drop_last](std::istream &input, std::ostream &output) -> char {
+    std::function<byte_t(std::istream&, std::ostream&)>
+        forward_map = [drop_last](std::istream &input, std::ostream &output) -> byte_t {
             return io::fasta_to_bytes(input, output, drop_last);
         },
-        inverse_map = [excess](std::istream &input, std::ostream &output) -> char {
+        inverse_map = [excess](std::istream &input, std::ostream &output) -> byte_t {
             io::bytes_to_fasta(input, output, excess);
             return 0;
         };
