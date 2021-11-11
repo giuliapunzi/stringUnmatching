@@ -21,7 +21,7 @@ constexpr auto Q = 32;
 // constexpr int N_tests = 3; // number of tests
 // constexpr int N_completions = 10; // number of completions for each template
 constexpr int N_hash_fctns = 6;  // number of hash functions 
-constexpr int target_size = 12; // target space size of hash functions
+constexpr int target_size = 13; // target space size of hash functions
 // constexpr int MAX_complement_size = 150000;
 vector<uint64_t> compl_array[N_hash_fctns]; // array of vectors for complementary sets
 vector<uint64_t> global_outcome;
@@ -32,7 +32,7 @@ constexpr int SEED = 13; //19; //227; // 87; // 111
 
 constexpr auto MASK_WEIGHT = 2*target_size;  // number of 1s, twice the number of selected chars (as the alphabet is 4)
 
-constexpr auto UNIVERSE_SIZE = 16777216; // 4^11 = 4194304; // 4^12 = 16777216;  // 4^14 = 268435456
+constexpr auto UNIVERSE_SIZE = 67108864; // 4^11 = 4194304; // 4^12 = 16777216;  // 4^14 = 268435456
 
 bitset<UNIVERSE_SIZE> universe_bitvector;  // 33 554 432 bytes
 

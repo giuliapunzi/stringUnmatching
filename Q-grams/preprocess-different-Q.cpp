@@ -7,16 +7,16 @@ using namespace std;
 
 /* preprocess the text and store it in a binary file of uint64, where the 2Q least significative bits correspond to the Qgrams */
 
-constexpr auto Q = 20;   
+constexpr auto Q = 32;   
 constexpr auto maxQ = 32;
 
 void extract_Q_grams(){
     // map file
     size_t textlen = 0;   
-    const char * text = map_file("../data/all_seqs.fa", textlen); 
+    const char * text = map_file("../data/Blood/Blood.nuc.fsa", textlen); 
 
     ofstream fout;
-    fout.open("../data/all" + to_string(Q) + "grams_repetitions", ios::binary | ios::out);
+    fout.open("../data/Blood/all" + to_string(Q) + "grams_repetitions", ios::binary | ios::out);
      
 
     uint64_t key = 0;  // 32 chars from { A, C, G, T } packed as a 64-bit unsigned integer

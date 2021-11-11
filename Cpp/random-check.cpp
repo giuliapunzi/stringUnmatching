@@ -18,7 +18,7 @@ using namespace std;
 
 constexpr auto Q = 32;
 constexpr int MIN_DIST = 9;
-constexpr int64_t length = 1000;
+constexpr int64_t length = 600015;
 
 // given two uint64_t, compute their Hamming distance
 __attribute__((always_inline)) int Hamming_distance(uint64_t x, uint64_t y) // DEBUGGED
@@ -165,8 +165,8 @@ int main(){
     {
         mindist[j] = Q+1;
 
-        if(j % 100 == 0)
-            cout << "Mindist for j=" << j << " is " << (int)(mindist[j]) << endl << flush;
+        // if(j % 100 == 0)
+        //     cout << "Mindist for j=" << j << " is " << (int)(mindist[j]) << endl << flush;
 
         // create random string to fill templates[i]
         std::random_device rd;
@@ -200,7 +200,7 @@ int main(){
         }
         
         templates[j] = rand_gram;
-        if(j%100 == 0)
+        if(j%25000 == 0)
         {
             cout << "Random string: " << flush;
             print_Q_gram(rand_gram);
@@ -217,13 +217,20 @@ int main(){
     // }
     // cout << endl << endl;
     
+    ofstream binaryout;
+    binaryout.open("../exp_results/Blood/random32grams", ios::binary);
+    for(int64_t i=0; i< length; i++){
+        binaryout.write(reinterpret_cast<char *>(&templates[i]), sizeof(uint64_t));
+    }
+
+    binaryout.close();
 
     clock_t begin = clock();
-    rand_check(templates, mindist);
+    // rand_check(templates, mindist);
     clock_t end = clock();
     double elapsed_secs = double(end - begin) / CLOCKS_PER_SEC;
 
-    cout << "Random check performed in " << elapsed_secs << " seconds" << endl << flush;
+    // cout << "Random check performed in " << elapsed_secs << " seconds" << endl << flush;
 
     return 0;
 }
