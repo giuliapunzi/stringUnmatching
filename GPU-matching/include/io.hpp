@@ -4,7 +4,7 @@
 #include <climits>
 
 namespace strum {
-    using byte_t = unsigned char;
+    using byte_t = uint8_t;
 
     namespace io {
         /// @var Number of nucleotides per byte.
