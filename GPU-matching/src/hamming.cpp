@@ -1,88 +1,50 @@
+#include "hamming.hpp"
+#include "io.hpp"
+#include <sstream>
 #include <fstream>
-#include <string>
-#include "matcher.hpp"
-#include "cxxopts/cxxopts.hpp"
 
 using namespace strum;
 
 
-int main(int argc, char *argv[]){
-    cxxopts::Options options("hamming",
-        "Find the minimum Hamming distance between a template and any substring in a given sequence");
-    options.allow_unrecognised_options();
-    options.add_options()
-            ("s,sequence", "Sequence file name", cxxopts::value<std::string>())
-            ("f,fasta", "Read sequence file in FASTA format")
-            ("b,binary", "Binary templates")
-            ("t,tsv", "For every template print its FASTA representation and"
-                      " the minimum Hamming distance separated by a tab.")
-            ("h,help", "Print usage");
+HammingMatcher::HammingMatcher(const std::string &bytes, byte_t excess)
+        : Matcher(bytes, excess), d_bytes_(), distances_() {
+    init();
+}
 
-    options.parse_positional({"sequence"});
-    auto result = options.parse(argc, argv);
+HammingMatcher::HammingMatcher(std::string &&bytes, byte_t excess)
+        : Matcher(std::move(bytes), excess), d_bytes_(), distances_() {
+    init();
+}
 
-    if (result.count("help")) {
-        std::cout << options.help() << std::endl;
-        exit(0);
-    }
+HammingMatcher::HammingMatcher(HammingMatcher&& matcher) noexcept
+        : Matcher(std::move(matcher.bytes_), matcher.excess_),
+          d_bytes_(matcher.d_bytes_), distances_(matcher.distances_) {
+    matcher.d_bytes_ = nullptr;
+    matcher.distances_ = nullptr;
+}
 
-    std::string sequence;
+HammingMatcher HammingMatcher::from_fasta(const std::string &sequence) {
+    std::istringstream iss(sequence);
+    std::ostringstream oss;
 
-    if (result.count("sequence")) {
-        auto filename = result["sequence"].as<std::string>();
-        std::ifstream ifs(filename, std::ios::binary);
+    auto excess = io::fasta_to_bytes(iss, oss);
+    return HammingMatcher(std::move(oss.str()), excess);
+}
 
-        if (!ifs) {
-            std::cerr << "Cannot open file " << filename << std::endl;
-            exit(-1);
-        }
+HammingMatcher HammingMatcher::from_fasta_file(const std::string &filename) {
+    std::ifstream ifs(filename, std::ios::binary);
+    std::ostringstream oss;
 
-        sequence.assign(std::istreambuf_iterator<char>(ifs),
-                std::istreambuf_iterator<char>());
-    } else {
-        std::cerr << "Missing sequence file" << std::endl;
-        exit(-1);
-    }
+    auto excess = io::fasta_to_bytes(ifs, oss);
+    return HammingMatcher(std::move(oss.str()), excess);
+}
 
-    const Matcher& matcher = result.count("fasta")?
-            Matcher::from_fasta(sequence) : Matcher(std::move(sequence));
+byte_t HammingMatcher::get_distance(const std::string &fasta) {
+    std::istringstream iss(fasta.substr(0, NUM_NUCLEOTIDES));
+    std::ostringstream oss;
 
-    auto args = result.unmatched();
-    bool binary = result.count("binary") && args.empty();
-    bool tsv = result.count("tsv");
+    io::fasta_to_bytes(iss, oss);
+    chunk_t sample = *((const chunk_t *) oss.str().c_str());
 
-    if (binary) {
-        for (chunk_t chunk; !std::cin.read((char*) &chunk, CHUNK_SIZE).eof(); ) {
-            unsigned int dist = matcher.min_hamming_distance(chunk);
-
-            if (tsv) {
-                std::istringstream iss(std::string((char*) &chunk, CHUNK_SIZE));
-                io::bytes_to_fasta(iss, std::cout);
-                std::cout << '\t';
-            }
-
-            std::cout << dist << std::endl;
-        }
-
-        return 0;
-    } 
-
-    auto log = [tsv, &matcher](const std::string& line) {
-        unsigned int dist = matcher.min_hamming_distance(line);
-
-        if (tsv)
-            std::cout << line << '\t';
-
-        std::cout << dist << std::endl;
-    };
-
-    if (args.empty()) {
-        for (std::string line; !std::getline(std::cin, line).eof(); ) 
-            log(line);
-    } else {
-        for (auto& arg: args) 
-            log(arg);
-    }
-
-    return 0;
+    return get_distance(sample);
 }

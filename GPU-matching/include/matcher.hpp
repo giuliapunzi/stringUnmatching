@@ -1,42 +1,31 @@
 #pragma once
 
-#include <iostream>
-#include <vector>
 #include "io.hpp"
 
 namespace strum {
 
-using chunk_t = unsigned long long int;
-using length_t = unsigned long long int;
+using chunk_t = uint64_t;
 
 constexpr char CHUNK_SIZE = sizeof(chunk_t);
 constexpr char NUM_NUCLEOTIDES = CHUNK_SIZE * io::Q;
 
 class Matcher {
-private:
-    const std::string h_bytes;
-    byte_t* d_bytes;
-    const length_t length;
-    const byte_t excess;
-
-    void init();
+protected:
+    std::string bytes_;
+    size_t length_;
+    byte_t excess_;
 
 public:
-    /**
-     * Create a @c Matcher from a FASTA sequence.
-     *
-     * @param sequence FASTA sequence
-     * @return @c Matcher object
-     */
-    static Matcher from_fasta(const std::string& sequence);
+    Matcher(const Matcher&) = delete;
+    Matcher(Matcher&&) = default;
 
     /**
-     * Create a @c Matcher from a FASTA file.
+     * Create a new @c Matcher from a @a binarized FASTA sequence.
      *
-     * @param filename Path to the FASTA file
-     * @return @c Matcher object
+     * @param bytes Binary sequence
+     * @param excess Number of trailing nucleotides to ignore
      */
-    static Matcher from_fasta_file(const std::string& filename);
+    explicit Matcher(const std::string& bytes, byte_t excess = 0);
 
     /**
      * Create a new @c Matcher from a @a binarized FASTA sequence.
@@ -46,19 +35,6 @@ public:
      */
     explicit Matcher(std::string&& bytes, byte_t excess = 0);
 
-    Matcher(const Matcher&) = delete;
-    Matcher(Matcher&&) = default;
-    ~Matcher();
-
-    /**
-     * Compute the minimum Hamming distance of the template @p chunk.
-     *
-     * @param chunk Binary template
-     * @return Minimum Hamming distance
-     */
-    byte_t min_hamming_distance(chunk_t chunk) const;
-
-
     /**
      * Compute the minimum Hamming distance of the template @p fasta in FASTA
      * format. @p fasta must be of length 32.
@@ -66,6 +42,14 @@ public:
      * @param fasta FASTA template
      * @return Minimum Hamming distance
      */
-    byte_t min_hamming_distance(const std::string& fasta) const;
+    virtual byte_t get_distance(const std::string& fasta) = 0;
+
+    /**
+     * Compute the minimum distance of the template @p chunk.
+     *
+     * @param chunk Binary template
+     * @return Minimum Hamming distance
+     */
+    virtual byte_t get_distance(chunk_t chunk) = 0;
 };
 }

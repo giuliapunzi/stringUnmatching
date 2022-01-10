@@ -1,5 +1,5 @@
 #include "catch2/catch.hpp"
-#include "matcher.hpp"
+#include "hamming.hpp"
 #include <algorithm>
 
 using namespace strum;
@@ -20,8 +20,8 @@ TEST_CASE("Test Matcher", "[matcher]")
     {
         for (auto &str : test_strings)
         {
-            auto matcher = Matcher::from_fasta(str);
-            auto dist = matcher.min_hamming_distance(str);
+            auto matcher = HammingMatcher::from_fasta(str);
+            auto dist = matcher.get_distance(str);
 
             REQUIRE(dist == 0);
         }
@@ -31,7 +31,7 @@ TEST_CASE("Test Matcher", "[matcher]")
     {
         for (auto &str : test_strings)
         {
-            auto matcher = Matcher::from_fasta(str);
+            auto matcher = HammingMatcher::from_fasta(str);
             std::string modified(str);
 
             std::transform(str.begin(), str.end(),
@@ -51,7 +51,7 @@ TEST_CASE("Test Matcher", "[matcher]")
                                };
                            });
 
-            auto dist = matcher.min_hamming_distance(modified);
+            auto dist = matcher.get_distance(modified);
 
             REQUIRE(dist == 32);
         }
@@ -61,7 +61,7 @@ TEST_CASE("Test Matcher", "[matcher]")
     {
         for (auto &str : test_strings)
         {
-            auto matcher = Matcher::from_fasta(str);
+            auto matcher = HammingMatcher::from_fasta(str);
             std::string modified(str);
 
             std::transform(str.begin(), str.end(),
@@ -81,7 +81,7 @@ TEST_CASE("Test Matcher", "[matcher]")
 
             auto count = std::count_if(str.begin(), str.end(), [](char c)
                                        { return c == 'A' || c == 'T'; });
-            auto dist = matcher.min_hamming_distance(modified);
+            auto dist = matcher.get_distance(modified);
 
             REQUIRE(dist == count);
         }
