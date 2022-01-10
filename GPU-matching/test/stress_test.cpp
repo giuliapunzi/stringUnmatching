@@ -1,9 +1,10 @@
 #include "catch2/catch.hpp"
-#include "matcher.hpp"
+#include "hamming.hpp"
+#include "edit.hpp"
 
 #define GOOD_CHAR 'A'
 #define BAD_CHAR 'T'
-#define LENGTH 499
+#define LENGTH 1000
 
 using namespace strum;
 
@@ -25,10 +26,19 @@ TEST_CASE( "Stress Test", "[stress]" ) {
 
             for (; shift < length - NUM_NUCLEOTIDES; ++shift) {
                 SECTION( "Shift:\t" + std::to_string(shift)) {
-                    auto matcher = Matcher::from_fasta(str);
-                    auto dist = matcher.min_hamming_distance(chunk);
+                    SECTION("Kind:\tHamming") {
+                        auto matcher = HammingMatcher::from_fasta(str);
+                        auto dist = matcher.get_distance(chunk);
 
-                    REQUIRE( dist == exp_dist );
+                        REQUIRE( dist == exp_dist );
+                    }
+
+                    SECTION("Kind:\tEdit") {
+                        auto matcher = EditMatcher::from_fasta(str);
+                        auto dist = matcher.get_distance(chunk);
+
+                        REQUIRE( dist == exp_dist );
+                    }
 
                     str[shift] = BAD_CHAR;
                     str[shift + substr_length] = GOOD_CHAR;
