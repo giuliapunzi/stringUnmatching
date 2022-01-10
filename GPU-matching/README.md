@@ -56,18 +56,18 @@ Once compiled, in the `./build` folder you can find the following executables:
  ```
  More info are availabe by running `convert -h`.
 
- 2. `hamming`, which computes the minimum Hamming distance of multiple templates (of exactly 32 nucleotides) in a given FASTA sequence, which must be provided as the first argument (or after the `-s`/`--sequence` option). By default, it assumes that the sequence is already binarized (using `convert`), unless the `-f`/`--fasta` option is given. The templates are read from standard input or from the trailing CLI argument in FASTA format, one for each line, unless the `-b`/`--binary` option is given, and the computed Hamming distance is printed in the standard output. For example, the following command computes the distances in the binary `template.bin` file and stores the result in `output.txt`
+ 2. `mindist`, which computes the minimum Hamming distance of multiple templates (of exactly 32 nucleotides) in a given FASTA sequence, which must be provided as the first argument (or after the `-s`/`--sequence` option). If the `-e`/`--edit` option is given, it computes the minimum edit distance instead. By default, it assumes that the sequence is already binarized (using `convert`), unless the `-f`/`--fasta` option is given. The templates are read from standard input or from the trailing CLI argument in FASTA format, one for each line, unless the `-b`/`--binary` option is given, and the computed Hamming distance is printed in the standard output. For example, the following command computes the distances in the binary `template.bin` file and stores the result in `output.txt`
  ```
- cat templates.bin | hamming sequence.fa -f -b > output.txt
+ cat templates.bin | mindist sequence.fa -f -b > output.txt
  ```
- More info are availabe by running `hamming -h`.
+ More info are availabe by running `mindist -h`.
 
 ### Tracking execution progress
 
 For larger files, it may be usefull to keep track of the progress of the conversion and/or computation. For this, you may use [`tqdm`](https://tqdm.github.io/) as follows
 ```
 export N=100000
-dd if=/dev/urandom bs=8 count=$N | hamming sequence.bin -b | tqdm --total=$N > output.txt
+dd if=/dev/urandom bs=8 count=$N | mindist sequence.bin -b | tqdm --total=$N > output.txt
 ```
 This example generates the distance of 100000 random templates, while visualizing the computation with a progress bar.
 
@@ -75,12 +75,12 @@ This example generates the distance of 100000 random templates, while visualizin
 
 There are a couple of tests that can be ran to check that everything works (you can find them in the `./build/test/` directory). You can run them all with the `./build/test/all_tests` target.
 
-The `Matcher` class
--------------------
+The `Matcher` classes
+---------------------
 
-### GPU memory allocation (`d_bytes` property)
+### `HammingMatcher` class
 
-The core of the project lies in the `Matcher` class. Given a FASTA sequence, it stores in GPU memory the whole sequence in compressed byte format (4 nucleotides per byte) four times, one per nucleotide. Specifically, the sequence `GATTACAGATTACA`, will be mapped in memory as
+Given a FASTA sequence, it stores in GPU memory the whole sequence in compressed byte format (4 nucleotides per byte) four times, one per nucleotide. Specifically, the sequence `GATTACAGATTACA`, will be mapped in memory as
 ```
  byte   0    1    2    3
 shift
@@ -102,6 +102,6 @@ to allow fast comparison with the given templates. Two warnings:
  
 Summing up, a byte of index `idx` can be considered useful if it satisfies the inequality `4*idx + excess + shift < 4*num_bytes`.
 
-### Interface
+### `EditMatcher` class
 
-For the moment, the only available function provided by the class is `min_hamming_distance`, which is used by the `hamming` executable. Other function/metrics could be implemented as long as they exploit the aforementioned memory mapping.
+The `EditMatcher` class executes the [Myers' bit-parallel algorithm](https://dl.acm.org/doi/abs/10.1145/316542.316550) in parallel on many (overlapping) substrings of the main sequence. The default substring size is 64 bytes (256 nucleotides), plus an overlap of 16 bytes with the next substring (64 nucleotides, i.e., twice the size of a template).
