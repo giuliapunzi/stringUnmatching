@@ -4,8 +4,8 @@ using namespace strum;
 
 
 byte_t io::fasta_to_bytes(std::istream& input, std::ostream& output, bool drop_last) {
-    byte_t key = 0;
-    byte_t key_len = 0;
+    char key = 0;
+    char key_len = 0;
     char code;
 
     while(!input.get(code).eof()) {
