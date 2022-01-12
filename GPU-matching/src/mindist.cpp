@@ -3,6 +3,7 @@
 #include "hamming.hpp"
 #include "edit.hpp"
 #include "cxxopts/cxxopts.hpp"
+#include "endian.h"
 
 using namespace strum;
 
@@ -67,7 +68,7 @@ int main(int argc, char *argv[]){
 
     if (binary) {
         for (chunk_t chunk; !std::cin.read((char*) &chunk, CHUNK_SIZE).eof(); ) {
-            auto dist = matcher->get_distance(chunk);
+            auto dist = matcher->get_distance(be64toh(chunk));
 
             if (tsv) {
                 std::istringstream iss(std::string((char*) &chunk, CHUNK_SIZE));
