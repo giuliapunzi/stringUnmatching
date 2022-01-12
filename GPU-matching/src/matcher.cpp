@@ -17,7 +17,8 @@ byte_t Matcher::get_distance(const std::string &fasta) {
     std::ostringstream oss;
 
     io::fasta_to_bytes(iss, oss);
-    const chunk_t sample = *reinterpret_cast<const chunk_t*>(oss.str().c_str());
+    std::string bytes(oss.str());
+    const chunk_t sample = *reinterpret_cast<const chunk_t*>(bytes.c_str());
 
     return get_distance(be64toh(sample));
 }
