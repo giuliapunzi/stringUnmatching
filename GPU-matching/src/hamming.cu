@@ -31,18 +31,18 @@ void expand_kernel(byte_t* matrix, size_t length) {
     auto idx = threadIdx.x + blockIdx.x * blockDim.x;
 
     if (idx < length) {
-        auto current = matrix[idx];
-        auto next = idx == length - 1? (byte_t) 0 : matrix[idx + 1];
+        byte_t current = matrix[idx];
+        byte_t next = idx == length - 1? (byte_t) 0 : matrix[idx + 1];
 
         #pragma unroll
         for (auto i = 1; i < io::Q; ++i) { 
-            matrix[idx + i*length] = (byte_t) ((current << 2*i) | (next >> 2*(io::Q - i)));
+            matrix[idx + i*length] = (current << 2*i) | (next >> 2*(io::Q - i));
         }
     }
 }
 
 void HammingMatcher::init() {
-    auto c_str = (const byte_t*) bytes_.c_str();
+    const byte_t* c_str = reinterpret_cast<const byte_t*>(bytes_.c_str());
 
     CUDA_CHECK(cudaMalloc((void**) &distances_, length_))
     CUDA_CHECK(cudaMalloc((void**) &d_bytes_, length_*io::Q))
@@ -65,7 +65,7 @@ byte_t hamming_distance(chunk_t x, chunk_t y) {
     diff &= (diff << 1);
     diff &= 0xAAAAAAAAAAAAAAAA;
 
-    return (byte_t) (NUM_NUCLEOTIDES - __popcll(diff));
+    return static_cast<byte_t>(NUM_NUCLEOTIDES - __popcll(diff));
 }
 
 /*
@@ -77,7 +77,7 @@ __global__
 void min_hamming_distance_kernel(chunk_t sample, byte_t* bytes, byte_t* result,
                                  size_t length, byte_t excess = 0) {
     chunk_t chunk = 0;
-    auto chunk_bytes = (byte_t*) &chunk;
+    auto chunk_bytes = reinterpret_cast<byte_t*>(&chunk);
     auto idx = threadIdx.x + blockIdx.x * blockDim.x;
 
     for (auto i = 0; i < io::Q; ++i) {
@@ -86,7 +86,7 @@ void min_hamming_distance_kernel(chunk_t sample, byte_t* bytes, byte_t* result,
             for (auto c = 0; c < CHUNK_SIZE; ++c)
                 chunk_bytes[c] = bytes[idx + i*length + c];
 
-            auto dist = hamming_distance(sample, chunk);
+            byte_t dist = hamming_distance(sample, chunk);
             result[idx] = min(dist, result[idx]);
         }
     }
