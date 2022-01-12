@@ -98,7 +98,7 @@ byte_t HammingMatcher::get_distance(chunk_t sample) {
     auto grid_dim = ceil_div<size_t>(length_, block_dim);
 
     mem_init<byte_t><<<grid_dim, block_dim>>>(distances_, length_, UCHAR_MAX);
-    min_hamming_distance_kernel<<<grid_dim, block_dim>>>(sample, d_bytes_, distances_, length_, this->excess_);
+    min_hamming_distance_kernel<<<grid_dim, block_dim>>>(sample, d_bytes_, distances_, length_, excess_);
     min_reduce_kernel<<<grid_dim, block_dim>>>(distances_, length_);
 
     byte_t result[BLOCK_DIM];
