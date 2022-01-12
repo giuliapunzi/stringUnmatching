@@ -42,7 +42,7 @@ public:
      * @param fasta FASTA template
      * @return Minimum Hamming distance
      */
-    virtual byte_t get_distance(const std::string& fasta) = 0;
+    virtual byte_t get_distance(const std::string& fasta);
 
     /**
      * Compute the minimum distance of the template @p chunk.

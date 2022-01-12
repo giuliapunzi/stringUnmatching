@@ -40,11 +40,5 @@ HammingMatcher HammingMatcher::from_fasta_file(const std::string &filename) {
 }
 
 byte_t HammingMatcher::get_distance(const std::string &fasta) {
-    std::istringstream iss(fasta.substr(0, NUM_NUCLEOTIDES));
-    std::ostringstream oss;
-
-    io::fasta_to_bytes(iss, oss);
-    chunk_t sample = *((const chunk_t *) oss.str().c_str());
-
-    return get_distance(sample);
+    return Matcher::get_distance(fasta);
 }
