@@ -67,11 +67,14 @@ int main(int argc, char *argv[]){
     bool tsv = result.count("tsv");
 
     if (binary) {
-        for (chunk_t chunk; !std::cin.read((char*) &chunk, CHUNK_SIZE).eof(); ) {
+        chunk_t chunk;
+        char (&chunk_bytes)[CHUNK_SIZE] = *reinterpret_cast<char(*)[CHUNK_SIZE]>(&chunk);
+
+        while (!std::cin.read(chunk_bytes, CHUNK_SIZE).eof()) {
             auto dist = matcher->get_distance(be64toh(chunk));
 
             if (tsv) {
-                std::istringstream iss(std::string((char*) &chunk, CHUNK_SIZE));
+                std::istringstream iss(std::string(chunk_bytes, CHUNK_SIZE));
                 io::bytes_to_fasta(iss, std::cout);
                 std::cout << '\t';
             }

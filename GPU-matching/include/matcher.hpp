@@ -2,6 +2,7 @@
 
 #include "io.hpp"
 
+
 namespace strum {
 
 using chunk_t = uint64_t;

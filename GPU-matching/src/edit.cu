@@ -29,7 +29,7 @@ EditMatcher::~EditMatcher() {
 template<typename T>
 __device__ __host__ __forceinline__
 byte_t get_nucleotide(T x, byte_t pos) {
-    return (x >> (sizeof(T)*CHAR_BIT - 2*pos - 2)) & 0x03;
+    return static_cast<byte_t>((x >> (sizeof(T)*CHAR_BIT - 2*pos - 2)) & 0x03);
 }
 
 void init_masks(chunk_t sample, mask_t *masks) {
@@ -51,7 +51,7 @@ char myers_update(mask_t x, mask_t &v_pos, mask_t &v_neg) {
     v_pos = (h_neg << 1) | ~(d_0 | (h_pos << 1));
     v_neg = (h_pos << 1) & d_0;
 
-    return (char) (!!(h_pos & 0x80000000) - !!(h_neg & 0x80000000));
+    return static_cast<char>(!!(h_pos & 0x80000000) - !!(h_neg & 0x80000000));
 }
 
 __global__
