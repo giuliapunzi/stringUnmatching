@@ -11,6 +11,10 @@ add_executable(hamming_test common.cpp hamming_test.cpp)
 target_link_libraries(hamming_test strum_hamming catch2)
 add_test(NAME Hamming-Test COMMAND hamming_test)
 
+add_executable(edit_test common.cpp edit_test.cpp)
+target_link_libraries(edit_test strum_edit catch2)
+add_test(NAME Edit-Test COMMAND edit_test)
+
 add_executable(stress_test common.cpp stress_test.cpp)
 target_link_libraries(stress_test strum_hamming strum_edit catch2)
 add_test(NAME Stress-Test COMMAND stress_test)

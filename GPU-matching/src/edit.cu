@@ -37,20 +37,19 @@ void init_masks(chunk_t sample, mask_t *masks) {
         masks[i] = 0;
 
     for (auto i = 0; i < NUM_NUCLEOTIDES; ++i) {
-        auto c = get_nucleotide(sample, i);
+        auto c = get_nucleotide<chunk_t>(sample, i);
         masks[c] |= (mask_t) 1 << i;
     }
 }
 
 __device__ __forceinline__
-char myers_update(mask_t pattern_mask, mask_t &v_pos, mask_t &v_neg) {
-    mask_t v_mask = pattern_mask | v_neg;
-    mask_t h_mask = (((pattern_mask & v_pos) + v_pos)^v_pos) | pattern_mask;
-    mask_t h_pos = v_neg | ~(h_mask | v_pos);
-    mask_t h_neg = v_pos & h_mask;
+char myers_update(mask_t x, mask_t &v_pos, mask_t &v_neg) {
+    mask_t d_0 = (((x & v_pos) + v_pos)^v_pos) | x | v_neg;
+    mask_t h_pos = v_neg | ~(d_0 | v_pos);
+    mask_t h_neg = v_pos & d_0;
 
-    v_pos = (h_neg << 1) | ~(v_mask | (h_pos << 1));
-    v_neg = (h_pos << 1) & v_mask;
+    v_pos = (h_neg << 1) | ~(d_0 | (h_pos << 1));
+    v_neg = (h_pos << 1) & d_0;
 
     return (char) (!!(h_pos & 0x80000000) - !!(h_neg & 0x80000000));
 }
