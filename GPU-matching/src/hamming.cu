@@ -4,8 +4,10 @@
 #include <algorithm>
 #include <climits>
 #include <cmath>
+#include <endian.h>
 
 using namespace strum;
+
 
 /*
  * Copy and shift the whole sequence 4 times.
@@ -91,6 +93,7 @@ void min_hamming_distance_kernel(chunk_t sample, byte_t* bytes, byte_t* result,
 }
 
 byte_t HammingMatcher::get_distance(chunk_t sample) {
+    sample = htobe64(sample);
     auto block_dim = BLOCK_DIM;
     auto grid_dim = ceil_div<size_t>(length_, block_dim);
 
