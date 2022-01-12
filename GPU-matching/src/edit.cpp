@@ -50,22 +50,7 @@ byte_t EditMatcher::get_distance(const std::string &fasta)  {
     std::ostringstream oss;
 
     io::fasta_to_bytes(iss, oss);
-
-#if defined(__BYTE_ORDER) && __BYTE_ORDER == __BIG_ENDIAN 
     chunk_t sample = *((const chunk_t *) oss.str().c_str());
-    return get_distance(sample);
-#elif defined(__BYTE_ORDER) && __BYTE_ORDER == __LITTLE_ENDIAN
-    chunk_t sample = 0;
-    char* sample_bytes = (char*) &sample;
 
-    const char* c_str = oss.str().c_str();
-
-    #pragma unroll
-    for (auto i = 0; i < CHUNK_SIZE; ++i)
-        sample_bytes[CHUNK_SIZE - i - 1] = c_str[i];
-
-    return get_distance(sample);
-#else
-#error "Endiannes unknown"
-#endif
+    return get_distance(be64toh(sample));
 }
