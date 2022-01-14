@@ -82,23 +82,15 @@ byte_t EditMatcher::get_distance(chunk_t sample) {
     auto block_dim = BLOCK_DIM;
     auto grid_dim = ceil_div<size_t>(num_blocks_, block_dim);
 
-    mem_init<byte_t><<<grid_dim, block_dim>>>(distances_, num_blocks_, NUM_NUCLEOTIDES);
-
     mask_t h_masks[io::Q] = {0}, *d_masks;
-
     init_masks(sample, h_masks);
+
     CUDA_CHECK(cudaMalloc((void**) &d_masks, io::Q*MASK_SIZE))
     CUDA_CHECK(cudaMemcpy(d_masks, h_masks, io::Q*MASK_SIZE, cudaMemcpyHostToDevice))
 
     min_edit_distance_kernel<<<grid_dim, block_dim>>>(
         d_bytes_, distances_, d_masks, length_, excess_);
-    min_reduce_kernel<byte_t><<<grid_dim, block_dim>>>(distances_, num_blocks_);
-
-    byte_t result[BLOCK_DIM];
-    auto limit = std::min<size_t>(BLOCK_DIM, num_blocks_);
-
-    CUDA_CHECK(cudaMemcpy(result, distances_, limit*sizeof(byte_t), cudaMemcpyDeviceToHost))
     CUDA_CHECK(cudaFree(d_masks))
 
-    return *std::min_element(result, result + limit);
+    return min_reduce<byte_t>(distances_, num_blocks_);
 }

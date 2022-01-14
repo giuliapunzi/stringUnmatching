@@ -74,22 +74,25 @@ byte_t hamming_distance(chunk_t x, chunk_t y) {
  * lower than the on already computed in the previous shift.
  */
 __global__
-void min_hamming_distance_kernel(chunk_t sample, byte_t* bytes, byte_t* result,
+void min_hamming_distance_kernel(chunk_t sample, const byte_t* bytes, byte_t* result,
                                  size_t length, byte_t excess = 0) {
     chunk_t chunk = 0;
     auto chunk_bytes = reinterpret_cast<byte_t*>(&chunk);
     auto idx = threadIdx.x + blockIdx.x * blockDim.x;
+    byte_t min_dist = NUM_NUCLEOTIDES;
 
     for (auto i = 0; i < io::Q; ++i) {
-        if (idx*io::Q + excess + i + CHUNK_SIZE <= length) {  // limit*io::Q/io::Q
+        if (idx*io::Q + excess + i + NUM_NUCLEOTIDES <= length*io::Q) { 
             #pragma unroll
             for (auto c = 0; c < CHUNK_SIZE; ++c)
                 chunk_bytes[c] = bytes[idx + i*length + c];
 
             byte_t dist = hamming_distance(sample, chunk);
-            result[idx] = min(dist, result[idx]);
+            min_dist = min(dist, min_dist);
         }
     }
+
+    result[idx] = min_dist;
 }
 
 byte_t HammingMatcher::get_distance(chunk_t sample) {
@@ -97,14 +100,7 @@ byte_t HammingMatcher::get_distance(chunk_t sample) {
     auto block_dim = BLOCK_DIM;
     auto grid_dim = ceil_div<size_t>(length_, block_dim);
 
-    mem_init<byte_t><<<grid_dim, block_dim>>>(distances_, length_, UCHAR_MAX);
     min_hamming_distance_kernel<<<grid_dim, block_dim>>>(sample, d_bytes_, distances_, length_, excess_);
-    min_reduce_kernel<<<grid_dim, block_dim>>>(distances_, length_);
 
-    byte_t result[BLOCK_DIM];
-    auto limit = std::min<size_t>(BLOCK_DIM, length_ - CHUNK_SIZE + 1);
-
-    CUDA_CHECK(cudaMemcpy(result, distances_, limit, cudaMemcpyDeviceToHost))
-
-    return *std::min_element(result, result + limit);
+    return min_reduce<byte_t>(distances_, length_);
 }
