@@ -18,3 +18,7 @@ add_test(NAME Edit-Test COMMAND edit_test)
 add_executable(stress_test common.cpp stress_test.cpp)
 target_link_libraries(stress_test strum_hamming strum_edit catch2)
 add_test(NAME Stress-Test COMMAND stress_test)
+
+add_executable(reduction_test common.cpp reduction_test.cpp)
+target_link_libraries(reduction_test strum_hamming strum_edit catch2)
+add_test(NAME Reduction-Test COMMAND reduction_test)
