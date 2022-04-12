@@ -234,9 +234,16 @@ void compute_templates(const uint64_t *g){
     outputfile.close();
 }
 
+/**
+* Generates an array of N_hash_fctns random functions (projections) such that each position of the Q-gram is covered by at least one projection. 
+* Each function is stored as a uint64_t corresponding to a mask (using the right-most 2*Q bits): 
+* bits set to 1 are used by the function, and each character of the Q-gram corresponds to 2 bits, 
+* e.g., if Q=32 the mask 1100001100... selects the 1st and 4th character of the Q-gram (as well as possibly others if more 1s follow).
+* If Q<32 the situation is the same but there will be (32-Q)*2 leading zeroes.
+* 
+* @param g: array of size N_hash_fctns which will be filled with the functions
+*/
 
-// FUNCTIONS WILL HAVE THE FIRST (LEFTMOST, MOST SIGNIFICANT) POSITIONS EQUAL TO ZERO
-// this is because when filling the keys for the text, we fill them inserting from the right.
 void build_functions(uint64_t* g){ 
     srand(SEED);
     // srand(time(NULL));
