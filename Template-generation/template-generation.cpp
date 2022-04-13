@@ -10,7 +10,7 @@
 #include <ctime> // for elapsed time
 
 // for mmap:
-#include "../Q-grams/mapfile.hpp"
+#include "mapfile.hpp"
 
 
 using namespace std;
