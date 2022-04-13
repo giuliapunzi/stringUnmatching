@@ -8,6 +8,7 @@
 #include <vector>
 #include <immintrin.h> // to use pdep, pext
 #include <ctime> // for elapsed time
+#include <math.h>
 
 // for mmap:
 #include "mapfile.hpp"
@@ -15,11 +16,11 @@
 
 using namespace std;
 
-constexpr auto Q = 32;
+constexpr int Q = 32;
 // constexpr int N_tests = 3; // number of tests
 // constexpr int N_completions = 10; // number of completions for each template
-constexpr int N_hash_fctns = 6;  // number of hash functions 
-constexpr int target_size = 11; // target space size of hash functions
+constexpr int N_hash_fctns = 10;  // number of hash functions 
+constexpr int target_size = 5; // target space size of hash functions
 // constexpr int MAX_complement_size = 150000;
 vector<uint64_t> compl_array[N_hash_fctns]; // array of vectors for complementary sets
 vector<uint64_t> global_outcome;
@@ -28,8 +29,8 @@ constexpr int SEED = 13; // seed for random functions is fixed for trial reprodu
 
 // constexpr int MIN_DIST = 9;
 
-constexpr auto MASK_WEIGHT = 22;  // number of 1s, twice the number of selected chars (as the alphabet is 4)
-constexpr auto UNIVERSE_SIZE = 4194304; // this is 4^target_size 
+constexpr int MASK_WEIGHT = 2*target_size;  // number of 1s, twice the number of selected chars (as the alphabet is 4)
+constexpr long unsigned int UNIVERSE_SIZE = pow(4, target_size); //4194304; // this is 4^target_size 
 
 bitset<UNIVERSE_SIZE> universe_bitvector;  // 33 554 432 bytes
 
@@ -86,7 +87,7 @@ __attribute__((always_inline)) int Hamming_distance(uint64_t x, uint64_t y) // D
 
 
 
-void process_multiple_masks(uint64_t* mask_array, char* input_file_name){
+void process_multiple_masks(uint64_t* mask_array, const char* input_file_name){
     // TODO we can later remove this loop
     for(int maskindex = 0; maskindex < N_hash_fctns; maskindex++){
         uint64_t mask = mask_array[maskindex]; // current mask
@@ -295,7 +296,7 @@ void rec_compute_templates(uint64_t candidate, int function_index, const uint64_
 }
 
 
-void compute_templates(const uint64_t *g, char* output_log, char* output_templates_file){
+void compute_templates(const uint64_t *g, const char* output_log, const char* output_templates_file){
     // TODO: sort functions according to the number of elements of the complementary 
     uint64_t redmasks[N_hash_fctns];
 
@@ -354,7 +355,9 @@ void build_functions(uint64_t* g){
     srand(SEED);
 
     bool all_covered = false; 
-    while( !all_covered ){
+    int max_trials = 1000000;
+
+    while( !all_covered && max_trials-- > 0){
         // Create random functions
         for(int i=0; i<N_hash_fctns; i++){
             int pos[target_size];
@@ -382,8 +385,8 @@ void build_functions(uint64_t* g){
             //     cout << pos[j] << ", ";
             // cout << endl;
 
-            // for(int j=0; j<target_size; j++)
-            //     pos[j] =2*pos[j];
+            // // for(int j=0; j<target_size; j++)
+            // //     pos[j] =2*pos[j];
 
             // cout << "Array of doubled random positions is: ";
             // for(int j=0; j<target_size; j++)
@@ -400,6 +403,10 @@ void build_functions(uint64_t* g){
 
             currg <<= (2*Q - 2 - 2*pos[target_size-1]);
             g[i] = currg;
+
+            // cout << __builtin_popcountll(g[i]) << endl; 
+            // cout << MASK_WEIGHT << endl;
+            // cout << bitset<64>(g[i]) << endl;
 
             assert( __builtin_popcountll(g[i]) == MASK_WEIGHT );
         }
@@ -419,10 +426,16 @@ void build_functions(uint64_t* g){
         if( ~cg == 0)
             all_covered = true;
     }
+
+    if(max_trials <= 0)
+    {
+        cout << "Could not cover all positions with the given parameters. Increase value of target_size or of N_hash_fctns" << endl;
+        exit(0);
+    }
 }
 
 
-void template_generation(char* input_filename, char* output_log_filename, char* output_templates_filename)
+void template_generation(const char* input_filename, const char* output_log_filename, const char* output_templates_filename)
 {
     uint64_t g[N_hash_fctns];
     clock_t begin = clock();
@@ -466,9 +479,9 @@ void template_generation(char* input_filename, char* output_log_filename, char* 
 
 
 int main(){
-    char* input_filename = "input.fsa"; // NAME OF THE FASTA INPUT FILE
-    char* output_log_filename = "output_log"; // NAME OF THE OUTPUT LOG FILE WHERE VARIOUS INFO IS APPENDED
-    char* output_templates_filename = "templates.bin"; // NAME OF THE OUTPUT BINARY FILE CONTAINING ALL TEMPLATES FOUND
+    const char* input_filename = "Blood-prefix.fsa"; // NAME OF THE FASTA INPUT FILE
+    const char* output_log_filename = "output_log"; // NAME OF THE OUTPUT LOG FILE WHERE VARIOUS INFO IS APPENDED
+    const char* output_templates_filename = "templates"; // NAME OF THE OUTPUT BINARY FILE CONTAINING ALL TEMPLATES FOUND
 
     template_generation(input_filename, output_log_filename, output_templates_filename);
 
