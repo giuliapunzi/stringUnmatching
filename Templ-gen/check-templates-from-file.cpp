@@ -262,7 +262,7 @@ int main(){
     const char* output_log_filename = "output_log"; // NAME OF OUTPUT TXT LOG FILE THAT WILL BE APPENDED WITH VARIOUS INFORMATION ABOUT THE TRIAL
     const char* good_templates_filename = "good_templates.bin"; // NAME OF OUTPUT BINARY FILE THAT WILL BE FILLED WITH ALL INPUT TEMPLATES THAT ARE AT DISTANCE AT LEAST MIN_DIST FROM THE WHOLE INPUT  
     
-    map_and_check(input_filename, Qgrams_filename, templates_filename, output_log_filename, good_templates_filename)
+    map_and_check(input_filename, Qgrams_filename, templates_filename, output_log_filename, good_templates_filename);
 
     return 0;
 }
