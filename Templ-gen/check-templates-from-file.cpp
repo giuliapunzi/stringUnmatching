@@ -204,7 +204,7 @@ void check (uint64_t* templates, uint8_t* mindist, int64_t length, const char* Q
 
 int map_and_check(int minimum_dist, const char* input_filename, const char* Qgrams_filename, const char* templates_filename, const char* output_log_filename, const char* good_templates_filename){
     MIN_DIST = minimum_dist;
-    
+
     ifstream binaryin;
     binaryin.open(templates_filename, ios::binary | ios::in);
     binaryin.seekg (0, binaryin.end);
@@ -255,14 +255,14 @@ int map_and_check(int minimum_dist, const char* input_filename, const char* Qgra
 
 
 int main(){
-
+    int minimum_distance = 9;
     const char* input_filename = "input.fsa"; // NAME OF THE FASTA FILE CONTAINING THE INPUT DATASET 
     const char* Qgrams_filename = "Qgrams.bin"; // NAME OF THE BINARY FILE THAT WILL BE FILLED WITH THE QGRAMS OF THE INPUT FILE
     const char* templates_filename = "templates.bin"; // NAME OF THE BINARY FILE CONTAINING ALL TEMPLATES TO BE CHECKED 
     const char* output_log_filename = "output_log"; // NAME OF OUTPUT TXT LOG FILE THAT WILL BE APPENDED WITH VARIOUS INFORMATION ABOUT THE TRIAL
     const char* good_templates_filename = "good_templates.bin"; // NAME OF OUTPUT BINARY FILE THAT WILL BE FILLED WITH ALL INPUT TEMPLATES THAT ARE AT DISTANCE AT LEAST MIN_DIST FROM THE WHOLE INPUT  
     
-    map_and_check(input_filename, Qgrams_filename, templates_filename, output_log_filename, good_templates_filename);
+    map_and_check(minimum_distance, input_filename, Qgrams_filename, templates_filename, output_log_filename, good_templates_filename);
 
     return 0;
 }
