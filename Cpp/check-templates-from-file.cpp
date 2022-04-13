@@ -9,7 +9,7 @@
 #include <immintrin.h> // to use pdep, pext
 #include <ctime> // for elapsed time
 
-#include "./Q-grams/mapfile.hpp"
+#include "../Q-grams/mapfile.hpp"
 
 using namespace std;
 
