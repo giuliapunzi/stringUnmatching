@@ -17,23 +17,18 @@
 using namespace std;
 
 constexpr int Q = 32;
-// constexpr int N_tests = 3; // number of tests
-// constexpr int N_completions = 10; // number of completions for each template
+
 constexpr int N_hash_fctns = 10;  // number of hash functions 
 constexpr int target_size = 5; // target space size of hash functions
-// constexpr int MAX_complement_size = 150000;
+
 vector<uint64_t> compl_array[N_hash_fctns]; // array of vectors for complementary sets
 vector<uint64_t> global_outcome;
 
 constexpr int SEED = 13; // seed for random functions is fixed for trial reproducibility; may be changed as needed
 
-// constexpr int MIN_DIST = 9;
-
 constexpr int MASK_WEIGHT = 2*target_size;  // number of 1s, twice the number of selected chars (as the alphabet is 4)
 constexpr long unsigned int UNIVERSE_SIZE = pow(4, target_size); //4194304; // this is 4^target_size 
-
 bitset<UNIVERSE_SIZE> universe_bitvector;  // 33 554 432 bytes
-
 
 
 // given an uint64_t, print it in A,C,G,T alphabet
