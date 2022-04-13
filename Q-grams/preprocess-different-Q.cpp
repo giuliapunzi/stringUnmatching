@@ -10,13 +10,13 @@ using namespace std;
 constexpr auto Q = 32;   
 constexpr auto maxQ = 32;
 
-void extract_Q_grams(){
+void extract_Q_grams(char* input_file_name, char* output_file_name){
     // map file
     size_t textlen = 0;   
-    const char * text = map_file("../data/Blood/Blood.nuc.fsa", textlen); 
+    const char * text = map_file(input_file_name, textlen);  //map_file("../data/Blood/Blood.nuc.fsa", textlen); 
 
     ofstream fout;
-    fout.open("../data/Blood/all" + to_string(Q) + "grams_repetitions", ios::binary | ios::out);
+    fout.open(output_file_name, ios::binary | ios::out); //("../data/Blood/all" + to_string(Q) + "grams_repetitions", ios::binary | ios::out);
      
 
     uint64_t key = 0;  // 32 chars from { A, C, G, T } packed as a 64-bit unsigned integer
@@ -89,7 +89,10 @@ void extract_Q_grams(){
 
 
 int main(int argc, char *argv[]){
-    extract_Q_grams();
+    char* input_file_name = "input_file.fsa";
+    char* output_file_name = "output_file";
+    
+    extract_Q_grams(input_file_name, output_file_name);
 
     return 0;
 }
