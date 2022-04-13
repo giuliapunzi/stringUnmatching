@@ -422,7 +422,7 @@ void build_functions(uint64_t* g){
 }
 
 
-int main()
+void template_generation(char* input_filename, char* output_log_filename, char* output_templates_filename)
 {
     uint64_t g[N_hash_fctns];
     clock_t begin = clock();
@@ -435,9 +435,6 @@ int main()
         cout << "g" << i << ": " << bitset<64>(g[i]) << endl;
     cout << endl; 
 
-    char* input_file_name = "input.fsa"; // NAME OF THE FASTA INPUT FILE
-    char* output_log_filename = "output_log"; // NAME OF THE OUTPUT LOG FILE WHERE VARIOUS INFO IS APPENDED
-    char* output_templates_filename = "templates.bin"; // NAME OF THE OUTPUT BINARY FILE CONTAINING ALL TEMPLATES FOUND
 
     begin = clock();
     process_multiple_masks(g, input_file_name); // ABOUT 20 MINS WITH 6 MASKS
@@ -461,7 +458,19 @@ int main()
     cout << "End of template computation, which took " << elapsed_secs << " seconds. " << endl << flush;
 
     if(global_outcome.size() == 0)
-        return 0;
+        return;
 
+    return;
+}
+
+
+
+int main(){
+    char* input_filename = "input.fsa"; // NAME OF THE FASTA INPUT FILE
+    char* output_log_filename = "output_log"; // NAME OF THE OUTPUT LOG FILE WHERE VARIOUS INFO IS APPENDED
+    char* output_templates_filename = "templates.bin"; // NAME OF THE OUTPUT BINARY FILE CONTAINING ALL TEMPLATES FOUND
+
+    template_generation(input_filename, output_log_filename, output_templates_filename);
+    
     return 0;
 }
