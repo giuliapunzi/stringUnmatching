@@ -1,0 +1,97 @@
+Log Q=20:
+
+1) (random seed) populate bitvector and complements with binary file: 20 mins
+
+
+2) complements are of order of magnitude 3/400000
+Masks processed in 1211.32 time; complementary sets have sizes: |C0|= 384695     |C1|= 378911    |C2|= 267829    |C3|= 284452    |C4|= 327730    |C5|= 394063
+
+3) seven templates found
+
+4) Printing min distances for the 7 templates: 3 2 2 3 2 3 3 
+Max minimum distance of 3 reached by gram 0000000000000000000000000001001111001000101001011100101010110101
+End of check, which took 198.434 seconds.
+
+
+SECOND TRIAL:
+seed 13, 4 hash functions of target size 14, with 1000 random trials:
+Masks processed in 907.786 time; complementary sets have sizes: |C0|= 298943     |C1|= 427956    |C2|= 282486    |C3|= 191681
+
+End of template computation, which took 0.124299 seconds.
+Candidates are 738
+
+
+REMEMBER: OVER 32, MAX DIST FOUND IS 9 = 28%
+
+Q=20, 5 FUNCTIONS, SEED 13
+1) masks processed in 1182 = about 20 mins
+2) complementaries of sizes 20000-40000
+3) found 14 templates in 0.1 seconds
+4) check performed in 259 seconds = about 5 mins
+5) min max distances: 2 3 3 2 3 3 3 3 2 2 2 3 3 2, with a maximum of 3 = 15%
+6) random check (1000) not finished
+
+
+Q=20, 4 FUNCTIONS, SEED 13
+1) masks processed in 965 = about 16 mins
+2) complementaries of sizes 20000-40000 
+3) found 738 templates in 0.12 seconds
+4) check (100) performed in 933 seconds = about 15 mins
+5) min max distances: max is 3 = 15%
+6) random check (100) found max dist 2
+
+
+Q=20, 4 FUNCTIONS, SEED 19, target 14
+1) masks processed in 912 = 15 mins
+2) complementaries of sizes 27000-37000 
+3) found 1078 templates in 0.2 secs
+4) check (100) performed in 935 secs
+5) min max distances: max min distance of 3 found 49 times
+6) random check (100) found max dist 3 (one instance)
+
+
+
+target size 9 = no complements
+
+
+
+TRY TO LOWER Q AND SEE WITH 14 HOW LONG WE KEEP DISTANCE 3
+
+creating Q=19
+Q=19, 4 FUNCTIONS, SEED 19, target 14
+1) masks processed in 1019 secs = 17 mins
+2) complementaries of sizes 32000-43000
+3) found 1124 templates in 0.07 secs
+4) check (100) performed in 940 secs = 15 mins
+5) max min distance of 3 found 6 times
+6) random check (100) found max dist 2 
+
+
+QUANTE MASCHERE SONO TROPPE MASCHERE??
+
+
+
+cancellare distanze minori di 9 (trovato con guess) ed i loro template
+
+
+RANDOM CHECKA
+
+
+Printing min distances for the 1000 templates: 9 9 9 9 9 9 9 9 9 9 9 9 9 10 10 10 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 10 9 9 9 9 9 9 9 9 9 10 10 9 9 9 9 9 9 10 9 9 9 9 10 9 10 9 9 9 9 9 9 9 9 9 9 9 9 11 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 10 9 10 9 9 9 10 9 9 10 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 11 9 10 9 9 12 9 9 9 9 9 9 10 11 9 9 9 9 9 10 9 9 9 9 9 9 9 10 9 10 9 9 9 9 9 9 9 9 9 9 9 9 10 9 9 9 9 9 9 10 9 9 9 9 9 9 9 9 9 9 9 9 9 10 9 9 9 10 9 9 9 11 9 9 9 9 9 9 9 9 10 9 9 9 9 9 9 9 9 9 9 9 9 9 9 11 9 9 9 9 9 9 9 9 9 9 9 9 9 10 9 9 9 9 9 9 9 9 10 9 9 9 9 9 9 9 9 9 9 10 9 9 9 9 9 11 9 9 9 9 9 9 9 9 10 9 9 10 10 9 10 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 10 10 10 9 9 9 10 9 9 9 9 9 9 9 9 9 9 9 9 9 10 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 11 9 9 9 9 9 9 9 9 9 9 9 9 9 9 10 9 11 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 12 11 9 9 9 9 9 9 9 9 9 10 9 10 9 9 9 9 9 9 9 9 9 9 9 10 10 9 9 9 9 9 9 10 9 9 9 9 9 9 10 9 9 9 9 10 9 9 9 9 9 9 10 9 9 9 9 9 247 9 9 10 9 10 9 10 9 9 9 9 9 10 9 9 9 9 10 9 9 9 9 10 9 9 10 9 9 10 9 9 10 9 9 9 9 10 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 10 9 9 9 9 9 9 9 9 10 9 10 9 9 10 9 9 9 9 9 10 9 9 9 9 9 9 10 9 9 9 9 9 9 9 10 9 9 9 10 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 11 9 9 9 9 9 9 9 9 10 9 9 9 9 9 9 9 9 9 9 9 9 10 9 10 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 11 9 9 9 9 9 9 9 9 10 9 10 9 10 9 9 9 10 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 10 9 9 9 9 9 9 9 15 9 9 10 9 9 9 10 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 10 9 9 9 9 10 9 9 10 9 9 9 9 10 9 9 9 9 10 9 10 9 10 11 10 9 9 9 9 10 9 9 9 9 9 9 9 9 9 9 9 9 9 10 9 9 9 9 9 9 9 9 9 9 9 13 9 9 9 10 9 10 9 9 9 9 9 9 9 9 9 9 9 9 9 9 10 9 9 9 9 9 9 9 9 9 9 9 10 9 9 9 10 9 10 9 10 9 9 9 9 10 9 9 9 9 9 9 9 9 9 9 9 11 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 10 10 9 9 9 9 10 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 11 10 9 9 9 9 9 9 9 9 9 9 9 9 9 11 9 10 10 9 9 9 9 9 9 10 9 10 9 9 9 9 9 10 9 9 9 9 9 9 9 9 9 9 9 9 10 9 9 9 10 9 9 9 9 9 9 9 10 9 9 9 9 9 9 9 9 9 9 9 10 9 10 11 9 9 9 9 9 9 9 9 9 9 11 9 9 9 10 9 11 9 9 9 9 9 9 9 9 9 9 9 9 11 9 9 9 9 9 9 9 9 10 11 9 9 9 9 9
+
+Max minimum distance of 247 reached by gram 1000110100001011000001010100111000010001101011011100000101111000
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
