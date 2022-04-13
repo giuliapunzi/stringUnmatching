@@ -90,8 +90,8 @@ void extract_Q_grams(char* input_file_name, char* output_file_name){
 
 int main(int argc, char *argv[]){
     char* input_file_name = "input_file.fsa";
-    char* output_file_name = "output_file";
-    
+    char* output_file_name = "Qgrams.bin";
+
     extract_Q_grams(input_file_name, output_file_name);
 
     return 0;
