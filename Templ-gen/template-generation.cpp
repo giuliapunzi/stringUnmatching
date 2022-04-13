@@ -18,13 +18,13 @@ using namespace std;
 
 constexpr int Q = 32;
 
-constexpr int N_hash_fctns = 10;  // number of hash functions 
-constexpr int target_size = 5; // target space size of hash functions
+constexpr int N_hash_fctns = 6;  // number of hash functions 
+constexpr int target_size = 8; // target space size of hash functions
 
 vector<uint64_t> compl_array[N_hash_fctns]; // array of vectors for complementary sets
 vector<uint64_t> global_outcome;
 
-constexpr int SEED = 13; // seed for random functions is fixed for trial reproducibility; may be changed as needed
+constexpr int SEED = 29; // seed for random functions is fixed for trial reproducibility; may be changed as needed
 
 constexpr int MASK_WEIGHT = 2*target_size;  // number of 1s, twice the number of selected chars (as the alphabet is 4)
 constexpr long unsigned int UNIVERSE_SIZE = pow(4, target_size); //4194304; // this is 4^target_size 
@@ -323,20 +323,20 @@ void compute_templates(const uint64_t *g, const char* output_log, const char* ou
     // File dump of results
     ofstream outputfile, binaryout; 
     outputfile.open(output_log, ios::app); //("../exp_results/Blood/" +to_string(N_hash_fctns) + "Funct" + to_string(target_size) + "TargetSeed" + to_string(SEED), ios::app);
-    binaryout.open(output_templates_file, ios::binary | ios::app); //("../exp_results/Blood/" +to_string(N_hash_fctns) + "FunctBinary" + to_string(target_size) +"TargetSeed"  + to_string(SEED), ios::binary | ios::app);
-    outputfile << "Test with " << N_hash_fctns << " functions: " << endl;
+    binaryout.open(output_templates_file, ios::binary | ios::out); //("../exp_results/Blood/" +to_string(N_hash_fctns) + "FunctBinary" + to_string(target_size) +"TargetSeed"  + to_string(SEED), ios::binary | ios::app);
+    outputfile << "Test with " << N_hash_fctns << " functions, target_size=" << target_size << endl;
     outputfile << "Functions g: " << endl << flush;
     for(int i = 0; i< N_hash_fctns; i++)
         outputfile << "g_" << i << ": " << bitset<64>(g[i]) << endl;
     outputfile << endl << endl;
 
-    outputfile << "Templates to check are " << global_outcome.size() << ": " << endl;
+    outputfile << "Templates found are " << global_outcome.size() << endl;
     cout << "Templates found are " << global_outcome.size() <<  endl << flush;
 
     for(uint64_t i = 0; i < global_outcome.size(); i++){
         uint64_t templ = global_outcome[i];
         binaryout.write(reinterpret_cast<char *>(&templ), sizeof(uint64_t)); 
-        outputfile << bitset<64>(templ) << ", "; //print_Q_gram(templ);
+        // outputfile << bitset<64>(templ) << ", "; //print_Q_gram(templ);
     }
     outputfile << endl << endl;
 
