@@ -437,7 +437,7 @@ void template_generation(char* input_filename, char* output_log_filename, char* 
 
 
     begin = clock();
-    process_multiple_masks(g, input_file_name); // ABOUT 20 MINS WITH 6 MASKS
+    process_multiple_masks(g, input_filename); // ABOUT 20 MINS WITH 6 MASKS
     end = clock();
     elapsed_secs = double(end - begin) / CLOCKS_PER_SEC;
 
