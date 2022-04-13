@@ -24,7 +24,7 @@ constexpr int target_size = 11; // target space size of hash functions
 vector<uint64_t> compl_array[N_hash_fctns]; // array of vectors for complementary sets
 vector<uint64_t> global_outcome;
 
-constexpr int SEED = 13; //19; //227; // 87; // 111
+constexpr int SEED = 13; // seed for random functions is fixed for trial reproducibility; may be changed as needed
 
 // constexpr int MIN_DIST = 9;
 
