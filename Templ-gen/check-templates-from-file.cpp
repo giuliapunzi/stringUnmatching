@@ -29,7 +29,7 @@ __attribute__((always_inline)) int Hamming_distance(uint64_t x, uint64_t y) // D
 
 
 /* preprocess the text (input_file_name) and store it in a binary file (Qgrams_filename) of uint64 */
-void extract_Q_grams(char* input_filename, char* Qgrams_filename){
+void extract_Q_grams(const char* input_filename, const char* Qgrams_filename){
     // map file
     size_t textlen = 0;   
     const char * text = map_file(input_filename, textlen);  
@@ -108,8 +108,7 @@ void extract_Q_grams(char* input_filename, char* Qgrams_filename){
 
 
 
-
-void check (uint64_t* templates, uint8_t* mindist, int64_t length, char* Qgrams_filename, char* output_log_filename, char* good_templates_filename)
+void check (uint64_t* templates, uint8_t* mindist, int64_t length, const char* Qgrams_filename, const char* output_log_filename, const char* good_templates_filename)
 {
     ifstream inputQgrams;
     inputQgrams.open(Qgrams_filename, ios::binary | ios::in);
@@ -204,14 +203,7 @@ void check (uint64_t* templates, uint8_t* mindist, int64_t length, char* Qgrams_
 }
 
 
-int main(){
-
-    char* input_filename = "input.fsa"; // NAME OF THE FASTA FILE CONTAINING THE INPUT DATASET 
-    char* Qgrams_filename = "Qgrams.bin"; // NAME OF THE BINARY FILE THAT WILL BE FILLED WITH THE QGRAMS OF THE INPUT FILE
-    char* templates_filename = "templates.bin"; // NAME OF THE BINARY FILE CONTAINING ALL TEMPLATES TO BE CHECKED 
-    char* output_log_filename = "output_log"; // NAME OF OUTPUT TXT LOG FILE THAT WILL BE APPENDED WITH VARIOUS INFORMATION ABOUT THE TRIAL
-    char* good_templates_filename = "good_templates.bin"; // NAME OF OUTPUT BINARY FILE THAT WILL BE FILLED WITH ALL INPUT TEMPLATES THAT ARE AT DISTANCE AT LEAST MIN_DIST FROM THE WHOLE INPUT
-
+int map_and_check(const char* input_filename, const char* Qgrams_filename, const char* templates_filename, const char* output_log_filename, const char* good_templates_filename){
 
     ifstream binaryin;
     binaryin.open(templates_filename, ios::binary | ios::in);
@@ -257,6 +249,20 @@ int main(){
 
     delete[] templates;
     delete[] mindist;
+
+    return 0;
+}
+
+
+int main(){
+
+    const char* input_filename = "input.fsa"; // NAME OF THE FASTA FILE CONTAINING THE INPUT DATASET 
+    const char* Qgrams_filename = "Qgrams.bin"; // NAME OF THE BINARY FILE THAT WILL BE FILLED WITH THE QGRAMS OF THE INPUT FILE
+    const char* templates_filename = "templates.bin"; // NAME OF THE BINARY FILE CONTAINING ALL TEMPLATES TO BE CHECKED 
+    const char* output_log_filename = "output_log"; // NAME OF OUTPUT TXT LOG FILE THAT WILL BE APPENDED WITH VARIOUS INFORMATION ABOUT THE TRIAL
+    const char* good_templates_filename = "good_templates.bin"; // NAME OF OUTPUT BINARY FILE THAT WILL BE FILLED WITH ALL INPUT TEMPLATES THAT ARE AT DISTANCE AT LEAST MIN_DIST FROM THE WHOLE INPUT  
+    
+    map_and_check(input_filename, Qgrams_filename, templates_filename, output_log_filename, good_templates_filename)
 
     return 0;
 }
