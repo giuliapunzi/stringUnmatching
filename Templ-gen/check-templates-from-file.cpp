@@ -14,8 +14,7 @@
 using namespace std;
 
 constexpr auto Q = 32;
-constexpr int MIN_DIST = 9;
-// constexpr int64_t length = 52122;
+int MIN_DIST;
 
 // given two uint64_t, compute their Hamming distance
 __attribute__((always_inline)) int Hamming_distance(uint64_t x, uint64_t y) // DEBUGGED
@@ -203,8 +202,9 @@ void check (uint64_t* templates, uint8_t* mindist, int64_t length, const char* Q
 }
 
 
-int map_and_check(const char* input_filename, const char* Qgrams_filename, const char* templates_filename, const char* output_log_filename, const char* good_templates_filename){
-
+int map_and_check(int minimum_dist, const char* input_filename, const char* Qgrams_filename, const char* templates_filename, const char* output_log_filename, const char* good_templates_filename){
+    MIN_DIST = minimum_dist;
+    
     ifstream binaryin;
     binaryin.open(templates_filename, ios::binary | ios::in);
     binaryin.seekg (0, binaryin.end);
