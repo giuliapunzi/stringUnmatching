@@ -1,5 +1,30 @@
 # stringUnmatching
 
+By Giulia Punzi, Roberto Grossi, Francesco Landolfi, Alessio Conte 
+University of Pisa
+
+MIT License
+
+Copyright (c) 2022 Giulia Punzi, Roberto Grossi, Francesco Landolfi, Alessio Conte 
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
 ## USAGE 
 
 The method aims to generate 32-grams which are suitably distant from every substring in the input. (the method works for generic Q-grams of any length, but the current implementation works only with Q=32).
@@ -92,6 +117,9 @@ The file “far_templates.bin” will contain all 32-grams whose hamming distanc
 For a direct demo of the approach using the provided sample file, it is possible to run, in the Templ-gen/ folder:
 
 ```g++ -mbmi2 -std=c++2a template-generation.cpp -o tempgen```
+
 ```g++ -mbmi2 -std=c++2a check-templates-from-file.cpp -o check```
+
 ```./tempgen```
+
 ```./check```
