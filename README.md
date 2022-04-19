@@ -9,6 +9,7 @@ Characters other than ACGT are ignored as for the approach it is crucial that th
 At the moment the alphabet is hard-wired to 4: 00=A, 01=C, 10=G, 11=T
 
 compile with ```g++ -mbmi2 -std=c++2a```
+(g++ 9 or later is required for the c++2a flag)
 
 The folder Templ-gen/ contains the generation method and a sequential testing procedure for the quality of the 32-grams.
 The folder GPU-matching/ contains the efficient quality testing procedure (and has its separate readme).
@@ -87,3 +88,10 @@ template-generation::template_generation(“Blood-prefix.fsa”, “gen-log.txt�
 check-templates-from-file::map_and_check(9, “Blood-prefix.fsa”, “blood-qgrams.bin”, “blood-templates.bin”, “check_log”, “far_templates.bin”)
 
 The file “far_templates.bin” will contain all 32-grams whose hamming distance is at least 9 from every 32-grams in the input file “Blood-prefix.fsa”.
+
+For a direct demo of the approach using the provided sample file, it is possible to run, in the Templ-gen/ folder:
+
+```g++ -mbmi2 -std=c++2a template-generation.cpp -o tempgen```
+```g++ -mbmi2 -std=c++2a check-templates-from-file.cpp -o check```
+```./tempgen```
+```./check```
